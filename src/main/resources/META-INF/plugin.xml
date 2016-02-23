@@ -1,0 +1,38 @@
+<idea-plugin version="2">
+  <id>org.jerkar.ideaplugin</id>
+  <name>Jerkar</name>
+  <version>1.0</version>
+  <vendor email="djeangdev@github.org" url="http://project.jerkar.org">jerkar.org</vendor>
+
+  <description><![CDATA[
+      Enter short description for your plugin here.<br>
+      <em>most HTML tags may be used</em>
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="141.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <actions>
+      <group id="JerkarMenu" text="_Jerkar" description="Jerkar related actions">
+          <add-to-group group-id="BuildMenu" anchor="last"/>
+          <action class="org.jerkar.ideaplugin.GenerateImlAction" id="jerkarImlAction" text="Generate _Iml" description="Generate IML"/>
+      </group>
+  </actions>
+
+</idea-plugin>
