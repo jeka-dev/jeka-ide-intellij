@@ -1,4 +1,4 @@
-# ideaPlugin4Jerkar
+# ideaPlugin4Jeka
 
 Plugin for IntelliJ Idea.
 
