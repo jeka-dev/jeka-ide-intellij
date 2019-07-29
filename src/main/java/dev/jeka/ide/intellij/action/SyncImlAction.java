@@ -1,4 +1,4 @@
-package org.jerkar.ideaplugin.action;
+package dev.jeka.ide.intellij.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -7,10 +7,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 
-public class GenerateImlAction extends AnAction {
+public class SyncImlAction extends AnAction {
 
-    public GenerateImlAction() {
-        super("Generate iml from Jerkar");
+    public SyncImlAction() {
+        super("Synchronize iml from Jeka");
     }
 
     public void actionPerformed(AnActionEvent event) {

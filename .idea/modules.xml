@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ideaPlugin4Jerkar.iml" filepath="$PROJECT_DIR$/ideaPlugin4Jerkar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dev.jeka.ide.intellij.iml" filepath="$PROJECT_DIR$/dev.jeka.ide.intellij.iml" />
     </modules>
   </component>
 </project>

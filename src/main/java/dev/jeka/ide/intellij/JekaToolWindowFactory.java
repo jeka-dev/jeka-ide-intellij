@@ -1,17 +1,17 @@
-package org.jerkar.ideaplugin;
+package dev.jeka.ide.intellij;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import org.jerkar.ideaplugin.gui.MainForm;
+import dev.jeka.ide.intellij.gui.MainForm;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by angibaudj on 22-05-17.
  */
-public class JerkarToolWindowFactory implements ToolWindowFactory {
+public class JekaToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project,

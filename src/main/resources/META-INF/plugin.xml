@@ -19,7 +19,7 @@
   <idea-version since-build="141.0"/>
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Jerkar Projects" anchor="right" factoryClass="org.jerkar.ideaplugin.JerkarToolWindowFactory" icon="/images/jk.png"/>
+    <toolWindow id="Jerkar Projects" anchor="right" factoryClass="dev.jeka.ide.intellij.JekaToolWindowFactory" icon="/images/jk.png"/>
   </extensions>
 
 </idea-plugin>

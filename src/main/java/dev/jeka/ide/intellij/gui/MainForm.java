@@ -1,10 +1,10 @@
-package org.jerkar.ideaplugin.gui;
+package dev.jeka.ide.intellij.gui;
 
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import org.jerkar.ideaplugin.action.GenerateImlAction;
+import dev.jeka.ide.intellij.action.SyncImlAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +29,7 @@ public class MainForm {
 
     private ActionToolbar toolbar() {
         DefaultActionGroup group = new DefaultActionGroup();
-        AnAction generateIml = new GenerateImlAction();
+        AnAction generateIml = new SyncImlAction();
         group.add(generateIml);
         group.addSeparator("hhhhhhh");
         return  ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, group, true);

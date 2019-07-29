@@ -1,4 +1,4 @@
-package org.jerkar.ideaplugin.gui;
+package dev.jeka.ide.intellij.gui;
 
 import javax.swing.*;
 
@@ -22,10 +22,6 @@ public class FormRunner {
     }
 
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI();
-            }
-        });
+        javax.swing.SwingUtilities.invokeLater(FormRunner::createAndShowGUI);
     }
 }
