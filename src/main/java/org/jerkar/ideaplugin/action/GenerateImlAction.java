@@ -1,4 +1,4 @@
-package org.jerkar.ideaplugin;
+package org.jerkar.ideaplugin.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -10,9 +10,7 @@ import com.intellij.openapi.util.IconLoader;
 public class GenerateImlAction extends AnAction {
 
     public GenerateImlAction() {
-        super("Generate iml from Jerkar", "Generate module definition from Jerkar build class", IconLoader.getIcon());
-        // Set the menu item name, description and icon.
-        // super("Text _Boxes","Item description",IconLoader.getIcon("/Mypackage/icon.png"));
+        super("Generate iml from Jerkar");
     }
 
     public void actionPerformed(AnActionEvent event) {

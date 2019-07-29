@@ -18,21 +18,8 @@
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="141.0"/>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
-
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+    <toolWindow id="Jerkar Projects" anchor="right" factoryClass="org.jerkar.ideaplugin.JerkarToolWindowFactory" icon="/images/jk.png"/>
   </extensions>
-
-  <actions>
-      <group id="JerkarMenu" text="_Jerkar" description="Jerkar related actions">
-          <add-to-group group-id="BuildMenu" anchor="last"/>
-          <action class="org.jerkar.ideaplugin.GenerateImlAction" id="jerkarImlAction" text="Generate _Iml" description="Generate IML"/>
-      </group>
-  </actions>
 
 </idea-plugin>
