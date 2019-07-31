@@ -9,7 +9,7 @@ import dev.jeka.ide.intellij.gui.MainForm;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created by angibaudj on 22-05-17.
+ * Created by Jerome Angibaud on 22-05-17.
  */
 public class JekaToolWindowFactory implements ToolWindowFactory {
 
@@ -19,8 +19,6 @@ public class JekaToolWindowFactory implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(new MainForm().panel(), "", false);
         toolWindow.getContentManager().addContent(content);
-
-
     }
 
 

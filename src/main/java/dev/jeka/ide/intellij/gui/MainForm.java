@@ -19,10 +19,7 @@ public class MainForm {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayoutManager(2, 1,
                 new Insets(0, 0, 0, 0), -1, -1));
-
-
         panel.add(new JLabel("toolbar"), toolbarGridConstraints());
-
         panel.add(new JLabel("center"), toolbarGridConstraints());
         return panel;
     }

@@ -1,25 +1,38 @@
-<idea-plugin version="2">
-  <id>org.jerkar.ideaplugin</id>
-  <name>Jerkar</name>
+<idea-plugin>
+  <id>dev.jeka.ide.intellij</id>
+  <name>Jeka</name>
   <version>1.0</version>
-  <vendor email="djeangdev@github.org" url="http://project.jerkar.org">jerkar.org</vendor>
+  <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
-  <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
-    ]]></description>
+  <description>
+      Integration with Jeka Tool. Synchronize iml file with Jeka project.
+   </description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      blalblablalblablalblablalblablalbla
+      blalblablalblablalblablalblablalblablalbla
     ]]>
   </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="141.0"/>
+  <idea-version since-build="192.0"/>
+
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Jerkar Projects" anchor="right" factoryClass="dev.jeka.ide.intellij.JekaToolWindowFactory" icon="/images/jk.png"/>
+      <!--
+    <toolWindow id="Jeka Projects" anchor="right" factoryClass="dev.jeka.ide.intellij.JekaToolWindowFactory" icon="/images/jk.png"/>
+    -->
   </extensions>
+
+    <actions>
+        <action class="dev.jeka.ide.intellij.action.SyncImlAction"
+                description="Synchronize iml file with Jeka definition class"
+                text="sync Jeka"
+                id="dev.jeka.ide.intellij.action.SyncImlAction">
+            <keyboard-shortcut first-keystroke="control alt A" second-keystroke="C" keymap="$default"/>
+            <mouse-shortcut keystroke="control button3 doubleClick" keymap="$default"/>
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
 
 </idea-plugin>
