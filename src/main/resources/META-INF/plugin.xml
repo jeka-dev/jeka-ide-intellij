@@ -28,10 +28,16 @@
         <action class="dev.jeka.ide.intellij.action.SyncImlAction"
                 description="Synchronize iml file with Jeka definition class"
                 text="sync Jeka"
-                id="dev.jeka.ide.intellij.action.SyncImlAction">
-            <keyboard-shortcut first-keystroke="control alt A" second-keystroke="C" keymap="$default"/>
-            <mouse-shortcut keystroke="control button3 doubleClick" keymap="$default"/>
+                id="dev.jeka.ide.intellij.action.SyncImlAction.TopMenu">
+            <keyboard-shortcut first-keystroke="control alt J" second-keystroke="K" keymap="$default"/>
             <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+        <action class="dev.jeka.ide.intellij.action.SyncImlAction"
+                description="Synchronize iml file with Jeka definition class"
+                text="sync Jeka"
+                id="dev.jeka.ide.intellij.action.SyncImlAction.Editor">
+            <keyboard-shortcut first-keystroke="control alt J" second-keystroke="K" keymap="$default"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
     </actions>
 
