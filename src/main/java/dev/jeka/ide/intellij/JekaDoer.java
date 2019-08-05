@@ -16,7 +16,7 @@ public class JekaDoer {
                 .andParams("intellij#iml").withWorkingDir(moduleDir);
         int result = iml.runSync();
         if (result != 0) {
-            iml.andParams("-CC=dev.jeka.core.tool.JkCommands").withFailOnError(true).runSync();
+            iml.andParams("-CC=dev.jeka.core.tool.JkCommands", "java#").withFailOnError(true).runSync();
         }
     }
 
