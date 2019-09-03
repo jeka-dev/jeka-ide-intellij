@@ -25,20 +25,23 @@
   </extensions>
 
     <actions>
+        <!--
         <action class="dev.jeka.ide.intellij.action.SyncImlAction"
                 description="Synchronize iml file with Jeka definition class"
-                text="sync Jeka"
+                text="Synchronize Jeka"
                 id="dev.jeka.ide.intellij.action.SyncImlAction.TopMenu">
             <keyboard-shortcut first-keystroke="control alt J" second-keystroke="K" keymap="$default"/>
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
+        -->
         <action class="dev.jeka.ide.intellij.action.SyncImlAction"
                 description="Synchronize iml file with Jeka definition class"
-                text="sync Jeka"
+                text="synchronise Jeka"
                 id="dev.jeka.ide.intellij.action.SyncImlAction.Editor">
             <keyboard-shortcut first-keystroke="control alt J" second-keystroke="K" keymap="$default"/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
+
     </actions>
 
 </idea-plugin>

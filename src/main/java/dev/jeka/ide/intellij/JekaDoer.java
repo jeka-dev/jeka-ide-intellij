@@ -2,6 +2,8 @@ package dev.jeka.ide.intellij;
 
 import dev.jeka.core.api.java.project.JkJavaProjectIde;
 import dev.jeka.core.api.java.project.JkJavaProjectIdeSupplier;
+import dev.jeka.core.api.system.JkHierarchicalConsoleLogHandler;
+import dev.jeka.core.api.system.JkLog;
 import dev.jeka.core.api.system.JkProcess;
 import dev.jeka.core.api.tooling.intellij.JkImlGenerator;
 import dev.jeka.core.tool.JkCommands;
@@ -11,9 +13,13 @@ import java.nio.file.Path;
 
 public class JekaDoer {
 
+    static {
+        JkLog.registerHierarchicalConsoleHandler();
+    }
+
     public void generateIml(Path moduleDir) {
         JkProcess iml = JkProcess.ofWinOrUx("jeka.bat", "jeka")
-                .andParams("intellij#iml").withWorkingDir(moduleDir);
+                .andParams("intellij#iml").withWorkingDir(moduleDir).withLogCommand(true).withLogOutput(true);
         int result = iml.runSync();
         if (result != 0) {
             iml.andParams("-CC=dev.jeka.core.tool.JkCommands", "java#").withFailOnError(true).runSync();
