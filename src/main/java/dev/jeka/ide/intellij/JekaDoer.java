@@ -26,6 +26,15 @@ public class JekaDoer {
         }
     }
 
+    public void scaffoldModule(Path moduleDir) {
+        JkProcess iml = JkProcess.ofWinOrUx("jeka.bat", "jeka")
+                .andParams("scaffold#run")
+                .andParams("scaffold#wrap")
+                .andParams("java#")
+                .andParams("intellij#iml").withWorkingDir(moduleDir).withLogCommand(true).withLogOutput(true);
+        iml.runSync();
+    }
+
     private JkJavaProjectIde findProjectIde(JkCommands jkCommands) {
         if (jkCommands instanceof JkJavaProjectIdeSupplier) {
             JkJavaProjectIdeSupplier javaProjectIdeSupplier = (JkJavaProjectIdeSupplier) jkCommands;

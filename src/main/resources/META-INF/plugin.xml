@@ -25,15 +25,14 @@
   </extensions>
 
     <actions>
-        <!--
-        <action class="dev.jeka.ide.intellij.action.SyncImlAction"
-                description="Synchronize iml file with Jeka definition class"
-                text="Synchronize Jeka"
-                id="dev.jeka.ide.intellij.action.SyncImlAction.TopMenu">
-            <keyboard-shortcut first-keystroke="control alt J" second-keystroke="K" keymap="$default"/>
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
+
+        <action class="dev.jeka.ide.intellij.action.ScaffoldAction"
+                description="Scaffold a Java project"
+                text="Scafold Jeka"
+                id="dev.jeka.ide.intellij.action.ScaffoldAction.ContextMenu">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </action>
-        -->
+
         <action class="dev.jeka.ide.intellij.action.SyncImlAction"
                 description="Synchronize iml file with Jeka definition class"
                 text="synchronise Jeka"
@@ -43,5 +42,11 @@
         </action>
 
     </actions>
+
+    <project-components>
+        <component>
+            <implementation-class>dev.jeka.ide.intellij.JekaProjectComponent</implementation-class>
+        </component>
+    </project-components>
 
 </idea-plugin>

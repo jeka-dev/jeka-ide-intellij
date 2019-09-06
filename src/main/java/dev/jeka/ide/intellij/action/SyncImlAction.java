@@ -3,14 +3,9 @@ package dev.jeka.ide.intellij.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
@@ -45,7 +40,7 @@ public class SyncImlAction extends AnAction {
         if (virtualFile instanceof PsiJavaFile) {
             PsiJavaFile psiJavaFile = (PsiJavaFile) virtualFile;
             PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = extendingJkCommands(psiClass);
+            boolean isCommandsClass = isExtendingJkCommands(psiClass);
             if (isCommandsClass) {
                 event.getPresentation().setEnabledAndVisible(isCommandsClass);
                 return;
@@ -55,7 +50,7 @@ public class SyncImlAction extends AnAction {
         event.getPresentation().setEnabledAndVisible(false);
     }
 
-    private static boolean extendingJkCommands(PsiClass psiClass) {
+    private static boolean isExtendingJkCommands(PsiClass psiClass) {
         if (psiClass.getQualifiedName().equals(JKCOMMANDS_NAME)) {
             return true;
         }
@@ -63,7 +58,7 @@ public class SyncImlAction extends AnAction {
         for (PsiClassType psiClassType : psiClassTypes) {
             PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiClassType;
             PsiClass currentPsiClass = psiClassReferenceType.resolve();
-            if (extendingJkCommands(currentPsiClass)) {
+            if (isExtendingJkCommands(currentPsiClass)) {
                 return true;
             }
         }
