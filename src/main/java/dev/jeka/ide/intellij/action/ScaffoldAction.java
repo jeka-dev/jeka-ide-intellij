@@ -13,6 +13,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import dev.jeka.ide.intellij.JekaDoer;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +33,16 @@ public class ScaffoldAction extends AnAction {
         }
         JekaDoer jekaDoer = new JekaDoer();
         jekaDoer.scaffoldModule(path);
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent event) {
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (virtualFile == null) {
+            return;
+        }
+        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
+        event.getPresentation().setText(" Add Jeka folder, scripts and classes to " + module.getName());
     }
 
     private static Path moduleRootPath(AnActionEvent event) {
