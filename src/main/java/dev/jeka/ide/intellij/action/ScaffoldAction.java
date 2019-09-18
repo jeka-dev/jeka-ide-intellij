@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 public class ScaffoldAction extends AnAction {
 
     public ScaffoldAction() {
-        super("Add Jeka folder/classes");
+        super("Add Jeka folder, scripts and classes");
     }
 
     @Override
@@ -34,18 +34,11 @@ public class ScaffoldAction extends AnAction {
         jekaDoer.scaffoldModule(path);
     }
 
-    @Override
-    public void update(AnActionEvent event) {
-        Path jekaDir = moduleRootPath(event).resolve("jeka");
-        if (jekaDir == null) {
-            event.getPresentation().setEnabledAndVisible(false);
-        } else {
-            event.getPresentation().setEnabledAndVisible(!Files.exists(jekaDir));
-        }
-    }
-
     private static Path moduleRootPath(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (virtualFile == null) {
+            return null;
+        }
         Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
         if (module == null) {
             return null;

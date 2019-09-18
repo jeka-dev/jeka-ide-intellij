@@ -24,7 +24,6 @@ public class SyncImlAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        System.out.println("----------------------------------------------------- launch jeka iml");
         PsiFile virtualFile = event.getData(CommonDataKeys.PSI_FILE);
         Module module = ModuleUtil.findModuleForFile(virtualFile);
         VirtualFile virtualRoot = ModuleRootManager.getInstance(module).getContentRoots()[0];
@@ -42,12 +41,12 @@ public class SyncImlAction extends AnAction {
             PsiClass psiClass = psiJavaFile.getClasses()[0];
             boolean isCommandsClass = isExtendingJkCommands(psiClass);
             if (isCommandsClass) {
-                event.getPresentation().setEnabledAndVisible(isCommandsClass);
+                event.getPresentation().setEnabled(isCommandsClass);
                 return;
             }
 
         }
-        event.getPresentation().setEnabledAndVisible(false);
+        event.getPresentation().setEnabled(false);
     }
 
     private static boolean isExtendingJkCommands(PsiClass psiClass) {
