@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -22,7 +23,8 @@ import java.nio.file.Paths;
 public class ScaffoldAction extends AnAction {
 
     public ScaffoldAction() {
-        super("Add Jeka folder, scripts and classes");
+        super("Add Jeka folder, scripts and classes", "Add Jeka folder, scripts and classes", AllIcons.Actions.Expandall);
+
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -19,7 +20,7 @@ public class SyncImlAction extends AnAction {
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
 
     public SyncImlAction() {
-        super("Synchronize iml from Jeka");
+        super("Synchronize iml from Jeka", "Synchronize iml from Jeka", AllIcons.Actions.Refresh);
     }
 
     @Override
@@ -35,13 +36,15 @@ public class SyncImlAction extends AnAction {
 
     @Override
     public void update(AnActionEvent event) {
-        PsiFile virtualFile = event.getData(CommonDataKeys.PSI_FILE);
-        if (virtualFile instanceof PsiJavaFile) {
-            PsiJavaFile psiJavaFile = (PsiJavaFile) virtualFile;
+        PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
+        if (psiFile instanceof PsiJavaFile) {
+            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
             PsiClass psiClass = psiJavaFile.getClasses()[0];
             boolean isCommandsClass = isExtendingJkCommands(psiClass);
             if (isCommandsClass) {
-                event.getPresentation().setEnabled(isCommandsClass);
+                event.getPresentation().setEnabled(true);
+                Module module = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), event.getProject());
+                event.getPresentation().setText("Synchronize " + module.getName() + " iml from Jeka");
                 return;
             }
 
