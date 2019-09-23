@@ -1,6 +1,10 @@
 package dev.jeka.ide.intellij.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -31,7 +35,9 @@ public class SyncImlAction extends AnAction {
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = new JekaDoer();
         jekaDoer.generateIml(path);
-        System.out.println(".... done");
+        JkNotifications.info("Iml file for module " + module.getName() + " re-generated.");
+        virtualRoot.getFileSystem().refresh(true);
+
     }
 
     @Override

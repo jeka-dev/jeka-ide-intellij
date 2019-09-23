@@ -1,6 +1,9 @@
 package dev.jeka.ide.intellij.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -29,12 +32,19 @@ public class ScaffoldAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Path path = moduleRootPath(event);
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (virtualFile == null) {
+            return;
+        }
+        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
+        Path path = moduleRootPath(module);
         if (path == null) {
             return;
         }
         JekaDoer jekaDoer = new JekaDoer();
         jekaDoer.scaffoldModule(path);
+        virtualFile.getFileSystem().refresh(true);
+        JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
     }
 
     @Override
@@ -47,12 +57,7 @@ public class ScaffoldAction extends AnAction {
         event.getPresentation().setText(" Add Jeka folder, scripts and classes to " + module.getName());
     }
 
-    private static Path moduleRootPath(AnActionEvent event) {
-        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (virtualFile == null) {
-            return null;
-        }
-        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
+    private static Path moduleRootPath(Module module) {
         if (module == null) {
             return null;
         }

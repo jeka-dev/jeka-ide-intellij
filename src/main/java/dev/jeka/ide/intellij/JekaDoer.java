@@ -24,6 +24,7 @@ public class JekaDoer {
         if (result != 0) {
             iml.andParams("-CC=dev.jeka.core.tool.JkCommands", "java#").withFailOnError(true).runSync();
         }
+
     }
 
     public void scaffoldModule(Path moduleDir) {

@@ -2,10 +2,7 @@ package dev.jeka.ide.intellij.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.Separator;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
 
 public class ProjectPopupJekaActionGroup extends DefaultActionGroup {
 
@@ -19,6 +16,6 @@ public class ProjectPopupJekaActionGroup extends DefaultActionGroup {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setIcon(Icons.JEKA_GROUP_ACTION);
+        e.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
     }
 }
