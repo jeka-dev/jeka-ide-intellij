@@ -19,6 +19,7 @@ public class JekaToolWindowFactory implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(new MainForm().panel(), "", false);
         toolWindow.getContentManager().addContent(content);
+
     }
 
 
