@@ -1,5 +1,8 @@
 package dev.jeka.ide.intellij;
 
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -16,8 +19,13 @@ public class JekaToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project,
                                         @NotNull ToolWindow toolWindow) {
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(new MainForm().panel(), "", false);
+
+        ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+        Content content = toolWindow.getContentManager().getFactory()
+                .createContent(consoleView.getComponent(), "Jeka Output", false);
+        toolWindow.getContentManager().addContent(content);
+        consoleView.print("Hello from Jerkar!", ConsoleViewContentType.NORMAL_OUTPUT);
+
         toolWindow.getContentManager().addContent(content);
 
     }

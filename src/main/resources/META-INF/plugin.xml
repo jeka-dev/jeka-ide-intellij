@@ -19,32 +19,19 @@
 
 
   <extensions defaultExtensionNs="com.intellij">
-      <!--
-    <toolWindow id="Jeka Projects" anchor="right" factoryClass="dev.jeka.ide.intellij.JekaToolWindowFactory" icon="/images/jk.png"/>
-    -->
+
+    <toolWindow id="Jerkar"
+                anchor="bottom"
+                icon="/icons/knight-grey-naked.svg"
+                factoryClass="dev.jeka.ide.intellij.JekaToolWindowFactory"/>
+
+
+      <toolWindow id="Jeka"
+                  anchor="bottom"
+                  icon="/icons/knight-grey-naked.svg"
+                  factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
+
   </extensions>
-
-    <actions>
-       <!--
-        <action class="dev.jeka.ide.intellij.action.ScaffoldAction"
-                description="Scaffold a Java project"
-                text="Scaffold Jeka"
-                id="dev.jeka.ide.intellij.action.ScaffoldAction.ContextMenu">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
-        </action>
-        -->
-
-        <!--
-        <action class="dev.jeka.ide.intellij.action.SyncImlAction"
-                description="Synchronize iml file with Jeka definition class"
-                text="synchronise Jeka"
-                id="dev.jeka.ide.intellij.action.SyncImlAction.Editor">
-            <keyboard-shortcut first-keystroke="control alt J" second-keystroke="K" keymap="$default"/>
-            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-        </action>
-        -->
-
-    </actions>
 
     <project-components>
         <component>

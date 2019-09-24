@@ -1,25 +1,25 @@
 package dev.jeka.ide.intellij.action;
 
+
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.icons.AllIcons;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
 import dev.jeka.ide.intellij.JekaDoer;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -41,6 +41,7 @@ public class ScaffoldAction extends AnAction {
         if (path == null) {
             return;
         }
+        toolWindow(module.getProject());
         JekaDoer jekaDoer = new JekaDoer();
         jekaDoer.scaffoldModule(path);
         virtualFile.getFileSystem().refresh(true);
@@ -63,6 +64,20 @@ public class ScaffoldAction extends AnAction {
         }
         VirtualFile virtualRoot = ModuleRootManager.getInstance(module).getContentRoots()[0];
         return Paths.get(virtualRoot.getPath());
+    }
+
+    private void toolWindow(Project project) {
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Run");
+        ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+        String name = "jeka output";
+        Content content = toolWindow.getContentManager().findContent(name);
+        if (content == null) {
+            content = toolWindow.getContentManager().getFactory()
+                    .createContent(consoleView.getComponent(), name, false);
+            content.setIcon(JkIcons.JEKA_GREY_NAKED);
+            toolWindow.getContentManager().addContent(content);
+        }
+        consoleView.print("Hello from Jeka!", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
 
