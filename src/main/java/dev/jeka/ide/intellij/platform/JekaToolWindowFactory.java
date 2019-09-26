@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.platform;
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
@@ -7,8 +7,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
-import dev.jeka.ide.intellij.gui.MainForm;
 import org.jetbrains.annotations.NotNull;
 
 /**

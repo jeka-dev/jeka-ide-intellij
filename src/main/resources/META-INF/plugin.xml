@@ -23,7 +23,7 @@
     <toolWindow id="Jerkar"
                 anchor="bottom"
                 icon="/icons/knight-grey-naked.svg"
-                factoryClass="dev.jeka.ide.intellij.JekaToolWindowFactory"/>
+                factoryClass="dev.jeka.ide.intellij.platform.JekaToolWindowFactory"/>
 
 
       <toolWindow id="Jeka"
@@ -35,7 +35,7 @@
 
     <project-components>
         <component>
-            <implementation-class>dev.jeka.ide.intellij.JekaProjectComponent</implementation-class>
+            <implementation-class>dev.jeka.ide.intellij.platform.JekaProjectComponent</implementation-class>
         </component>
     </project-components>
 

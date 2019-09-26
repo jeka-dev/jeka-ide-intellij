@@ -1,15 +1,8 @@
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.platform;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.keymap.impl.ui.Group;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.vcs.actions.ShowAnnotateOperationsPopup;
-import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
-import dev.jeka.ide.intellij.action.ScaffoldAction;
-import dev.jeka.ide.intellij.action.SyncImlAction;
-
-import javax.swing.*;
+import dev.jeka.ide.intellij.platform.ProjectPopupJekaActionGroup;
 
 
 public class JekaProjectComponent implements ProjectComponent {

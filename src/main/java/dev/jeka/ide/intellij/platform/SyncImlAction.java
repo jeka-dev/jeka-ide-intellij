@@ -1,10 +1,6 @@
-package dev.jeka.ide.intellij.action;
+package dev.jeka.ide.intellij.platform;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;

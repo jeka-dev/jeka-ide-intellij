@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.action;
+package dev.jeka.ide.intellij.platform;
 
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class ScaffoldAction extends AnAction {
 
@@ -67,15 +68,16 @@ public class ScaffoldAction extends AnAction {
     }
 
     private void toolWindow(Project project) {
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Run");
+        ToolWindow runToolWindow = ToolWindowManager.getInstance(project).getToolWindow("Run");
+        System.out.println(Arrays.asList(ToolWindowManager.getInstance(project).getToolWindowIds()));
         ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
         String name = "jeka output";
-        Content content = toolWindow.getContentManager().findContent(name);
+        Content content = runToolWindow.getContentManager().findContent(name);
         if (content == null) {
-            content = toolWindow.getContentManager().getFactory()
+            content = runToolWindow.getContentManager().getFactory()
                     .createContent(consoleView.getComponent(), name, false);
-            content.setIcon(JkIcons.JEKA_GREY_NAKED);
-            toolWindow.getContentManager().addContent(content);
+            content.setIcon(JkIcons.JEKA_GREY_NAKED_13);
+            runToolWindow.getContentManager().addContent(content);
         }
         consoleView.print("Hello from Jeka!", ConsoleViewContentType.NORMAL_OUTPUT);
     }

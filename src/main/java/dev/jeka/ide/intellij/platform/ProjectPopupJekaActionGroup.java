@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.action;
+package dev.jeka.ide.intellij.platform;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
