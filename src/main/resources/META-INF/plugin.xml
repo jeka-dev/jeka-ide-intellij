@@ -31,6 +31,8 @@
                   icon="/icons/knight-grey-naked.svg"
                   factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
 
+      <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType" />
+
   </extensions>
 
     <project-components>
