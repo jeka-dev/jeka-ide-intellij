@@ -9,4 +9,7 @@ This plugin aims at providing :
 * Buttons to launch command methods directly from editor (similary to @Test methods)
 * auto-completion within dependency API for module dependencies.
 
+Intellij Plugin dev ref : https://www.jetbrains.org/intellij/sdk/docs/basics/run_configurations/run_configuration_management.html
+
+
 
