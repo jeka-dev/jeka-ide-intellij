@@ -17,6 +17,10 @@ public class JekaConfigurationFactory extends ConfigurationFactory {
     @NotNull
     @Override
     public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new ApplicationConfiguration("toto", project);
+        ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration("toto", project, this.getType());
+        applicationConfiguration.setWorkingDirectory("$MODULE_WORKING_DIR$");
+        applicationConfiguration.setGeneratedName();
+        applicationConfiguration.set
+        return applicationConfiguration;
     }
 }
