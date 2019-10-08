@@ -3,7 +3,6 @@ package dev.jeka.ide.intellij.platform;
 import com.intellij.diagnostic.logging.LogConfigurationPanel;
 import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationCommandLineState;
-
 import com.intellij.execution.application.JvmMainMethodRunConfigurationOptions;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
@@ -17,9 +16,7 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiMethodUtil;
@@ -263,29 +260,12 @@ public class JekaRunConfiguration
     @Override
     public void readExternal(@NotNull final Element element) {
         super.readExternal(element);
-
-        syncOldStateFields();
-
         JavaRunConfigurationExtensionManager.getInstance().readExternal(this, element);
-    }
-
-    @SuppressWarnings("deprecation")
-    private void syncOldStateFields() {
-        JvmMainMethodRunConfigurationOptions options = getOptions();
-
-        String workingDirectory = options.getWorkingDirectory();
-        if (workingDirectory == null) {
-            workingDirectory = PathUtil.toSystemDependentName(getProject().getBasePath());
-        }
-        else {
-            workingDirectory = FileUtilRt.toSystemDependentName(VirtualFileManager.extractPath(workingDirectory));
-        }
     }
 
     @Override
     public void setOptionsFromConfigurationFile(@NotNull BaseState state) {
         super.setOptionsFromConfigurationFile(state);
-        syncOldStateFields();
     }
 
     @Override

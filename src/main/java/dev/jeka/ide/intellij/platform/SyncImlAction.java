@@ -39,19 +39,23 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
+        if (psiFile == null) {
+            return;
+        }
         if (psiFile instanceof PsiJavaFile) {
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
             PsiClass psiClass = psiJavaFile.getClasses()[0];
             boolean isCommandsClass = isExtendingJkCommands(psiClass);
+            Module module = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), event.getProject());
             if (isCommandsClass) {
                 event.getPresentation().setEnabled(true);
-                Module module = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), event.getProject());
-                event.getPresentation().setText("Synchronize " + module.getName() + " iml from Jeka");
+                event.getPresentation().setText("Synchronize " + module+ " iml from Jeka using " + psiClass.getName());
                 return;
+            } else {
+                event.getPresentation().setText("Synchronize " + module+ " iml from Jeka");
             }
 
         }
-        event.getPresentation().setEnabled(false);
     }
 
     private static boolean isExtendingJkCommands(PsiClass psiClass) {
