@@ -12,6 +12,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import dev.jeka.ide.intellij.JekaDoer;
 
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -20,41 +21,29 @@ public class SyncImlAction extends AnAction {
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
 
     public SyncImlAction() {
-        super("Synchronize iml from Jeka", "Synchronize iml from Jeka", AllIcons.Actions.Refresh);
+        super("Synchronize iml from Jeka", "Synchronize iml" , AllIcons.Actions.Refresh);
     }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        PsiFile virtualFile = event.getData(CommonDataKeys.PSI_FILE);
-        Module module = ModuleUtil.findModuleForFile(virtualFile);
-        VirtualFile virtualRoot = ModuleRootManager.getInstance(module).getContentRoots()[0];
+        ModuleClass moduleClass = ModuleClass.ofMaybeCommandClass(event);
+        String className = moduleClass.psiClass == null ? null : moduleClass.psiClass.getQualifiedName();
+        VirtualFile virtualRoot = ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0];
         Path path = Paths.get(virtualRoot.getPath());
-        JekaDoer jekaDoer = new JekaDoer();
-        jekaDoer.generateIml(path);
-        JkNotifications.info("Iml file for module " + module.getName() + " re-generated.");
+        JekaDoer jekaDoer = JekaDoer.getInstance();
+        jekaDoer.generateIml(path, className);
+        JkNotifications.info("Iml file for module " + moduleClass.module.getName() + " re-generated.");
         virtualRoot.getFileSystem().refresh(true);
-
     }
 
     @Override
     public void update(AnActionEvent event) {
-        PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
-        if (psiFile == null) {
-            return;
-        }
-        if (psiFile instanceof PsiJavaFile) {
-            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = isExtendingJkCommands(psiClass);
-            Module module = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), event.getProject());
-            if (isCommandsClass) {
-                event.getPresentation().setEnabled(true);
-                event.getPresentation().setText("Synchronize " + module+ " iml from Jeka using " + psiClass.getName());
-                return;
-            } else {
-                event.getPresentation().setText("Synchronize " + module+ " iml from Jeka");
-            }
-
+        ModuleClass moduleClass = ModuleClass.ofMaybeCommandClass(event);
+        if (moduleClass.psiClass != null) {
+           event.getPresentation().setText("Synchronize " + moduleClass.module.getName() + " iml file using "
+                   + moduleClass.psiClass.getName());
+        } else {
+            event.getPresentation().setText("Synchronize " + moduleClass.module.getName() + " iml file");
         }
     }
 
@@ -71,6 +60,31 @@ public class SyncImlAction extends AnAction {
             }
         }
         return false;
+    }
+
+    private static class ModuleClass {
+        final Module module;
+        final PsiClass psiClass;
+
+        private ModuleClass(Module module, PsiClass psiClass) {
+            this.module = module;
+            this.psiClass = psiClass;
+        }
+
+        static ModuleClass ofMaybeCommandClass(AnActionEvent event) {
+            VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+            Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
+            PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
+            if (psiFile instanceof PsiJavaFile) {
+                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+                PsiClass psiClass = psiJavaFile.getClasses()[0];
+                boolean isCommandsClass = isExtendingJkCommands(psiClass);
+                if (isCommandsClass) {
+                    return new ModuleClass(module, psiClass);
+                }
+            }
+            return new ModuleClass(module, null);
+        }
     }
 
 }

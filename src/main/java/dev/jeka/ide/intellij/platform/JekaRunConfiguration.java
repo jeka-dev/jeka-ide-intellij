@@ -3,7 +3,6 @@ package dev.jeka.ide.intellij.platform;
 import com.intellij.diagnostic.logging.LogConfigurationPanel;
 import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationCommandLineState;
-import com.intellij.execution.application.JvmMainMethodRunConfigurationOptions;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.junit.RefactoringListeners;
@@ -55,8 +54,8 @@ public class JekaRunConfiguration
     // backward compatibility (if 3rd-party plugin extends ApplicationConfigurationType but uses own factory without options class)
     @Override
     @NotNull
-    protected final Class<? extends JvmMainMethodRunConfigurationOptions> getDefaultOptionsClass() {
-        return JvmMainMethodRunConfigurationOptions.class;
+    protected final Class<? extends JekaRunConfigurationOptions> getDefaultOptionsClass() {
+        return JekaRunConfigurationOptions.class;
     }
 
     /**
@@ -64,8 +63,8 @@ public class JekaRunConfiguration
      */
     @NotNull
     @Override
-    protected JvmMainMethodRunConfigurationOptions getOptions() {
-        return (JvmMainMethodRunConfigurationOptions)super.getOptions();
+    protected JekaRunConfigurationOptions getOptions() {
+        return (JekaRunConfigurationOptions)super.getOptions();
     }
 
     @Override
@@ -111,6 +110,8 @@ public class JekaRunConfiguration
     public String getMainClassName() {
         return getOptions().getMainClassName();
     }
+
+
 
     @Override
     @Nullable

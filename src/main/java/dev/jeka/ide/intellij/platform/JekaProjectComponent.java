@@ -20,9 +20,8 @@ public class JekaProjectComponent implements ProjectComponent {
         // Add Jeka group to popup menu
         DefaultActionGroup projectPopupGroup = (DefaultActionGroup) actionManager.getAction("ProjectViewPopupMenu");
         Constraints menuLocation = new Constraints(Anchor.BEFORE, "Maven.GlobalProjectMenu");
+        //Constraints menuLocation = new Constraints(Anchor.BEFORE, "MakeModule");
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
-
-        System.out.println("------------------------------------- project opened");
     }
 }

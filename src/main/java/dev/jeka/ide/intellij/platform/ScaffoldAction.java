@@ -43,7 +43,7 @@ public class ScaffoldAction extends AnAction {
             return;
         }
         toolWindow(module.getProject());
-        JekaDoer jekaDoer = new JekaDoer();
+        JekaDoer jekaDoer = JekaDoer.getInstance();
         jekaDoer.scaffoldModule(path);
         virtualFile.getFileSystem().refresh(true);
         JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
