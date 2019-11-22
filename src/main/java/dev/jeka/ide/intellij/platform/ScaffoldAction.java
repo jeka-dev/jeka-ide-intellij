@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.platform;
 
-
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
@@ -28,7 +27,6 @@ public class ScaffoldAction extends AnAction {
 
     public ScaffoldAction() {
         super("Add Jeka folder, scripts and classes", "Add Jeka folder, scripts and classes", AllIcons.Actions.Expandall);
-
     }
 
     @Override
@@ -81,7 +79,6 @@ public class ScaffoldAction extends AnAction {
         }
         consoleView.print("Hello from Jeka!", ConsoleViewContentType.NORMAL_OUTPUT);
     }
-
 
 }
 

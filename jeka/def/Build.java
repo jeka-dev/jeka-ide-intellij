@@ -6,9 +6,6 @@ import dev.jeka.core.tool.JkInit;
 import dev.jeka.core.tool.JkCommands;
 import dev.jeka.core.tool.builtins.java.JkPluginJava;
 
-import static dev.jeka.core.api.depmanagement.JkJavaDepScopes.PROVIDED;
-import static dev.jeka.core.api.depmanagement.JkJavaDepScopes.TEST;
-
 class Build extends JkCommands {
 
     final JkPluginJava javaPlugin = getPlugin(JkPluginJava.class);
