@@ -9,8 +9,11 @@
    </description>
 
   <change-notes><![CDATA[
-      - Generate Jeka files (wrappers scripts and template def class)
-      - Synchronize Intellij iml file
+      <ul>
+         <li>Generate Jeka files (wrappers scripts and template def class)</li>
+         <li>Synchronize Intellij iml file</li>
+         <li>Create JEKA</li>
+      </ul>
     ]]>
   </change-notes>
 
