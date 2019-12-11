@@ -1,16 +1,16 @@
 <idea-plugin>
   <id>dev.jeka.ide.intellij</id>
   <name>Jeka</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
   <description>
-      Integration with Jeka Tool. Synchronize iml file with Jeka project.
+      Integration with Jeka Build Tool (https://jeka.dev).
    </description>
 
   <change-notes><![CDATA[
-      blalblablalblablalblablalblablalbla
-      blalblablalblablalblablalblablalblablalbla
+      - Generate Jeka files (wrappers scripts and template def class)
+      - Synchronize Intellij iml file
     ]]>
   </change-notes>
 
