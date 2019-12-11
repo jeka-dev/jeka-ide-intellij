@@ -12,7 +12,7 @@
       <ul>
          <li>Generate Jeka files (wrappers scripts and template def class)</li>
          <li>Synchronize Intellij iml file</li>
-         <li>Create JEKA</li>
+         <li>Create JEKA_USER_HOME path variable automatically</li>
       </ul>
     ]]>
   </change-notes>
