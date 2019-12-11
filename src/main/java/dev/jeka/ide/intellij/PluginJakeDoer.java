@@ -10,6 +10,8 @@ import java.util.List;
 
 public class PluginJakeDoer implements JekaDoer {
 
+    static final PluginJakeDoer INSTANCE = new PluginJakeDoer();
+
     static {
         JkLog.registerHierarchicalConsoleHandler();
     }
