@@ -4,9 +4,9 @@
   <version>1.1</version>
   <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
-  <description>
-      Integration with &lt;a href=&quot;https://jeka.dev&quot;&gt;Jeka Build Tool&lt;/a&gt;.
-   </description>
+  <description><![CDATA[
+      Integration with famous <a href="https://jeka.dev">Jeka Build Tool</a>.
+   ]]></description>
 
   <change-notes><![CDATA[
       <ul>
