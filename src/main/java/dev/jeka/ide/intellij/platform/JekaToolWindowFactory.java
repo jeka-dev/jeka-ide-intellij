@@ -26,7 +26,7 @@ import com.intellij.ui.content.Content;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created by Jerome Angibaud on 22-05-17.
+ * @author Jerome Angibaud
  */
 public class JekaToolWindowFactory implements ToolWindowFactory {
 
@@ -40,6 +40,5 @@ public class JekaToolWindowFactory implements ToolWindowFactory {
     consoleView.print("Hello from Jerkar!", ConsoleViewContentType.NORMAL_OUTPUT);
     toolWindow.getContentManager().addContent(content);
   }
-
 
 }

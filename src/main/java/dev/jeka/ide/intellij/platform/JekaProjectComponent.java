@@ -55,4 +55,5 @@ public class JekaProjectComponent implements ProjectComponent {
       pathMacros.setMacro(JEKA_USER_HOME, value);
     }
   }
+
 }
