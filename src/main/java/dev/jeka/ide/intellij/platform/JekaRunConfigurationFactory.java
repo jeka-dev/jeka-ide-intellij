@@ -27,16 +27,16 @@ import org.jetbrains.annotations.NotNull;
  */
 public class JekaRunConfigurationFactory extends ConfigurationFactory {
 
-  protected JekaRunConfigurationFactory(@NotNull ConfigurationType type) {
-    super(type);
-  }
+    protected JekaRunConfigurationFactory(@NotNull ConfigurationType type) {
+        super(type);
+    }
 
-  @NotNull
-  @Override
-  public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-    JekaRunConfiguration jekaRunConfiguration = new JekaRunConfiguration("Unamed", project);
-    jekaRunConfiguration.setWorkingDirectory("$MODULE_WORKING_DIR$");
-    return jekaRunConfiguration;
-  }
+    @NotNull
+    @Override
+    public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
+        JekaRunConfiguration jekaRunConfiguration = new JekaRunConfiguration("Unamed", project);
+        jekaRunConfiguration.setWorkingDirectory("$MODULE_WORKING_DIR$");
+        return jekaRunConfiguration;
+    }
 
 }

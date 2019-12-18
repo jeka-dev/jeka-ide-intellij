@@ -1,42 +1,42 @@
 <idea-plugin>
-  <id>dev.jeka.ide.intellij</id>
-  <name>Jeka</name>
-  <version>1.1</version>
-  <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
+    <id>dev.jeka.ide.intellij</id>
+    <name>Jeka</name>
+    <version>1.2</version>
+    <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
-  <description><![CDATA[
+    <description><![CDATA[
       Integration with famous <a href="https://jeka.dev">Jeka Build Tool</a>.
    ]]></description>
 
-  <change-notes><![CDATA[
+    <change-notes><![CDATA[
       <ul>
          <li>Generate Jeka files (wrappers scripts and template def class)</li>
          <li>Synchronize Intellij iml file</li>
          <li>Create JEKA_USER_HOME path variable automatically</li>
       </ul>
     ]]>
-  </change-notes>
+    </change-notes>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="192.0"/>
-
-
-  <extensions defaultExtensionNs="com.intellij">
-
-    <toolWindow id="Jerkar"
-                anchor="bottom"
-                icon="/icons/knight-grey-naked.svg"
-                factoryClass="dev.jeka.ide.intellij.platform.JekaToolWindowFactory"/>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="192.0"/>
 
 
-      <toolWindow id="Jeka"
-                  anchor="bottom"
-                  icon="/icons/knight-grey-naked.svg"
-                  factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
+    <extensions defaultExtensionNs="com.intellij">
 
-      <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType" />
+        <toolWindow id="jerkar"
+                    anchor="bottom"
+                    icon="/icons/knight-grey-naked.svg"
+                    factoryClass="dev.jeka.ide.intellij.platform.JekaToolWindowFactory"/>
 
-  </extensions>
+
+        <toolWindow id="Jeka"
+                    anchor="bottom"
+                    icon="/icons/knight-grey-naked.svg"
+                    factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
+
+        <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
+
+    </extensions>
 
     <project-components>
         <component>

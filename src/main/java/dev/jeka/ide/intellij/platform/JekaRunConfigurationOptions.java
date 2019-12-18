@@ -25,27 +25,27 @@ import java.util.Objects;
  */
 public class JekaRunConfigurationOptions extends JvmMainMethodRunConfigurationOptions {
 
-  String myMethodName = "";
+    String myMethodName = "";
 
-  public String getMyMethodName() {
-    return myMethodName;
-  }
+    public String getMyMethodName() {
+        return myMethodName;
+    }
 
-  public void setMyMethodName(String myMethodName) {
-    this.myMethodName = myMethodName;
-  }
+    public void setMyMethodName(String myMethodName) {
+        this.myMethodName = myMethodName;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof JekaRunConfigurationOptions)) return false;
-    if (!super.equals(o)) return false;
-    JekaRunConfigurationOptions that = (JekaRunConfigurationOptions) o;
-    return getMyMethodName().equals(that.getMyMethodName());
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof JekaRunConfigurationOptions)) return false;
+        if (!super.equals(o)) return false;
+        JekaRunConfigurationOptions that = (JekaRunConfigurationOptions) o;
+        return getMyMethodName().equals(that.getMyMethodName());
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), getMyMethodName());
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getMyMethodName());
+    }
 }

@@ -25,12 +25,12 @@ import static dev.jeka.ide.intellij.platform.JkIcons.JEKA_GROUP_ACTION;
  */
 class JekaRunConfigurationType extends ConfigurationTypeBase {
 
-  static final JekaRunConfigurationType INSTANCE = new JekaRunConfigurationType();
+    static final JekaRunConfigurationType INSTANCE = new JekaRunConfigurationType();
 
-  JekaRunConfigurationType() {
-    super(JekaRunConfigurationType.class.getName(), "Jeka", "Jeka Build", JEKA_GROUP_ACTION);
-    addFactory(new JekaRunConfigurationFactory(this));
-  }
+    JekaRunConfigurationType() {
+        super(JekaRunConfigurationType.class.getName(), "Jeka", "Jeka Build", JEKA_GROUP_ACTION);
+        addFactory(new JekaRunConfigurationFactory(this));
+    }
 
 
 }

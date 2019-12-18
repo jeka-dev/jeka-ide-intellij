@@ -29,35 +29,35 @@ import java.util.List;
  */
 public class PluginJakeDoer implements JekaDoer {
 
-  static final PluginJakeDoer INSTANCE = new PluginJakeDoer();
+    static final PluginJakeDoer INSTANCE = new PluginJakeDoer();
 
-  static {
-    JkLog.registerHierarchicalConsoleHandler();
-  }
-
-  public void generateIml(Path moduleDir, String qualifiedClassName) {
-    List<String> args = new LinkedList<>();
-    if (qualifiedClassName != null) {
-      args.add("-CC=" + qualifiedClassName);
+    static {
+        JkLog.registerHierarchicalConsoleHandler();
     }
-    args.add("intellij#iml");
-    args.add("java#");
-    try {
-      Main.exec(moduleDir, args.toArray(new String[0]));
-    } catch (JkException e) {
-      args.remove("-CC=" + qualifiedClassName);
-      args.add("-CC=dev.jeka.core.tool.JkCommands");
-      Main.exec(moduleDir, args.toArray(new String[0]));
-    }
-  }
 
-  public void scaffoldModule(Path moduleDir) {
-    List<String> args = new LinkedList<>();
-    args.add("scaffold#run");
-    args.add("scaffold#wrap");
-    args.add("java#");
-    args.add("intellij#iml");
-    Main.exec(moduleDir, args.toArray(new String[0]));
-  }
+    public void generateIml(Path moduleDir, String qualifiedClassName) {
+        List<String> args = new LinkedList<>();
+        if (qualifiedClassName != null) {
+            args.add("-CC=" + qualifiedClassName);
+        }
+        args.add("intellij#iml");
+        args.add("java#");
+        try {
+            Main.exec(moduleDir, args.toArray(new String[0]));
+        } catch (JkException e) {
+            args.remove("-CC=" + qualifiedClassName);
+            args.add("-CC=dev.jeka.core.tool.JkCommands");
+            Main.exec(moduleDir, args.toArray(new String[0]));
+        }
+    }
+
+    public void scaffoldModule(Path moduleDir) {
+        List<String> args = new LinkedList<>();
+        args.add("scaffold#run");
+        args.add("scaffold#wrap");
+        args.add("java#");
+        args.add("intellij#iml");
+        Main.exec(moduleDir, args.toArray(new String[0]));
+    }
 
 }

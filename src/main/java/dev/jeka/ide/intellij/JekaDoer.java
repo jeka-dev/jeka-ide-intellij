@@ -23,11 +23,11 @@ import java.nio.file.Path;
  */
 public interface JekaDoer {
 
-  static JekaDoer getInstance() {
-    return CmdJekaDoer.INSTANCE;
-  }
+    static JekaDoer getInstance() {
+        return CmdJekaDoer.INSTANCE;
+    }
 
-  void generateIml(Path moduleRoor, String className);
+    void generateIml(Path moduleRoor, String className);
 
-  void scaffoldModule(Path moduleDir);
+    void scaffoldModule(Path moduleDir);
 }
