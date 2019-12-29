@@ -44,7 +44,7 @@ import java.util.Arrays;
 public class ScaffoldAction extends AnAction {
 
     public ScaffoldAction() {
-        super("Add Jeka folder, scripts and classes", "Add Jeka folder, scripts and classes", AllIcons.Actions.Expandall);
+        super("Generate Jeka sources and folders", "Generate Jeka sources and folders", AllIcons.Actions.Expandall);
     }
 
     @Override
@@ -63,16 +63,6 @@ public class ScaffoldAction extends AnAction {
         jekaDoer.scaffoldModule(path);
         virtualFile.getFileSystem().refresh(true);
         JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
-    }
-
-    @Override
-    public void update(@NotNull AnActionEvent event) {
-        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (virtualFile == null) {
-            return;
-        }
-        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
-        event.getPresentation().setText(" Add Jeka folder, scripts and classes to " + module.getName());
     }
 
     private static Path moduleRootPath(Module module) {

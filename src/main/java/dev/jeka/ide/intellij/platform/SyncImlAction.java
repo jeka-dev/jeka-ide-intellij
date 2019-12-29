@@ -42,7 +42,7 @@ public class SyncImlAction extends AnAction {
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
 
     public SyncImlAction() {
-        super("Synchronize iml from Jeka", "Synchronize iml", AllIcons.Actions.Refresh);
+        super("Synchronize", "Synchronize iml file", AllIcons.Actions.Refresh);
     }
 
     @Override
