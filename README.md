@@ -21,5 +21,10 @@ https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/deploying_plu
 2. Visit https://plugins.jetbrains.com/plugin/add#intellij
    Plugin is deployed here : https://plugins.jetbrains.com/plugin/13489-jeka
    
+Resources :
+
+https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html
+https://plugins.jetbrains.com/plugin/13489-jeka/
+   
 
  
