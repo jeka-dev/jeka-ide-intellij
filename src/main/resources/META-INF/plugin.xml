@@ -1,11 +1,15 @@
 <idea-plugin>
     <id>dev.jeka.ide.intellij</id>
     <name>Jeka</name>
-    <version>1.2</version>
+    <version>1.3</version>
     <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
     <description><![CDATA[
-      Integration with famous <a href="https://jeka.dev">Jeka Build Tool</a>.
+      Integrates with <a href="https://jeka.dev">Jeka Build Tool</a> by providing :
+      <ul>
+        <li>Scaffolding capabilities to create Jeka projects from scratch</li>
+        <li>Synchronize Intellij module dependencies on Jeka definition</li>
+      </ul>
    ]]></description>
 
     <change-notes><![CDATA[
@@ -18,9 +22,10 @@
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="192.0"/>
+    <idea-version since-build="193.0"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationInitializedListener implementation="dev.jeka.ide.intellij.platform.JekaApplicationInitializedListener"/>
 
         <toolWindow id="jerkar"
                     anchor="bottom"
@@ -37,10 +42,5 @@
 
     </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>dev.jeka.ide.intellij.platform.JekaProjectComponent</implementation-class>
-        </component>
-    </project-components>
 
 </idea-plugin>

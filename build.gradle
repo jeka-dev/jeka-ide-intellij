@@ -24,23 +24,11 @@ intellij {
 }
 
 publishPlugin {
-    token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
+    token System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
 }
 
 publishPlugin {
     channels 'beta'
 }
 
-patchPluginXml {
-    description """
-        Integration with famous <a href="https://jeka.dev">Jeka Build Tool</a>.
-        """
-    changeNotes """
-      First import.
-      <ul>
-         <li>Generate Jeka files (wrappers scripts and template def class)</li>
-         <li>Synchronize Intellij iml file</li>
-         <li>Create JEKA_USER_HOME path variable automatically</li>
-      </ul>
-      """
-}
+
