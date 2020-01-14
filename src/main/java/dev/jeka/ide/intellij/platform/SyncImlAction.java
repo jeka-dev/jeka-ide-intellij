@@ -20,6 +20,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -52,8 +53,10 @@ public class SyncImlAction extends AnAction {
         VirtualFile virtualRoot = ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0];
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = JekaDoer.getInstance();
-        jekaDoer.generateIml(path, className);
-        JkNotifications.info("Iml file for module " + moduleClass.module.getName() + " re-generated.");
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            jekaDoer.generateIml(path, className);
+            JkNotifications.info("Iml file for module " + moduleClass.module.getName() + " re-generated.");
+        });
         virtualRoot.getFileSystem().refresh(true);
     }
 
