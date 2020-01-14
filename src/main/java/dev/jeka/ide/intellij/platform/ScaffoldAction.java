@@ -23,6 +23,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
@@ -59,10 +60,12 @@ public class ScaffoldAction extends AnAction {
             return;
         }
         toolWindow(module.getProject());
-        JekaDoer jekaDoer = JekaDoer.getInstance();
-        jekaDoer.scaffoldModule(path);
-        virtualFile.getFileSystem().refresh(true);
-        JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            JekaDoer jekaDoer = JekaDoer.getInstance();
+            jekaDoer.scaffoldModule(path);
+            virtualFile.getFileSystem().refresh(true);
+            JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
+        });
     }
 
     private static Path moduleRootPath(Module module) {
