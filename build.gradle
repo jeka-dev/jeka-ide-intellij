@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'dev.jeka.ide'
-version '0.2.1'
+version '1.2'
 
 sourceCompatibility = 1.8
 
@@ -25,10 +25,5 @@ intellij {
 
 publishPlugin {
     token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
-}
-
-publishPlugin {
     channels 'beta'
 }
-
-
