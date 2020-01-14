@@ -21,12 +21,15 @@
     ]]>
     </change-notes>
 
+    <depends>com.intellij.modules.platform</depends>
+
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="193.0"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationInitializedListener implementation="dev.jeka.ide.intellij.platform.JekaApplicationInitializedListener"/>
 
+        <!--
         <toolWindow id="jerkar"
                     anchor="bottom"
                     icon="/icons/knight-grey-naked.svg"
@@ -38,8 +41,10 @@
                     icon="/icons/knight-grey-naked.svg"
                     factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
 
+
         <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
 
+         -->
     </extensions>
 
 
