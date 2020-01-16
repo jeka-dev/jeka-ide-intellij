@@ -91,18 +91,20 @@ public class CmdJekaDoer implements JekaDoer {
         }
 
         view.attachToProcess(handler);
+        view.clear();
         handler.startNotify();
 
-        if (window == null) {
+        if (window == null ) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
-            window = manager.registerToolWindow("Cat console", true, ToolWindowAnchor.BOTTOM);
+            window = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
             final ContentManager contentManager = window.getContentManager();
             Content content = contentManager
                     .getFactory()
                     .createContent(view.getComponent(), "", false);
             contentManager.addContent(content);
-            window.show(() -> {});
         }
+        window.show(() -> {});
+
     }
 
     public void generateIml3(Project project, Path moduleDir, String qualifiedClassName) {
