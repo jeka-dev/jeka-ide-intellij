@@ -44,12 +44,16 @@ public class PluginJekaDoer implements JekaDoer {
         }
         args.add("intellij#iml");
         args.add("java#");
+        ClassLoader original =Thread.currentThread().getContextClassLoader();
         try {
+            Thread.currentThread().setContextClassLoader(Main.class.getClassLoader());
             Main.exec(moduleDir, args.toArray(new String[0]));
         } catch (JkException e) {
             args.remove("-CC=" + qualifiedClassName);
             args.add("-CC=dev.jeka.core.tool.JkCommands");
             Main.exec(moduleDir, args.toArray(new String[0]));
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
         }
     }
 
@@ -60,6 +64,10 @@ public class PluginJekaDoer implements JekaDoer {
         args.add("java#");
         args.add("intellij#iml");
         Main.exec(moduleDir, args.toArray(new String[0]));
+    }
+
+    private Class getJekaMainClass() {
+       return null;
     }
 
 }

@@ -4,6 +4,7 @@ import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.PathMacros;
 import dev.jeka.core.api.utils.JkUtilsString;
+import dev.jeka.ide.intellij.utils.Utils;
 
 import java.io.File;
 import java.util.Set;
@@ -32,16 +33,14 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
 
         // Add classpath variable
-        PathMacros pathMacros = PathMacros.getInstance();
-        Set<String> macros = pathMacros.getAllMacroNames();
-        if (!macros.contains(JEKA_USER_HOME)) {
+        if (Utils.getPathVariable(JEKA_USER_HOME) == null) {
             String value = System.getProperty("user.home") + File.separator + ".jeka";
-            pathMacros.setMacro(JEKA_USER_HOME, value);
+            Utils.setPathVariable(JEKA_USER_HOME, value);
         }
-        if (!macros.contains(JEKA_HOME)) {
+        if (Utils.getPathVariable(JEKA_HOME) == null) {
             String value = System.getenv("JEKA_HOME");
             if (!JkUtilsString.isBlank(value)) {
-                pathMacros.setMacro(JEKA_HOME, value);
+                Utils.setPathVariable(JEKA_HOME, value);
             }
         }
 

@@ -11,20 +11,12 @@ This plugin aims at providing :
 
 Intellij Plugin dev ref : https://www.jetbrains.org/intellij/sdk/docs/basics/run_configurations/run_configuration_management.html
 
-## How to deploy ?
-
-For now there is no other way of using Intellij to build and deploy the plugin :
-https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/deploying_plugin.html
-
-1. Build -> Prepare plugin module 'dev.jeka.ide.intellij' for deployment
-
-2. Visit https://plugins.jetbrains.com/plugin/add#intellij
-   Plugin is deployed here : https://plugins.jetbrains.com/plugin/13489-jeka
-   
+  
 Resources :
 
-https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html
-https://plugins.jetbrains.com/plugin/13489-jeka/
+* https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html
+
+* https://plugins.jetbrains.com/plugin/13489-jeka/
    
 
  

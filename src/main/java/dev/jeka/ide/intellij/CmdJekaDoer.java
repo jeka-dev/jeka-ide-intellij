@@ -57,7 +57,7 @@ public class CmdJekaDoer implements JekaDoer {
     private ToolWindow window = null;
 
     static {
-        JkLog.registerHierarchicalConsoleHandler();
+        JkLog.registerHierarchicalConsoleHandler();  // otherwise output in Windows Intellij console is weird
     }
 
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
