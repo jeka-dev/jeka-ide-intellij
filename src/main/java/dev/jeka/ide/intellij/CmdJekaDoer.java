@@ -38,6 +38,7 @@ import dev.jeka.core.api.system.JkProcess;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkCommands;
 import dev.jeka.core.tool.JkPlugin;
+import dev.jeka.ide.intellij.platform.JkIcons;
 import dev.jeka.ide.intellij.platform.ShellConfigurationProducer;
 import sun.management.AgentConfigurationError;
 
@@ -95,6 +96,7 @@ public class CmdJekaDoer implements JekaDoer {
         if (window == null) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
             window = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
+            window.setIcon(JkIcons.JEKA_GREY_NAKED_13);
             final ContentManager contentManager = window.getContentManager();
             Content content = contentManager
                     .getFactory()
