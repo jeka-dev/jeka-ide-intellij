@@ -54,8 +54,8 @@ public class SyncImlAction extends AnAction {
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = JekaDoer.getInstance();
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            jekaDoer.generateIml(path, className);
-            JkNotifications.info("Iml file for module " + moduleClass.module.getName() + " re-generated.");
+            jekaDoer.generateIml(moduleClass.module.getProject(), path, className);
+            JkNotifications.info("Iml file for module '" + moduleClass.module.getName() + "' re-generated.");
         });
         virtualRoot.getFileSystem().refresh(true);
     }
@@ -64,10 +64,10 @@ public class SyncImlAction extends AnAction {
     public void update(AnActionEvent event) {
         ModuleClass moduleClass = ModuleClass.ofMaybeCommandClass(event);
         if (moduleClass.psiClass != null) {
-            event.getPresentation().setText("Synchronize " + moduleClass.module.getName() + " iml file using "
+            event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' iml file using "
                     + moduleClass.psiClass.getName());
         } else {
-            event.getPresentation().setText("Synchronize " + moduleClass.module.getName() + " iml file");
+            event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' iml file");
         }
     }
 

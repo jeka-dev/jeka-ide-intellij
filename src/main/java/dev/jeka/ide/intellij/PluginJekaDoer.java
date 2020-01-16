@@ -16,9 +16,11 @@
 
 package dev.jeka.ide.intellij;
 
+import com.intellij.openapi.project.Project;
 import dev.jeka.core.api.system.JkException;
 import dev.jeka.core.api.system.JkLog;
 import dev.jeka.core.tool.Main;
+import sun.java2d.loops.ProcessPath;
 
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -27,15 +29,15 @@ import java.util.List;
 /**
  * @author Jerome Angibaud
  */
-public class PluginJakeDoer implements JekaDoer {
+public class PluginJekaDoer implements JekaDoer {
 
-    static final PluginJakeDoer INSTANCE = new PluginJakeDoer();
+    static final PluginJekaDoer INSTANCE = new PluginJekaDoer();
 
     static {
-        JkLog.registerHierarchicalConsoleHandler();
+       // JkLog.registerHierarchicalConsoleHandler();
     }
 
-    public void generateIml(Path moduleDir, String qualifiedClassName) {
+    public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
         List<String> args = new LinkedList<>();
         if (qualifiedClassName != null) {
             args.add("-CC=" + qualifiedClassName);

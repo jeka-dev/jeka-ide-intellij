@@ -55,11 +55,7 @@ public class ScaffoldAction extends AnAction {
             return;
         }
         Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
-        Path path = moduleRootPath(module);
-        if (path == null) {
-            return;
-        }
-        toolWindow(module.getProject());
+        Path path = dirPath(virtualFile);
         ApplicationManager.getApplication().invokeAndWait(() -> {
             JekaDoer jekaDoer = JekaDoer.getInstance();
             jekaDoer.scaffoldModule(path);
@@ -68,32 +64,12 @@ public class ScaffoldAction extends AnAction {
         });
     }
 
-    private static Path moduleRootPath(Module module) {
-        if (module == null) {
-            return null;
+    private static Path dirPath(VirtualFile virtualFile) {
+        if (virtualFile.isDirectory()) {
+            return Paths.get(virtualFile.getPath());
         }
-        VirtualFile virtualRoot = ModuleRootManager.getInstance(module).getContentRoots()[0];
-        return Paths.get(virtualRoot.getPath());
-    }
-
-    private void toolWindow(Project project) {
-        ToolWindow runToolWindow = ToolWindowManager.getInstance(project).getToolWindow("Run");
-        System.out.println(Arrays.asList(ToolWindowManager.getInstance(project).getToolWindowIds()));
-        ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-        String name = "jeka output";
-        Content content = runToolWindow.getContentManager().findContent(name);
-        if (content == null) {
-            content = runToolWindow.getContentManager().getFactory()
-                    .createContent(consoleView.getComponent(), name, false);
-            content.setIcon(JkIcons.JEKA_GREY_NAKED_13);
-            runToolWindow.getContentManager().addContent(content);
-        }
-        consoleView.print("Hello from Jeka!", ConsoleViewContentType.NORMAL_OUTPUT);
+        return  Paths.get(virtualFile.getParent().getPath());
     }
 
 }
-
-
-
-
 

@@ -28,19 +28,27 @@
     <idea-version since-build="193.0"/>
 
     <extensions defaultExtensionNs="com.intellij">
+
         <applicationInitializedListener implementation="dev.jeka.ide.intellij.platform.JekaApplicationInitializedListener"/>
 
+
+
+
+
         <!--
+         <runConfigurationProducer implementation="dev.jeka.ide.intellij.platform.ShellConfigurationProducer"/>
+
         <toolWindow id="jerkar"
                     anchor="bottom"
                     icon="/icons/knight-grey-naked.svg"
                     factoryClass="dev.jeka.ide.intellij.platform.JekaToolWindowFactory"/>
 
-
-        <toolWindow id="Jeka"
+   <toolWindow id="Jeka"
                     anchor="bottom"
                     icon="/icons/knight-grey-naked.svg"
-                    factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
+                    factoryClass="com.intellij.execution.services.ServiceViewToolWindowFactory"/>
+
+
 
 
         <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>

@@ -3,6 +3,7 @@ package dev.jeka.ide.intellij.platform;
 import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.PathMacros;
+import dev.jeka.core.api.utils.JkUtilsString;
 
 import java.io.File;
 import java.util.Set;
@@ -10,6 +11,8 @@ import java.util.Set;
 public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
 
     private static final String JEKA_USER_HOME = "JEKA_USER_HOME";
+
+    private static final String JEKA_HOME = "JEKA_HOME";
 
     @Override
     public void componentsInitialized() {
@@ -34,6 +37,12 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         if (!macros.contains(JEKA_USER_HOME)) {
             String value = System.getProperty("user.home") + File.separator + ".jeka";
             pathMacros.setMacro(JEKA_USER_HOME, value);
+        }
+        if (!macros.contains(JEKA_HOME)) {
+            String value = System.getenv("JEKA_HOME");
+            if (!JkUtilsString.isBlank(value)) {
+                pathMacros.setMacro(JEKA_HOME, value);
+            }
         }
 
     }

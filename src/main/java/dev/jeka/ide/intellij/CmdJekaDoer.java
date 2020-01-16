@@ -16,6 +16,21 @@
 
 package dev.jeka.ide.intellij;
 
+import b.b.b.R;
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.RunManager;
+import com.intellij.execution.RunnerAndConfigurationSettings;
+import com.intellij.execution.configurations.*;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
 import dev.jeka.core.api.java.project.JkJavaProjectIde;
 import dev.jeka.core.api.java.project.JkJavaProjectIdeSupplier;
 import dev.jeka.core.api.system.JkLog;
@@ -23,9 +38,12 @@ import dev.jeka.core.api.system.JkProcess;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkCommands;
 import dev.jeka.core.tool.JkPlugin;
+import dev.jeka.ide.intellij.platform.ShellConfigurationProducer;
+import sun.management.AgentConfigurationError;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * @author Jerome Angibaud
@@ -34,11 +52,14 @@ public class CmdJekaDoer implements JekaDoer {
 
     static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
 
+    private ConsoleView view = null;
+    private ToolWindow window = null;
+
     static {
         JkLog.registerHierarchicalConsoleHandler();
     }
 
-    public void generateIml(Path moduleDir, String qualifiedClassName) {
+    public void generateImlOld(Path moduleDir, String qualifiedClassName) {
         JkProcess iml = jeka(moduleDir)
                 .andParams("intellij#iml").withWorkingDir(moduleDir).withLogCommand(true).withLogOutput(true);
         if (qualifiedClassName != null) {
@@ -48,6 +69,61 @@ public class CmdJekaDoer implements JekaDoer {
         if (result != 0) {
             iml.andParams("-CC=dev.jeka.core.tool.JkCommands", "java#").withFailOnError(true).runSync();
         }
+    }
+
+    public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
+        cmd.addParameter("intellij#iml");
+        cmd.setWorkDirectory(moduleDir.toFile());
+        if (qualifiedClassName != null) {
+            cmd.addParameter("-CC=" + qualifiedClassName);
+        }
+        OSProcessHandler handler = null;
+        try {
+            handler = new OSProcessHandler(cmd);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        if (view == null) {
+            TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
+            TextConsoleBuilder builder = factory.createBuilder(project);
+            view = builder.getConsole();
+        }
+
+        view.attachToProcess(handler);
+        handler.startNotify();
+
+        if (window == null) {
+            ToolWindowManager manager = ToolWindowManager.getInstance(project);
+            window = manager.registerToolWindow("Cat console", true, ToolWindowAnchor.BOTTOM);
+            final ContentManager contentManager = window.getContentManager();
+            Content content = contentManager
+                    .getFactory()
+                    .createContent(view.getComponent(), "", false);
+            contentManager.addContent(content);
+            window.show(() -> {});
+        }
+    }
+
+    public void generateIml3(Project project, Path moduleDir, String qualifiedClassName) {
+        RunManager runManager = RunManager.getInstance(project);
+        ConfigurationType type = ConfigurationTypeUtil.findConfigurationType("ShConfigurationType");
+        String name = name(moduleDir);
+        /*
+              List<RunConfiguration> runConfigurations = runManager.getAllConfigurationsList();
+        RunConfiguration shellConfigurationTemplate = runConfigurations.stream()
+                .filter(runConfiguration -> runManager.isTemplate(runConfiguration))
+                .filter(runConfiguration -> runConfiguration.getName().equals("Shell Script"))
+                .findFirst().get();
+
+         */
+        RunnerAndConfigurationSettings settings = runManager.createConfiguration(name, type.getClass());
+        System.out.println(settings);
+    }
+
+
+    private static String name(Path moduleDir) {
+        return "[Jeka " + moduleDir.getFileName() + "] intellij#iml";
     }
 
     public void scaffoldModule(Path moduleDir) {
@@ -80,6 +156,13 @@ public class CmdJekaDoer implements JekaDoer {
             return JkProcess.of(command);
         }
         return JkProcess.of(Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : "jeka");
+    }
+
+    private String jekaCmd(Path moduleDir) {
+        if (JkUtilsSystem.IS_WINDOWS) {
+            return Files.exists(moduleDir.resolve("jekaw.bat")) ? "jekaw.bat" : "jeka.bat";
+        }
+        return Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : "jeka";
     }
 
 }
