@@ -75,7 +75,9 @@ public class CmdJekaDoer implements JekaDoer {
 
     private JkProcess jeka(Path moduleDir) {
         if (JkUtilsSystem.IS_WINDOWS) {
-            return JkProcess.of(Files.exists(moduleDir.resolve("jekaw.bat")) ? "jekaw.bat" : "jeka.bat");
+            String command = Files.exists(moduleDir.resolve("jekaw.bat")) ?
+                    moduleDir.toAbsolutePath().resolve("jekaw.bat").toString() : "jeka.bat";
+            return JkProcess.of(command);
         }
         return JkProcess.of(Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : "jeka");
     }
