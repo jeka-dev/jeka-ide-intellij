@@ -58,7 +58,7 @@ public class ScaffoldAction extends AnAction {
         Path path = dirPath(virtualFile);
         ApplicationManager.getApplication().invokeAndWait(() -> {
             JekaDoer jekaDoer = JekaDoer.getInstance();
-            jekaDoer.scaffoldModule(path);
+            jekaDoer.scaffoldModule(module.getProject(), path);
             virtualFile.getFileSystem().refresh(true);
             JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
         });

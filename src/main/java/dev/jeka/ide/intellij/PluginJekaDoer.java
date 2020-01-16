@@ -53,7 +53,7 @@ public class PluginJekaDoer implements JekaDoer {
         }
     }
 
-    public void scaffoldModule(Path moduleDir) {
+    public void scaffoldModule(Project project, Path moduleDir) {
         List<String> args = new LinkedList<>();
         args.add("scaffold#run");
         args.add("scaffold#wrap");
