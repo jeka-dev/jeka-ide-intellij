@@ -16,11 +16,8 @@
 
 package dev.jeka.ide.intellij;
 
-import b.b.b.R;
 import com.intellij.execution.ExecutionException;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.configurations.*;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
@@ -31,20 +28,10 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.core.api.java.project.JkJavaProjectIde;
-import dev.jeka.core.api.java.project.JkJavaProjectIdeSupplier;
-import dev.jeka.core.api.system.JkLog;
-import dev.jeka.core.api.system.JkProcess;
-import dev.jeka.core.api.utils.JkUtilsSystem;
-import dev.jeka.core.tool.JkCommands;
-import dev.jeka.core.tool.JkPlugin;
 import dev.jeka.ide.intellij.platform.JkIcons;
-import dev.jeka.ide.intellij.platform.ShellConfigurationProducer;
-import sun.management.AgentConfigurationError;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author Jerome Angibaud
@@ -55,10 +42,6 @@ public class CmdJekaDoer implements JekaDoer {
 
     private ConsoleView view = null;
     private ToolWindow window = null;
-
-    static {
-        JkLog.registerHierarchicalConsoleHandler();  // otherwise output in Windows Intellij console is weird
-    }
 
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
@@ -107,11 +90,19 @@ public class CmdJekaDoer implements JekaDoer {
     }
 
     private String jekaCmd(Path moduleDir) {
-        if (JkUtilsSystem.IS_WINDOWS) {
+        if (isWindows()) {
             return Files.exists(moduleDir.resolve("jekaw.bat")) ?
                     moduleDir.toAbsolutePath().resolve("jekaw.bat").toString() : "jeka.bat";
         }
         return Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : "jeka";
+    }
+
+    private static boolean isWindows() {
+        final String osName = System.getProperty("os.name");
+        if (osName == null) {
+            return false;
+        }
+        return osName.startsWith("Windows");
     }
 
 /*

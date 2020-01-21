@@ -1,10 +1,6 @@
 package dev.jeka.ide.intellij.utils;
 
 import com.intellij.openapi.application.PathMacros;
-import dev.jeka.core.api.utils.JkUtilsString;
-
-import java.io.File;
-import java.util.Set;
 
 public class Utils {
 

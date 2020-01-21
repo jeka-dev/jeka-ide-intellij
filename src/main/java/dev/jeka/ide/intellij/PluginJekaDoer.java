@@ -17,14 +17,21 @@
 package dev.jeka.ide.intellij;
 
 import com.intellij.openapi.project.Project;
-import dev.jeka.core.api.system.JkException;
-import dev.jeka.core.api.system.JkLog;
-import dev.jeka.core.tool.Main;
-import sun.java2d.loops.ProcessPath;
+import com.intellij.util.lang.UrlClassLoader;
+import dev.jeka.ide.intellij.utils.Constants;
+import dev.jeka.ide.intellij.utils.Utils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author Jerome Angibaud
@@ -33,41 +40,106 @@ public class PluginJekaDoer implements JekaDoer {
 
     static final PluginJekaDoer INSTANCE = new PluginJekaDoer();
 
-    static {
-       // JkLog.registerHierarchicalConsoleHandler();
-    }
+    private Map<Path,ClassLoader> classLoaders = new HashMap<>();
 
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
-        List<String> args = new LinkedList<>();
+        List<String> argList = new LinkedList<>();
         if (qualifiedClassName != null) {
-            args.add("-CC=" + qualifiedClassName);
+            argList.add("-CC=" + qualifiedClassName);
         }
-        args.add("intellij#iml");
-        args.add("java#");
-        ClassLoader original =Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(Main.class.getClassLoader());
-            Main.exec(moduleDir, args.toArray(new String[0]));
-        } catch (JkException e) {
-            args.remove("-CC=" + qualifiedClassName);
-            args.add("-CC=dev.jeka.core.tool.JkCommands");
-            Main.exec(moduleDir, args.toArray(new String[0]));
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
+        argList.add("intellij#iml");
+        argList.add("java#");
+        String [] args = argList.toArray(new String[0]);
+        Class mainClass = getJekaMainClass(moduleDir);
+        Throwable error = execute(mainClass, moduleDir, args);
+        if (error != null) {
+            if ( error.getClass().getSimpleName().equals("JkException")) {
+                argList.remove("-CC=" + qualifiedClassName);
+                argList.add("-CC=dev.jeka.core.tool.JkCommands");
+                error = execute(mainClass, moduleDir, argList.toArray(new String[0]));
+                handle(error);
+            } else {
+                handle(error);
+            }
         }
     }
 
     public void scaffoldModule(Project project, Path moduleDir) {
-        List<String> args = new LinkedList<>();
-        args.add("scaffold#run");
-        args.add("scaffold#wrap");
-        args.add("java#");
-        args.add("intellij#iml");
-        Main.exec(moduleDir, args.toArray(new String[0]));
+        String[] args = new String[] {"scaffold#run", "scaffold#wrap", "scaffold#wrap", "java#", "intellij#iml"};
+        Class mainClass = getJekaMainClass(moduleDir);
+        handle(execute(mainClass, moduleDir, args));
     }
 
-    private Class getJekaMainClass() {
-       return null;
+    private static void handle(Throwable throwable) {
+        if (throwable != null) {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    private static Throwable execute(Class mainClass, Path moduleDir, String[] args)  {
+        ClassLoader original =Thread.currentThread().getContextClassLoader();
+        final Method method;
+        try {
+            method = mainClass.getMethod("exec", Path.class, args.getClass());
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+        Thread.currentThread().setContextClassLoader(mainClass.getClassLoader());
+        registerLog(mainClass.getClassLoader());
+        try {
+            method.invoke(null, moduleDir, args);
+        } catch (InvocationTargetException e) {
+            return e.getTargetException();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
+        }
+        return null;
+    }
+
+    private Class getJekaMainClass(Path moduleRoot) {
+        Path jar = Paths.get(Utils.getPathVariable(Constants.JEKA_HOME)).resolve("dev.jeka.jeka-core.jar");
+        if (!Files.exists(jar)) {
+            throw new IllegalStateException("Cannot  find " + jar);
+        }
+        ClassLoader classloader= classLoaders.computeIfAbsent(jar, path -> {
+            try {
+                UrlClassLoader urlClassLoader = UrlClassLoader.build()
+                        .parent(ClassLoader.getSystemClassLoader())
+                        .urls(jar.toUri().toURL()).get();
+                return urlClassLoader;
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            Class jklogClass = classloader.loadClass("dev.jeka.core.api.system.JkLog");
+            Method method = jklogClass.getMethod("register", Consumer.class);
+            method.invoke(null, new EventConsumer());
+            return classloader.loadClass("dev.jeka.core.tool.Main");
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void registerLog(ClassLoader classloader) {
+        try {
+            Class jklogClass = classloader.loadClass("dev.jeka.core.api.system.JkLog");
+            Method method = jklogClass.getMethod("register", Consumer.class);
+            method.invoke(null, new EventConsumer());
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class EventConsumer implements Consumer<Map> {
+
+        @Override
+        public void accept(Map map) {
+            System.out.println(map.get("type") + " : " + map.get("message"));
+        }
+
     }
 
 }

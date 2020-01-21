@@ -2,18 +2,16 @@ package dev.jeka.ide.intellij.platform;
 
 import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.PathMacros;
-import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.ide.intellij.utils.Utils;
 
 import java.io.File;
-import java.util.Set;
+
+import static dev.jeka.ide.intellij.utils.Constants.JEKA_HOME;
+import static dev.jeka.ide.intellij.utils.Constants.JEKA_USER_HOME;
 
 public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
 
-    private static final String JEKA_USER_HOME = "JEKA_USER_HOME";
 
-    private static final String JEKA_HOME = "JEKA_HOME";
 
     @Override
     public void componentsInitialized() {
@@ -39,7 +37,7 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         }
         if (Utils.getPathVariable(JEKA_HOME) == null) {
             String value = System.getenv("JEKA_HOME");
-            if (!JkUtilsString.isBlank(value)) {
+            if (value != null && !value.trim().equals("")) {
                 Utils.setPathVariable(JEKA_HOME, value);
             }
         }

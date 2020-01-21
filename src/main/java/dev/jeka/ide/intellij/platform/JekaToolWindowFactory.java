@@ -17,15 +17,12 @@
 package dev.jeka.ide.intellij.platform;
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import org.jetbrains.annotations.NotNull;
-import sun.java2d.loops.ProcessPath;
 
 /**
  * @author Jerome Angibaud
