@@ -50,8 +50,14 @@ public class ScaffoldAction extends AnAction {
             JekaDoer jekaDoer = JekaDoer.getInstance();
             jekaDoer.scaffoldModule(module.getProject(), path);
             virtualFile.getFileSystem().refresh(true);
-            JkNotifications.info("Missing Jeka files (re)created for module " + module.getName());
         });
+    }
+
+    @Override
+    public void update(AnActionEvent event) {
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        event.getPresentation().setVisible(virtualFile.isDirectory());
+
     }
 
     private static Path dirPath(VirtualFile virtualFile) {

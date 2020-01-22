@@ -45,36 +45,52 @@ public class CmdJekaDoer implements JekaDoer {
 
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
-        cmd.addParameter("intellij#iml");
+        cmd.addParameters("intellij#iml", "-LH");
         cmd.setWorkDirectory(moduleDir.toFile());
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        start(cmd, project);
+        boolean success = start(cmd, project, true);
+        if (!success) {
+            cmd = new GeneralCommandLine(jekaCmd(moduleDir));
+            cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
+            cmd.setWorkDirectory(moduleDir.toFile());
+            start(cmd, project, false);
+        }
+
     }
 
     public void scaffoldModule(Project project, Path moduleDir) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
-        cmd.addParameters("scaffold#run", "scaffold#wrap", "java#", "intellij#iml" );
+        cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#", "intellij#iml" );
         cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project);
+        start(cmd, project, true);
     }
 
-
-    private void start(GeneralCommandLine cmd, Project project) {
+    private boolean start(GeneralCommandLine cmd, Project project, boolean clear) {
         OSProcessHandler handler = null;
         try {
             handler = new OSProcessHandler(cmd);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
+        attachView(project, handler, clear);
+        window.show(() -> {});
+        handler.waitFor();
+        int exitCode = handler.getExitCode();
+        return exitCode == 0;
+    }
+
+    private void attachView(Project project, OSProcessHandler handler, boolean clear) {
         if (view == null) {
             TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
             TextConsoleBuilder builder = factory.createBuilder(project);
             view = builder.getConsole();
         }
         view.attachToProcess(handler);
-        view.clear();
+        if (clear) {
+            view.clear();
+        }
         handler.startNotify();
         if (window == null) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
@@ -86,7 +102,6 @@ public class CmdJekaDoer implements JekaDoer {
                     .createContent(view.getComponent(), "", false);
             contentManager.addContent(content);
         }
-        window.show(() -> {});
     }
 
     private String jekaCmd(Path moduleDir) {

@@ -30,7 +30,7 @@
 
         <applicationInitializedListener implementation="dev.jeka.ide.intellij.platform.JekaApplicationInitializedListener"/>
 
-
+        <configurationType implementation="dev.jeka.ide.intellij.runconfigations.JekaToolRunConfigurationType"/>
 
 
 

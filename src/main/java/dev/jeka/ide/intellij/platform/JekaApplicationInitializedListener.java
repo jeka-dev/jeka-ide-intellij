@@ -11,8 +11,6 @@ import static dev.jeka.ide.intellij.utils.Constants.JEKA_USER_HOME;
 
 public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
 
-
-
     @Override
     public void componentsInitialized() {
 
