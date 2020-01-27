@@ -40,15 +40,17 @@ import java.nio.file.Paths;
  */
 public class SyncImlAction extends AnAction {
 
+    public static final SyncImlAction INSTANCE = new SyncImlAction();
+
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
 
-    public SyncImlAction() {
+    private SyncImlAction() {
         super("Synchronize", "Synchronize iml file", AllIcons.Actions.Refresh);
     }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        ModuleClass moduleClass = ModuleClass.ofMaybeCommandClass(event);
+        ModuleClass moduleClass = ModuleClass.of(event);
         String className = moduleClass.psiClass == null ? null : moduleClass.psiClass.getQualifiedName();
         VirtualFile virtualRoot = ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0];
         Path path = Paths.get(virtualRoot.getPath());
@@ -61,12 +63,17 @@ public class SyncImlAction extends AnAction {
 
     @Override
     public void update(AnActionEvent event) {
-        ModuleClass moduleClass = ModuleClass.ofMaybeCommandClass(event);
+        ModuleClass moduleClass = ModuleClass.of(event);
         if (moduleClass.psiClass != null) {
-            event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' module using "
-                    + moduleClass.psiClass.getName());
-        } else {
+            final String text = "Synchronize '" + moduleClass.module.getName() + "' module";
+            event.getPresentation().setText(text);
+            if (event.getPlace().equals("EditorPopup")) {
+                event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
+            }
+        } else if (moduleClass.module != null) {
             event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' module");
+        } else {
+            event.getPresentation().setVisible(false);
         }
     }
 
@@ -94,7 +101,7 @@ public class SyncImlAction extends AnAction {
             this.psiClass = psiClass;
         }
 
-        static ModuleClass ofMaybeCommandClass(AnActionEvent event) {
+        static ModuleClass of(AnActionEvent event) {
             VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
             Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
             PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
@@ -106,8 +113,19 @@ public class SyncImlAction extends AnAction {
                     return new ModuleClass(module, psiClass);
                 }
             }
-            return new ModuleClass(module, null);
+            if (getModuleRootDir(module).equals(virtualFile)) {
+                return new ModuleClass(module, null);
+            }
+            return new ModuleClass(null, null);
         }
+    }
+
+    private static VirtualFile getModuleRootDir(Module module) {
+        VirtualFile imlParent = module.getModuleFile().getParent();
+        if (imlParent.getName().equals(".idea")) {
+            return imlParent.getParent();
+        }
+        return imlParent;
     }
 
 }

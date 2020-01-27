@@ -28,6 +28,11 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
 
+        // Add Sync Iml to editor contect popup
+        DefaultActionGroup popupGroup = (DefaultActionGroup) actionManager.getAction("EditorPopupMenu");
+        Constraints actionLocation = new Constraints(Anchor.FIRST, null);
+        popupGroup.addAction(SyncImlAction.INSTANCE, actionLocation);
+
         // Add classpath variable
         if (Utils.getPathVariable(JEKA_USER_HOME) == null) {
             String value = System.getProperty("user.home") + File.separator + ".jeka";

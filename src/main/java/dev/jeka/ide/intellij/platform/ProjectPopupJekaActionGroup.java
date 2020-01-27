@@ -27,8 +27,8 @@ public class ProjectPopupJekaActionGroup extends DefaultActionGroup {
 
     public ProjectPopupJekaActionGroup() {
         super("Jeka", true);
-        ScaffoldAction scaffoldAction = new ScaffoldAction();
-        SyncImlAction syncImlAction = new SyncImlAction();
+        ScaffoldAction scaffoldAction = ScaffoldAction.INSTANCE;
+        SyncImlAction syncImlAction = SyncImlAction.INSTANCE;
         this.add(syncImlAction);
         this.add(scaffoldAction);
     }

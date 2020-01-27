@@ -22,6 +22,10 @@ import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -29,9 +33,16 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import dev.jeka.ide.intellij.platform.JkIcons;
+import dev.jeka.ide.intellij.utils.Utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 
 /**
  * @author Jerome Angibaud
@@ -40,8 +51,13 @@ public class CmdJekaDoer implements JekaDoer {
 
     static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
 
+    private static final String JEKA_JAR_NAME = "dev.jeka.jeka-core.jar";
+
     private ConsoleView view = null;
+
     private ToolWindow window = null;
+
+    private String jekaScriptPath;
 
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
@@ -57,10 +73,10 @@ public class CmdJekaDoer implements JekaDoer {
             cmd.setWorkDirectory(moduleDir.toFile());
             start(cmd, project, false);
         }
-
     }
 
     public void scaffoldModule(Project project, Path moduleDir) {
+        initView(project);
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
         cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#", "intellij#iml" );
         cmd.setWorkDirectory(moduleDir.toFile());
@@ -72,21 +88,33 @@ public class CmdJekaDoer implements JekaDoer {
         try {
             handler = new OSProcessHandler(cmd);
         } catch (ExecutionException e) {
+            this.jekaScriptPath = null;
             throw new RuntimeException(e);
+        } catch (RuntimeException e) {
+            this.jekaScriptPath = null;
+            throw e;
         }
         attachView(project, handler, clear);
         window.show(() -> {});
-        handler.waitFor();
-        int exitCode = handler.getExitCode();
+        int  exitCode = 0;
+        try {
+            exitCode = handler.getProcess().waitFor();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return exitCode == 0;
     }
 
-    private void attachView(Project project, OSProcessHandler handler, boolean clear) {
+    private void initView(Project project) {
         if (view == null) {
             TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
             TextConsoleBuilder builder = factory.createBuilder(project);
             view = builder.getConsole();
         }
+    }
+
+    private void attachView(Project project, OSProcessHandler handler, boolean clear) {
+        initView(project);
         view.attachToProcess(handler);
         if (clear) {
             view.clear();
@@ -107,9 +135,10 @@ public class CmdJekaDoer implements JekaDoer {
     private String jekaCmd(Path moduleDir) {
         if (isWindows()) {
             return Files.exists(moduleDir.resolve("jekaw.bat")) ?
-                    moduleDir.toAbsolutePath().resolve("jekaw.bat").toString() : "jeka.bat";
+                    moduleDir.toAbsolutePath().resolve("jekaw.bat").toString()
+                    : jekaScriptPath(true);
         }
-        return Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : "jeka";
+        return Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : jekaScriptPath(false);
     }
 
     private static boolean isWindows() {
@@ -118,6 +147,66 @@ public class CmdJekaDoer implements JekaDoer {
             return false;
         }
         return osName.startsWith("Windows");
+    }
+
+    private String jekaScriptPath(boolean isWindows) {
+        if (jekaScriptPath != null) {
+            return jekaScriptPath;
+        }
+        String scriptName = isWindows ? "jeka.bat" : "jeka";
+        try {
+            new ProcessBuilder().command(scriptName, "help").start();
+            this.jekaScriptPath = scriptName;
+        } catch (IOException e) {
+            jekaScriptPath = createDistribIdNeeed().resolve(scriptName).toAbsolutePath().toString();
+        }
+        return jekaScriptPath;
+    }
+
+    private Path createDistribIdNeeed() {
+        Path parent = embeddedDir();
+        Path file = parent.resolve(JEKA_JAR_NAME);
+        if (!Files.exists(file)) {
+            view.print("Creating local Jeka distrib\n", ConsoleViewContentType.LOG_INFO_OUTPUT);
+            try {
+                Files.createDirectories(parent);
+                InputStream is = CmdJekaDoer.class.getClassLoader().getResourceAsStream("dev.jeka.jeka-core-distrib.zip");
+                Utils.unzip(is, parent);
+                addExecPerm(parent.resolve("jeka"));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        return parent;
+    }
+
+    private static void addExecPerm(Path file) {
+        Set<PosixFilePermission> perms;
+        try {
+            perms = Files.getPosixFilePermissions(file);
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+            perms.add(PosixFilePermission.GROUP_EXECUTE);
+            perms.add(PosixFilePermission.OTHERS_EXECUTE);
+            Files.setPosixFilePermissions(file, perms);
+        } catch (UnsupportedOperationException e) {
+            // Windows system
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Path embeddedDir() {
+        IdeaPluginDescriptor[] plugins  = PluginManager.getPlugins();
+        String version = null;
+        for (IdeaPluginDescriptor plugin : plugins) {
+            if (plugin.getPluginId().equals(PluginId.getId("dev.jeka.ide.intellij"))) {
+                version = plugin.getVersion();
+            }
+        }
+        String jekaUserHomeEnv = System.getenv("JEKA_USER_HOME");
+        Path userhome = jekaUserHomeEnv != null ? Paths.get(jekaUserHomeEnv) :
+                Paths.get(System.getProperty("user.home")).resolve(".jeka");
+        return userhome.resolve("intellij-plugin").resolve(version).resolve("distrib");
     }
 
 /*
@@ -149,8 +238,6 @@ public class CmdJekaDoer implements JekaDoer {
         RunnerAndConfigurationSettings settings = runManager.createConfiguration(name, type.getClass());
         System.out.println(settings);
     }
-
-
 
 
     private static String name(Path moduleDir) {

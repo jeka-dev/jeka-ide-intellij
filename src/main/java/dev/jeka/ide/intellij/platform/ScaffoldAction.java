@@ -34,8 +34,10 @@ import java.nio.file.Paths;
  */
 public class ScaffoldAction extends AnAction {
 
-    public ScaffoldAction() {
-        super("Generate Jeka sources and folders", "Generate Jeka sources and folders", AllIcons.Actions.Expandall);
+    public static final ScaffoldAction INSTANCE = new ScaffoldAction();
+
+    private ScaffoldAction() {
+        super("Generate Jeka files and folders", "Generate Jeka files and folders", AllIcons.Actions.Expandall);
     }
 
     @Override
