@@ -60,7 +60,7 @@ public class CmdJekaDoer implements JekaDoer {
     private String jekaScriptPath;
 
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         cmd.addParameters("intellij#iml", "-LH");
         cmd.setWorkDirectory(moduleDir.toFile());
         if (qualifiedClassName != null) {
@@ -68,7 +68,7 @@ public class CmdJekaDoer implements JekaDoer {
         }
         boolean success = start(cmd, project, true);
         if (!success) {
-            cmd = new GeneralCommandLine(jekaCmd(moduleDir));
+            cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
             cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
             cmd.setWorkDirectory(moduleDir.toFile());
             start(cmd, project, false);
@@ -77,8 +77,8 @@ public class CmdJekaDoer implements JekaDoer {
 
     public void scaffoldModule(Project project, Path moduleDir) {
         initView(project);
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir));
-        cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#", "intellij#iml" );
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
+        cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#" );
         cmd.setWorkDirectory(moduleDir.toFile());
         start(cmd, project, true);
     }
@@ -132,11 +132,17 @@ public class CmdJekaDoer implements JekaDoer {
         }
     }
 
-    private String jekaCmd(Path moduleDir) {
+    private String jekaCmd(Path moduleDir, boolean forceJeka) {
         if (isWindows()) {
+            if (forceJeka) {
+                return jekaScriptPath(true);
+            }
             return Files.exists(moduleDir.resolve("jekaw.bat")) ?
                     moduleDir.toAbsolutePath().resolve("jekaw.bat").toString()
                     : jekaScriptPath(true);
+        }
+        if (forceJeka) {
+            return jekaScriptPath(false);
         }
         return Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : jekaScriptPath(false);
     }

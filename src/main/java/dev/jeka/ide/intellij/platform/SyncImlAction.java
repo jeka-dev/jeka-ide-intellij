@@ -67,7 +67,7 @@ public class SyncImlAction extends AnAction {
         if (moduleClass.psiClass != null) {
             final String text = "Synchronize '" + moduleClass.module.getName() + "' module";
             event.getPresentation().setText(text);
-            if (event.getPlace().equals("EditorPopup")) {
+            if ("EditorPopup".equals(event.getPlace())) {
                 event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
             }
         } else if (moduleClass.module != null) {
@@ -129,8 +129,3 @@ public class SyncImlAction extends AnAction {
     }
 
 }
-
-
-
-
-
