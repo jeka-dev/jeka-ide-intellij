@@ -1,6 +1,9 @@
 package dev.jeka.ide.intellij.utils;
 
 import com.intellij.openapi.application.PathMacros;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +14,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
+
+    private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
 
     public static String getPathVariable(String varName) {
         PathMacros pathMacros = PathMacros.getInstance();
@@ -36,6 +41,21 @@ public class Utils {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static boolean isExtendingJkCommands(PsiClass psiClass) {
+        if (psiClass.getQualifiedName().equals(JKCOMMANDS_NAME)) {
+            return true;
+        }
+        PsiClassType[] psiClassTypes = psiClass.getExtendsListTypes();
+        for (PsiClassType psiClassType : psiClassTypes) {
+            PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiClassType;
+            PsiClass currentPsiClass = psiClassReferenceType.resolve();
+            if (isExtendingJkCommands(currentPsiClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

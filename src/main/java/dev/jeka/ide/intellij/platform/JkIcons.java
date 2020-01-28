@@ -31,4 +31,6 @@ public interface JkIcons {
 
     Icon JEKA_GREY_NAKED_13 = IconLoader.getIcon("/icons/knight-grey-naked-13.png");
 
+    Icon JEKA_RUN = IconLoader.getIcon("/icons/knight-run.svg");
+
 }

@@ -31,6 +31,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import dev.jeka.ide.intellij.JekaDoer;
+import dev.jeka.ide.intellij.utils.Utils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +43,7 @@ public class SyncImlAction extends AnAction {
 
     public static final SyncImlAction INSTANCE = new SyncImlAction();
 
-    private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
+
 
     private SyncImlAction() {
         super("Synchronize", "Synchronize iml file", AllIcons.Actions.Refresh);
@@ -77,20 +78,7 @@ public class SyncImlAction extends AnAction {
         }
     }
 
-    private static boolean isExtendingJkCommands(PsiClass psiClass) {
-        if (psiClass.getQualifiedName().equals(JKCOMMANDS_NAME)) {
-            return true;
-        }
-        PsiClassType[] psiClassTypes = psiClass.getExtendsListTypes();
-        for (PsiClassType psiClassType : psiClassTypes) {
-            PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiClassType;
-            PsiClass currentPsiClass = psiClassReferenceType.resolve();
-            if (isExtendingJkCommands(currentPsiClass)) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     private static class ModuleClass {
         final Module module;
@@ -108,7 +96,7 @@ public class SyncImlAction extends AnAction {
             if (psiFile instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 PsiClass psiClass = psiJavaFile.getClasses()[0];
-                boolean isCommandsClass = isExtendingJkCommands(psiClass);
+                boolean isCommandsClass = Utils.isExtendingJkCommands(psiClass);
                 if (isCommandsClass) {
                     return new ModuleClass(module, psiClass);
                 }

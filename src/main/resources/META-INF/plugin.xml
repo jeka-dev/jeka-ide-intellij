@@ -32,6 +32,9 @@
 
         <configurationType implementation="dev.jeka.ide.intellij.runconfigations.JekaToolRunConfigurationType"/>
 
+        <runLineMarkerContributor language="JAVA"
+                                  id="jeka"
+                                  implementationClass="dev.jeka.ide.intellij.platform.JekaRunLineMarkerContributor"/>
 
 
         <!--
@@ -46,9 +49,6 @@
                     anchor="bottom"
                     icon="/icons/knight-grey-naked.svg"
                     factoryClass="com.intellij.execution.services.ServiceViewToolWindowFactory"/>
-
-
-
 
         <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
 
