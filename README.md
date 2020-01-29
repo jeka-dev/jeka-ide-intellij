@@ -1,4 +1,4 @@
-# ideaPlugin4Jeka
+# Visual Jeka plugin for Intellij
 
 Plugin for IntelliJ Idea.
 
