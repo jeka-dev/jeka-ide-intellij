@@ -15,18 +15,18 @@ Intellij Plugin dev ref : https://www.jetbrains.org/intellij/sdk/docs/basics/run
 
 ## 1. Create Jeka module from scratch
 * Create an empty directory
-* Right-click on it and click _jeka | Generate Jeka files and folder_ <img src="../media/scaffold-menu.png"/>
+* Right-click on it and click _jeka | Generate Jeka files and folder_ <img src="media/scaffold-menu.png"/>
 
 ## 2. Generate module
-* Right-click on it and click _jeka | Create Module_ <img src="../media/create-moldule.png"/>
+* Right-click on it and click _jeka | Create Module_ <img src="media/create-moldule.png"/>
   
 ## 3. Syncronise module on Jeka file
-* While editing the command class, right-click and click _Synchronize module_ <img src="../media/editor-popup.png"/>
+* While editing the command class, right-click and click _Synchronize module_ <img src="media/editor-popup.png"/>
   
 ## 4. launch commands from the editor
 * In front of each command, click on the _Jeka Run icons to run/debug_ it.
 
-   <img src="../media/gutter1.png"/> <img src="../media/gutter2.png"/>
+   <img src="media/gutter1.png"/> <img src="media/gutter2.png"/>
    
 # How to build ?
 
