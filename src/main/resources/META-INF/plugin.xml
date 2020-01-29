@@ -9,13 +9,17 @@
       <ul>
         <li>Scaffolding capabilities to create Jeka projects from scratch</li>
         <li>Synchronize Intellij module dependencies on Jeka definition</li>
+        <li>Run/Debug Jeka methods from Java editor</li>
       </ul>
-   ]]></description>
+      More information at <a href="https://github.com/jerkar/jeka-ide-intellij">Git Page</a>
+      ]]>
+    </description>
 
     <change-notes><![CDATA[
       <ul>
-         <li>Bux fixes related to Windows</li>
-         <li>Add Jeka console output</li>
+        <li>Scaffolding capabilities to create Jeka projects from scratch</li>
+        <li>Synchronize Intellij module dependencies on Jeka definition</li>
+        <li>Run/Debug Jeka methods from Java editor</li>
       </ul>
     ]]>
     </change-notes>
