@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij.platform;
+package dev.jeka.ide.intellij;
 
 import com.intellij.openapi.util.IconLoader;
 

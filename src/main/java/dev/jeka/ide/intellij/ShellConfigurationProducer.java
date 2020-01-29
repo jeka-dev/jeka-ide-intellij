@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.platform;
+package dev.jeka.ide.intellij;
 
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.RunConfigurationProducer;

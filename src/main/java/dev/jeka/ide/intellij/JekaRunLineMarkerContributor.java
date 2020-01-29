@@ -1,18 +1,11 @@
-package dev.jeka.ide.intellij.platform;
+package dev.jeka.ide.intellij;
 
-import com.intellij.execution.lineMarker.ExecutorAction;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.util.registry.Registry;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.util.PsiMethodUtil;
-import com.intellij.util.containers.ContainerUtil;
-import dev.jeka.ide.intellij.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +35,8 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
                 || !psiMethod.getModifierList().hasExplicitModifier("public")) {
             return null;
         }
-        final AnAction[] actions = ExecutorAction.getActions();
+        final AnAction[] actions = new AnAction[] {JekaRunMethodAction.RUN_JEKA_INSTANCE,
+                JekaRunMethodAction.DEBUG_JEKA_INSTANCE};
         Function<PsiElement, String> tooltipProvider = el -> "Run '" + el.getText() + "' as Jeka command";
         return new Info(JkIcons.JEKA_RUN, actions, tooltipProvider);
     }

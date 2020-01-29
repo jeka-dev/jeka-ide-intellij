@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.util.lang.UrlClassLoader;
-import dev.jeka.ide.intellij.utils.Constants;
-import dev.jeka.ide.intellij.utils.Utils;
+import dev.jeka.ide.intellij.JekaDoer;
+import dev.jeka.ide.intellij.Constants;
+import dev.jeka.ide.intellij.Utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

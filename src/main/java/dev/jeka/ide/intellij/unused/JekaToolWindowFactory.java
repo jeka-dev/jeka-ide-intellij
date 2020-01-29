@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij.platform;
+package dev.jeka.ide.intellij.unused;
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;

@@ -28,22 +28,21 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <applicationInitializedListener implementation="dev.jeka.ide.intellij.platform.JekaApplicationInitializedListener"/>
-
-        <configurationType implementation="dev.jeka.ide.intellij.runconfigations.JekaToolRunConfigurationType"/>
+        <applicationInitializedListener implementation="dev.jeka.ide.intellij.JekaApplicationInitializedListener"/>
 
         <runLineMarkerContributor language="JAVA"
                                   id="jeka"
-                                  implementationClass="dev.jeka.ide.intellij.platform.JekaRunLineMarkerContributor"/>
-
+                                  implementationClass="dev.jeka.ide.intellij.JekaRunLineMarkerContributor"/>
 
         <!--
-         <runConfigurationProducer implementation="dev.jeka.ide.intellij.platform.ShellConfigurationProducer"/>
+        <configurationType implementation="dev.jeka.ide.intellij.unused.runconfigations.JekaToolRunConfigurationType"/>
+
+         <runConfigurationProducer implementation="ShellConfigurationProducer"/>
 
         <toolWindow id="jerkar"
                     anchor="bottom"
                     icon="/icons/knight-grey-naked.svg"
-                    factoryClass="dev.jeka.ide.intellij.platform.JekaToolWindowFactory"/>
+                    factoryClass="dev.jeka.ide.intellij.unused.runconfigations.JekaToolWindowFactory"/>
 
    <toolWindow id="Jeka"
                     anchor="bottom"

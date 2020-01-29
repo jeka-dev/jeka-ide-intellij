@@ -1,13 +1,12 @@
-package dev.jeka.ide.intellij.platform;
+package dev.jeka.ide.intellij;
 
 import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
-import dev.jeka.ide.intellij.utils.Utils;
 
 import java.io.File;
 
-import static dev.jeka.ide.intellij.utils.Constants.JEKA_HOME;
-import static dev.jeka.ide.intellij.utils.Constants.JEKA_USER_HOME;
+import static dev.jeka.ide.intellij.Constants.JEKA_HOME;
+import static dev.jeka.ide.intellij.Constants.JEKA_USER_HOME;
 
 public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
 

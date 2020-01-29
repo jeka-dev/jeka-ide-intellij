@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.runconfigations;
+package dev.jeka.ide.intellij.unused.runconfigations;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;

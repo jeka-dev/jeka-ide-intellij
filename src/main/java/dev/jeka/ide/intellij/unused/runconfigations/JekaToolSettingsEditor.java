@@ -1,8 +1,7 @@
-package dev.jeka.ide.intellij.runconfigations;
+package dev.jeka.ide.intellij.unused.runconfigations;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.LabeledComponent;
 import org.jetbrains.annotations.NotNull;
 

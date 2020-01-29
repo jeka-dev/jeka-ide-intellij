@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.utils;
+package dev.jeka.ide.intellij;
 
 public class Constants {
 

@@ -1,10 +1,16 @@
-package dev.jeka.ide.intellij.utils;
+package dev.jeka.ide.intellij;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.PathMacros;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -56,6 +62,14 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static Module getModule(AnActionEvent event) {
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (virtualFile == null) {
+            return null;
+        }
+        return ModuleUtil.findModuleForFile(virtualFile, event.getProject());
     }
 
 

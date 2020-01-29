@@ -32,8 +32,6 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.ide.intellij.platform.JkIcons;
-import dev.jeka.ide.intellij.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;

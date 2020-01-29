@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij.platform;
+package dev.jeka.ide.intellij;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -26,12 +26,8 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
-import dev.jeka.ide.intellij.JekaDoer;
-import dev.jeka.ide.intellij.utils.Utils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
