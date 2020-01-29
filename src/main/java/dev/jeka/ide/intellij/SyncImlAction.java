@@ -16,19 +16,23 @@
 
 package dev.jeka.ide.intellij;
 
+import b.j.M;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.module.*;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
+import org.jdom.JDOMException;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,8 +43,6 @@ public class SyncImlAction extends AnAction {
 
     public static final SyncImlAction INSTANCE = new SyncImlAction();
 
-
-
     private SyncImlAction() {
         super("Synchronize", "Synchronize iml file", AllIcons.Actions.Refresh);
     }
@@ -49,11 +51,15 @@ public class SyncImlAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         ModuleClass moduleClass = ModuleClass.of(event);
         String className = moduleClass.psiClass == null ? null : moduleClass.psiClass.getQualifiedName();
-        VirtualFile virtualRoot = ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0];
+        VirtualFile virtualRoot = moduleClass.module != null ?
+                ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0]
+                : event.getData(CommonDataKeys.VIRTUAL_FILE);
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = JekaDoer.getInstance();
+        Project project = event.getProject();
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            jekaDoer.generateIml(moduleClass.module.getProject(), path, className);
+            jekaDoer.generateIml(project, path, className);
+            addModuleIfNeeded(virtualRoot.getName(), virtualRoot, project);
         });
         virtualRoot.getFileSystem().refresh(true);
     }
@@ -61,6 +67,7 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         ModuleClass moduleClass = ModuleClass.of(event);
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
         if (moduleClass.psiClass != null) {
             final String text = "Synchronize '" + moduleClass.module.getName() + "' module";
             event.getPresentation().setText(text);
@@ -69,9 +76,20 @@ public class SyncImlAction extends AnAction {
             }
         } else if (moduleClass.module != null) {
             event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' module");
-        } else {
+        } else if (virtualFile.isDirectory() && containsJekaDir(virtualFile.getChildren())) {
+            event.getPresentation().setText("Create module " + virtualFile.getName());
+        }  else {
             event.getPresentation().setVisible(false);
         }
+    }
+
+    private static boolean containsJekaDir(VirtualFile[] virtualFiles) {
+        for (VirtualFile virtualFile : virtualFiles) {
+            if ("jeka".equals(virtualFile.getName()) && virtualFile.isDirectory()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -110,6 +128,37 @@ public class SyncImlAction extends AnAction {
             return imlParent.getParent();
         }
         return imlParent;
+    }
+
+    private static VirtualFile findImlFile(VirtualFile moduleDir) {
+        String name = moduleDir.getName() + ".iml";
+        VirtualFile candidate = moduleDir.findChild(name);
+        if (candidate != null) {
+            return candidate;
+        }
+        VirtualFile ideaDir = moduleDir.findChild(".idea");
+        if (ideaDir == null) {
+            return null;
+        }
+        return ideaDir.findChild(name);
+    }
+
+    private static void addModuleIfNeeded(String moduleName, VirtualFile moduleDir, Project project) {
+        Module module = ModuleManager.getInstance(project).findModuleByName(moduleName);
+        if (module != null) {
+            return;
+        }
+        moduleDir.getFileSystem().refresh(false);
+        VirtualFile imlFile = findImlFile(moduleDir);
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            try {
+            ModifiableModuleModel modifiableModuleModel = ModuleManager.getInstance(project).getModifiableModel();
+            modifiableModuleModel.loadModule(imlFile.getPath());
+            modifiableModuleModel.commit();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 }
