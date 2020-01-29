@@ -77,7 +77,7 @@ public class SyncImlAction extends AnAction {
         } else if (moduleClass.module != null) {
             event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' module");
         } else if (virtualFile.isDirectory() && containsJekaDir(virtualFile.getChildren())) {
-            event.getPresentation().setText("Create module " + virtualFile.getName());
+            event.getPresentation().setText("Create module '" + virtualFile.getName() + "'");
         }  else {
             event.getPresentation().setVisible(false);
         }
@@ -152,9 +152,9 @@ public class SyncImlAction extends AnAction {
         VirtualFile imlFile = findImlFile(moduleDir);
         ApplicationManager.getApplication().runWriteAction(() -> {
             try {
-            ModifiableModuleModel modifiableModuleModel = ModuleManager.getInstance(project).getModifiableModel();
-            modifiableModuleModel.loadModule(imlFile.getPath());
-            modifiableModuleModel.commit();
+                ModifiableModuleModel modifiableModuleModel = ModuleManager.getInstance(project).getModifiableModel();
+                modifiableModuleModel.loadModule(imlFile.getPath());
+                modifiableModuleModel.commit();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
