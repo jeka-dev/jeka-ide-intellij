@@ -11,6 +11,10 @@ This plugin aims at providing :
 
 Intellij Plugin dev ref : https://www.jetbrains.org/intellij/sdk/docs/basics/run_configurations/run_configuration_management.html
 
+# Where to download ?
+
+* https://plugins.jetbrains.com/plugin/13489-jeka/
+
 # How to use it ?
 
 ## 1. Create Jeka module from scratch
@@ -33,6 +37,8 @@ Intellij Plugin dev ref : https://www.jetbrains.org/intellij/sdk/docs/basics/run
 Use Gradle _buildPlugin_ task
   
 # Resources 
+
+* https://plugins.jetbrains.com/plugin/13489-jeka/
 
 * https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html
 
