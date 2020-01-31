@@ -4,12 +4,12 @@ Plugin for IntelliJ Idea.
 
 This plugin aims at providing :
 
+* An ebedded version of Jeka : you don't have to install Jeka on your machine to use it !
 * Jeka project creation from scratch
 * Sync .iml files with Jeka command classes
 * Buttons to run/debug command methods directly from editor (similarly to @Test methods)
 * auto-completion within dependency API for module dependencies (in progress)
-
-Intellij Plugin dev ref : https://www.jetbrains.org/intellij/sdk/docs/basics/run_configurations/run_configuration_management.html
+ 
 
 # Where to download ?
 
@@ -43,6 +43,8 @@ Use Gradle _buildPlugin_ task
 * https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html
 
 * https://plugins.jetbrains.com/plugin/13489-jeka/
+
+* https://www.jetbrains.org/intellij/sdk/docs/basics/run_configurations/run_configuration_management.html
    
 
  
