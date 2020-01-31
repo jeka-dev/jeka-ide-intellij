@@ -9,9 +9,10 @@ This plugin provides :
 * Sync .iml files with Jeka command classes
 * Buttons to run/debug command methods directly from editor (similarly to @Test methods)
 
-Futur plan : 
+Roadmap : 
 
-* auto-completion within dependency API for module dependencies (in progress)
+* provide tree base collapsable output
+* Maven module auto-completion within Java Editor for `JkDependency` API
 * right-side tool panel to explore commands and options on a given project
  
 
