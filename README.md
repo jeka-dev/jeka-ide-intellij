@@ -12,7 +12,7 @@ This plugin provides :
 Roadmap : 
 
 * provide tree base collapsable output
-* Maven module auto-completion within Java Editor for `JkDependency` API
+* Maven module auto-completion within Java Editor for `JkDependencies` API
 * right-side tool panel to explore commands and options on a given project
  
 
