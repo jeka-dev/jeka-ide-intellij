@@ -2,7 +2,7 @@
 
 Plugin for IntelliJ Idea.
 
-This plugin provides :
+This plugin provides right now :
 
 * An ebedded version of Jeka : you don't have to install Jeka on your machine to use it !
 * Jeka project creation from scratch
@@ -11,6 +11,7 @@ This plugin provides :
 
 Roadmap : 
 
+* Register automatically RunConfiguration while launching run/debug commands
 * provide tree base collapsable output
 * Maven module auto-completion within Java Editor for `JkDependencies` API
 * right-side tool panel to explore commands and options on a given project
