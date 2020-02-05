@@ -4,14 +4,13 @@ Plugin for IntelliJ Idea.
 
 This plugin provides right now :
 
-* An ebedded version of Jeka : you don't have to install Jeka on your machine to use it !
+* An embedded version of Jeka : you don't have to install Jeka on your machine to use it !
 * Jeka project creation from scratch
 * Sync .iml files with Jeka command classes
 * Buttons to run/debug command methods directly from editor (similarly to @Test methods)
+* Register automatically RunConfiguration while launching run/debug commands
 
 Roadmap : 
-
-* Register automatically RunConfiguration while launching run/debug commands
 * provide tree base collapsable output
 * Maven module auto-completion within Java Editor for `JkDependencies` API
 * right-side tool panel to explore commands and options on a given project

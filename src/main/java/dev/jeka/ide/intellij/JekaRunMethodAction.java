@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiIdentifier;
+import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -32,8 +33,11 @@ public class JekaRunMethodAction extends AnAction {
         Project project = event.getProject();
         PsiLocation<PsiIdentifier> location = (PsiLocation<PsiIdentifier>)
                 event.getDataContext().getData(Location.DATA_KEY);
-        String methodName = location.getPsiElement().getText();
-        ApplicationConfiguration configuration = new ApplicationConfiguration("toto", project);
+        PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
+        String methodName = psiMethod.getName();
+        String className = psiMethod.getContainingClass().getName();
+        String name = className + " [jeka " + methodName + "]";
+        ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(Utils.getModule(event));
@@ -43,6 +47,7 @@ public class JekaRunMethodAction extends AnAction {
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
         ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
+        RunManager.getInstance(project).addConfiguration(runnerAndConfigurationSettings);
     }
 
 }

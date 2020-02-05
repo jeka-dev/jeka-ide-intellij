@@ -162,12 +162,12 @@ public class CmdJekaDoer implements JekaDoer {
             new ProcessBuilder().command(scriptName, "help").start();
             this.jekaScriptPath = scriptName;
         } catch (IOException e) {
-            jekaScriptPath = createDistribIdNeeed().resolve(scriptName).toAbsolutePath().toString();
+            jekaScriptPath = createDistribIfNeeed().resolve(scriptName).toAbsolutePath().toString();
         }
         return jekaScriptPath;
     }
 
-    private Path createDistribIdNeeed() {
+    private Path createDistribIfNeeed() {
         Path parent = embeddedDir();
         Path file = parent.resolve(JEKA_JAR_NAME);
         if (!Files.exists(file)) {

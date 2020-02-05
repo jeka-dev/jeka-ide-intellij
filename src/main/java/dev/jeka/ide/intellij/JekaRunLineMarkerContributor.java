@@ -2,10 +2,7 @@ package dev.jeka.ide.intellij;
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiIdentifier;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +29,8 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
         }
         if (psiMethod.hasParameters() || psiMethod.isConstructor()
                 || psiMethod.getModifierList().hasExplicitModifier("static")
-                || !psiMethod.getModifierList().hasExplicitModifier("public")) {
+                || !psiMethod.getModifierList().hasExplicitModifier("public")
+                || !psiMethod.getReturnType().equals(PsiType.VOID)) {
             return null;
         }
         final AnAction[] actions = new AnAction[] {JekaRunMethodAction.RUN_JEKA_INSTANCE,
