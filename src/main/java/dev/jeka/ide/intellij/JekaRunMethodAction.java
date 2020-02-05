@@ -35,8 +35,7 @@ public class JekaRunMethodAction extends AnAction {
                 event.getDataContext().getData(Location.DATA_KEY);
         PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
         String methodName = psiMethod.getName();
-        String className = psiMethod.getContainingClass().getName();
-        String name = className + " [jeka " + methodName + "]";
+        String name = location.getModule().getName() + " [jeka " + methodName + "]";
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
