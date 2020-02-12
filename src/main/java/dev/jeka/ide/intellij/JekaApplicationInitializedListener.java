@@ -27,7 +27,7 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
 
-        // Add Sync Iml to editor contect popup
+        // Add Sync Iml to editor context popup
         DefaultActionGroup popupGroup = (DefaultActionGroup) actionManager.getAction("EditorPopupMenu");
         Constraints actionLocation = new Constraints(Anchor.FIRST, null);
         popupGroup.addAction(SyncImlAction.INSTANCE, actionLocation);

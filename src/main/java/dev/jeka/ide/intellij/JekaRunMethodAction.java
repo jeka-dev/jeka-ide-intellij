@@ -35,12 +35,13 @@ public class JekaRunMethodAction extends AnAction {
                 event.getDataContext().getData(Location.DATA_KEY);
         PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
         String methodName = psiMethod.getName();
+        String className = psiMethod.getContainingClass().getName();
         String name = location.getModule().getName() + " [jeka " + methodName + "]";
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(Utils.getModule(event));
-        configuration.setProgramParameters(methodName);
+        configuration.setProgramParameters("-CC=" + className + " " + methodName);
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :

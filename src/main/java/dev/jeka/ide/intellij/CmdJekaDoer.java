@@ -21,17 +21,21 @@ import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,13 +68,7 @@ public class CmdJekaDoer implements JekaDoer {
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        boolean success = start(cmd, project, true);
-        if (!success) {
-            cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
-            cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
-            cmd.setWorkDirectory(moduleDir.toFile());
-            start(cmd, project, false);
-        }
+        start(cmd, project, true, () -> generaImlWithJkCommnds(project, moduleDir));
     }
 
     public void scaffoldModule(Project project, Path moduleDir) {
@@ -78,13 +76,44 @@ public class CmdJekaDoer implements JekaDoer {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
         cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#" );
         cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, true);
+        start(cmd, project, true, null);
     }
 
-    private boolean start(GeneralCommandLine cmd, Project project, boolean clear) {
+    private void generaImlWithJkCommnds(Project project, Path moduleDir) {
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
+        cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
+        cmd.setWorkDirectory(moduleDir.toFile());
+        start(cmd, project, false, null);
+    }
+
+    private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onFailure) {
         OSProcessHandler handler = null;
         try {
             handler = new OSProcessHandler(cmd);
+            handler.addProcessListener(new ProcessListener() {
+
+                @Override
+                public void startNotified(@NotNull ProcessEvent event) {
+
+                }
+
+                @Override
+                public void processTerminated(@NotNull ProcessEvent event) {
+                    if (event.getExitCode() != 0 && onFailure != null) {
+                        onFailure.run();
+                    }
+                }
+
+                @Override
+                public void processWillTerminate(@NotNull ProcessEvent event, boolean willBeDestroyed) {
+
+                }
+
+                @Override
+                public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+
+                }
+            });
         } catch (ExecutionException e) {
             this.jekaScriptPath = null;
             throw new RuntimeException(e);
@@ -94,13 +123,6 @@ public class CmdJekaDoer implements JekaDoer {
         }
         attachView(project, handler, clear);
         window.show(() -> {});
-        int  exitCode = 0;
-        try {
-            exitCode = handler.getProcess().waitFor();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return exitCode == 0;
     }
 
     private void initView(Project project) {

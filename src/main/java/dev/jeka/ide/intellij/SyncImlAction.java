@@ -16,23 +16,24 @@
 
 package dev.jeka.ide.intellij;
 
-import b.j.M;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.*;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.module.ModifiableModuleModel;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import org.jdom.JDOMException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -51,12 +52,19 @@ public class SyncImlAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         ModuleClass moduleClass = ModuleClass.of(event);
         String className = moduleClass.psiClass == null ? null : moduleClass.psiClass.getQualifiedName();
+        if (className != null) {
+            VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+            Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+            FileDocumentManager.getInstance().saveDocument(document);
+        }
         VirtualFile virtualRoot = moduleClass.module != null ?
                 ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0]
                 : event.getData(CommonDataKeys.VIRTUAL_FILE);
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = JekaDoer.getInstance();
         Project project = event.getProject();
+
+
         ApplicationManager.getApplication().invokeAndWait(() -> {
             jekaDoer.generateIml(project, path, className);
             addModuleIfNeeded(virtualRoot.getName(), virtualRoot, project);
@@ -109,6 +117,9 @@ public class SyncImlAction extends AnAction {
             PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
             if (psiFile instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+                if (psiJavaFile.getClasses().length == 0) {
+                    return new ModuleClass(null, null);
+                }
                 PsiClass psiClass = psiJavaFile.getClasses()[0];
                 boolean isCommandsClass = Utils.isExtendingJkCommands(psiClass);
                 if (isCommandsClass) {

@@ -4,6 +4,7 @@
     <version>1.3.0</version>
     <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
+
     <description><![CDATA[
       Integrates with <a href="https://jeka.dev">Jeka Build Tool</a> by providing :
       <ul>
@@ -17,15 +18,19 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Scaffolding capabilities to create Jeka projects from scratch</li>
-        <li>Synchronize Intellij module dependencies on Jeka definition</li>
-        <li>Run/Debug Jeka methods from Java editor</li>
+        <li>Handle Multiple Command classes on a single project</li>
+        <li>Better Jeka console handling</li>
+        <li>Small bug fixes</li>
       </ul>
     ]]>
     </change-notes>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
+
+    <!--
+    <depends optional="true" config-file="withKotlin.xml">org.jetbrains.kotlin</depends>
+    -->
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="193.2"/>
