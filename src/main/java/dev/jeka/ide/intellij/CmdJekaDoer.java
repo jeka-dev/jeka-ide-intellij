@@ -23,25 +23,18 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
-import sun.security.pkcs11.Secmod;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,8 +94,9 @@ public class CmdJekaDoer implements JekaDoer {
 
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
-
                     if (event.getExitCode() != 0 && onFailure != null) {
+                        view.print("\nSync has failed !!! Let's try to sync with standard class JkCommands\n",
+                                ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {
                         onSuccess.run();
