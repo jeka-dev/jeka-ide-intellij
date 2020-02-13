@@ -49,6 +49,9 @@ public class Utils {
     }
 
     public static boolean isExtendingJkCommands(PsiClass psiClass) {
+        if (psiClass == null) {
+            return false;
+        }
         if (psiClass.getQualifiedName().equals(JKCOMMANDS_NAME)) {
             return true;
         }

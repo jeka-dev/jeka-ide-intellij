@@ -29,6 +29,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
@@ -63,13 +64,10 @@ public class SyncImlAction extends AnAction {
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = JekaDoer.getInstance();
         Project project = event.getProject();
-
-
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            jekaDoer.generateIml(project, path, className);
+            jekaDoer.generateIml(project, path, className, ()-> refreshModule(moduleClass.module));
             addModuleIfNeeded(virtualRoot.getName(), virtualRoot, project);
         });
-        virtualRoot.getFileSystem().refresh(true);
     }
 
     @Override
@@ -170,6 +168,11 @@ public class SyncImlAction extends AnAction {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private static void refreshModule(Module module) {
+        VirtualFile imlFile = module.getModuleFile();
+        VfsUtil.markDirtyAndRefresh(false, false, false, imlFile);
     }
 
 }

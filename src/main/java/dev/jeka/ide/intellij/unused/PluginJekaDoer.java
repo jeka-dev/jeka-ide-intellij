@@ -17,6 +17,7 @@
 package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.lang.UrlClassLoader;
 import dev.jeka.ide.intellij.Constants;
 import dev.jeka.ide.intellij.JekaDoer;
@@ -37,13 +38,13 @@ import java.util.function.Consumer;
 /**
  * @author Jerome Angibaud
  */
-public class PluginJekaDoer implements JekaDoer {
+public class PluginJekaDoer {
 
     static final PluginJekaDoer INSTANCE = new PluginJekaDoer();
 
     private Map<Path,ClassLoader> classLoaders = new HashMap<>();
 
-    public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
+    public void generateIml(Project project, Path moduleDir, String qualifiedClassName, VirtualFile moduleRoot) {
         List<String> argList = new LinkedList<>();
         if (qualifiedClassName != null) {
             argList.add("-CC=" + qualifiedClassName);

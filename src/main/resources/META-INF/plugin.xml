@@ -18,8 +18,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Handle Multiple Command classes on a single project</li>
-        <li>Better Jeka console handling</li>
+        <il>Better module sync handling</il>
+        <li>Update Jeka embedded version</li>
         <li>Small bug fixes</li>
       </ul>
     ]]>

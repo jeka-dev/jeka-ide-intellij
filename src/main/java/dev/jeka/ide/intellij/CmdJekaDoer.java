@@ -21,6 +21,7 @@ import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.ui.ConsoleView;
@@ -28,14 +29,19 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
+import sun.security.pkcs11.Secmod;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,14 +67,15 @@ public class CmdJekaDoer implements JekaDoer {
 
     private String jekaScriptPath;
 
-    public void generateIml(Project project, Path moduleDir, String qualifiedClassName) {
+    public void generateIml(Project project, Path moduleDir, String qualifiedClassName, Runnable doRefresh) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         cmd.addParameters("intellij#iml", "-LH");
         cmd.setWorkDirectory(moduleDir.toFile());
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        start(cmd, project, true, () -> generaImlWithJkCommnds(project, moduleDir));
+        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir);
+        start(cmd, project, true, doRefresh,  onError );
     }
 
     public void scaffoldModule(Project project, Path moduleDir) {
@@ -76,43 +83,32 @@ public class CmdJekaDoer implements JekaDoer {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
         cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#" );
         cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, true, null);
+        start(cmd, project, true, null, null);
     }
 
     private void generaImlWithJkCommnds(Project project, Path moduleDir) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
         cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, false, null);
+        start(cmd, project, false, null, null);
     }
 
-    private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onFailure) {
+    private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
         OSProcessHandler handler = null;
         try {
             handler = new OSProcessHandler(cmd);
-            handler.addProcessListener(new ProcessListener() {
-
-                @Override
-                public void startNotified(@NotNull ProcessEvent event) {
-
-                }
+            handler.addProcessListener(new ProcessAdapter() {
 
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
+
                     if (event.getExitCode() != 0 && onFailure != null) {
                         onFailure.run();
+                    } else if (event.getExitCode() == 0 && onSuccess != null) {
+                        onSuccess.run();
                     }
                 }
 
-                @Override
-                public void processWillTerminate(@NotNull ProcessEvent event, boolean willBeDestroyed) {
-
-                }
-
-                @Override
-                public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
-
-                }
             });
         } catch (ExecutionException e) {
             this.jekaScriptPath = null;
