@@ -74,7 +74,7 @@ public class CmdJekaDoer implements JekaDoer {
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir);
+        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, doRefresh);
         start(cmd, project, true, doRefresh,  onError );
     }
 
@@ -86,11 +86,11 @@ public class CmdJekaDoer implements JekaDoer {
         start(cmd, project, true, null, null);
     }
 
-    private void generaImlWithJkCommnds(Project project, Path moduleDir) {
+    private void generaImlWithJkCommnds(Project project, Path moduleDir, Runnable onSuccess) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
         cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, false, null, null);
+        start(cmd, project, false, onSuccess, null);
     }
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
