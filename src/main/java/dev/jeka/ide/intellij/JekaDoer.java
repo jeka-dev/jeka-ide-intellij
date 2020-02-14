@@ -31,5 +31,5 @@ public interface JekaDoer {
 
     void generateIml(Project project, Path moduleRoor, String className, Runnable doRefresh);
 
-    void scaffoldModule(Project project, Path moduleDir);
+    void scaffoldModule(Project project, Path moduleDir, boolean createWrapper);
 }

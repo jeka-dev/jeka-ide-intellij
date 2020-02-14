@@ -64,10 +64,29 @@ public class SyncImlAction extends AnAction {
         Path path = Paths.get(virtualRoot.getPath());
         JekaDoer jekaDoer = JekaDoer.getInstance();
         Project project = event.getProject();
-        ApplicationManager.getApplication().invokeAndWait(() -> {
-            jekaDoer.generateIml(project, path, className, ()-> refreshModule(moduleClass.module));
-            addModuleIfNeeded(virtualRoot.getName(), virtualRoot, project);
-        });
+        final Object lock = new Object();
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                Runnable onSuccess = moduleClass.module != null ?
+                        () -> refreshModule(moduleClass.module) :
+                        () -> {
+                            synchronized (lock) {
+                                lock.notify();
+                            }
+                        };
+                jekaDoer.generateIml(project, path, className, onSuccess);
+            });
+            if (moduleClass.module == null) {
+                try {
+                    synchronized (lock) {
+                        lock.wait();
+                    }
+                    addModule(virtualRoot.getName(), virtualRoot, project);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+
     }
 
     @Override
@@ -152,16 +171,12 @@ public class SyncImlAction extends AnAction {
         return ideaDir.findChild(name);
     }
 
-    private static void addModuleIfNeeded(String moduleName, VirtualFile moduleDir, Project project) {
-        Module module = ModuleManager.getInstance(project).findModuleByName(moduleName);
-        if (module != null) {
-            return;
-        }
+    private static void addModule(String moduleName, VirtualFile moduleDir, Project project) {
         moduleDir.getFileSystem().refresh(false);
         VirtualFile imlFile = findImlFile(moduleDir);
+        ModifiableModuleModel modifiableModuleModel = ModuleManager.getInstance(project).getModifiableModel();
         ApplicationManager.getApplication().runWriteAction(() -> {
             try {
-                ModifiableModuleModel modifiableModuleModel = ModuleManager.getInstance(project).getModifiableModel();
                 modifiableModuleModel.loadModule(imlFile.getPath());
                 modifiableModuleModel.commit();
             } catch (Exception e) {

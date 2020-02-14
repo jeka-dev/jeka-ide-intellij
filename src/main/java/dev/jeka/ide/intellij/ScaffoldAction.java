@@ -47,11 +47,16 @@ public class ScaffoldAction extends AnAction {
         }
         Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
         Path path = dirPath(virtualFile);
+        ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(module.getProject());
+        dialogWrapper.setModuleDir(path);
+        dialogWrapper.show();
+        /*
         ApplicationManager.getApplication().invokeAndWait(() -> {
             JekaDoer jekaDoer = JekaDoer.getInstance();
             jekaDoer.scaffoldModule(module.getProject(), path);
             virtualFile.getFileSystem().refresh(true);
         });
+        */
     }
 
     @Override

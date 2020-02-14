@@ -71,19 +71,22 @@ public class CmdJekaDoer implements JekaDoer {
         start(cmd, project, true, doRefresh,  onError );
     }
 
-    public void scaffoldModule(Project project, Path moduleDir) {
+    public void scaffoldModule(Project project, Path moduleDir, boolean scaffoldWrap) {
         initView(project);
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
-        cmd.addParameters("scaffold#run", "-LH", "scaffold#wrap", "java#" );
+        cmd.addParameters("scaffold#run", "-LH", "java#" );
+        if (scaffoldWrap) {
+            cmd.addParameter("scaffold#wrap");
+        }
         cmd.setWorkDirectory(moduleDir.toFile());
         start(cmd, project, true, null, null);
     }
 
-    private void generaImlWithJkCommnds(Project project, Path moduleDir, Runnable onSuccess) {
+    private void generaImlWithJkCommnds(Project project, Path moduleDir, Runnable refresh) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
         cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, false, onSuccess, null);
+        start(cmd, project, false, refresh, refresh);
     }
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
