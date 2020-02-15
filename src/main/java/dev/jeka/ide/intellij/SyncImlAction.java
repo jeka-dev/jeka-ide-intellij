@@ -132,6 +132,9 @@ public class SyncImlAction extends AnAction {
             VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
             Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
             PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
+            if (psiFile == null) {
+                return new ModuleClass(null, null);
+            }
             if (psiFile instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 if (psiJavaFile.getClasses().length == 0) {

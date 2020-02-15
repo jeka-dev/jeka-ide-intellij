@@ -29,6 +29,8 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -36,6 +38,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -71,15 +74,17 @@ public class CmdJekaDoer implements JekaDoer {
         start(cmd, project, true, doRefresh,  onError );
     }
 
-    public void scaffoldModule(Project project, Path moduleDir, boolean scaffoldWrap) {
+    public void scaffoldModule(Project project, VirtualFile moduleDir,  boolean scaffoldWrap) {
         initView(project);
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(Paths.get(moduleDir.getPath()), true));
         cmd.addParameters("scaffold#run", "-LH", "java#" );
         if (scaffoldWrap) {
             cmd.addParameter("scaffold#wrap");
         }
-        cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, true, null, null);
+        cmd.setWorkDirectory(new File(moduleDir.getPath()));
+        start(cmd, project,
+                true, () -> VfsUtil.markDirtyAndRefresh(false, true, true, moduleDir),
+                null);
     }
 
     private void generaImlWithJkCommnds(Project project, Path moduleDir, Runnable refresh) {

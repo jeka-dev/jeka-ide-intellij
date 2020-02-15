@@ -3,6 +3,7 @@ package dev.jeka.ide.intellij;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -13,7 +14,7 @@ import java.nio.file.Path;
 
 class ScaffoldDialogWrapper extends DialogWrapper {
 
-    private Path moduleDir;
+    private VirtualFile moduleDir;
 
     private Project project;
 
@@ -26,7 +27,7 @@ class ScaffoldDialogWrapper extends DialogWrapper {
         this.project = project;
     }
 
-    void setModuleDir(Path moduleDir) {
+    void setModuleDir(VirtualFile moduleDir) {
         this.moduleDir = moduleDir;
     }
 
@@ -44,7 +45,6 @@ class ScaffoldDialogWrapper extends DialogWrapper {
         ApplicationManager.getApplication().invokeAndWait(() -> {
             JekaDoer jekaDoer = JekaDoer.getInstance();
             jekaDoer.scaffoldModule(project, moduleDir, createWrapperCb.getState());
-            project.getWorkspaceFile().getFileSystem().refresh(true);
             ScaffoldDialogWrapper.this.close(0);
         });
     }

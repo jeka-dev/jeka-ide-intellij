@@ -17,6 +17,7 @@
 package dev.jeka.ide.intellij;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import java.nio.file.Path;
 
@@ -31,5 +32,5 @@ public interface JekaDoer {
 
     void generateIml(Project project, Path moduleRoor, String className, Runnable doRefresh);
 
-    void scaffoldModule(Project project, Path moduleDir, boolean createWrapper);
+    void scaffoldModule(Project project, VirtualFile moduleDir, boolean createWrapper);
 }

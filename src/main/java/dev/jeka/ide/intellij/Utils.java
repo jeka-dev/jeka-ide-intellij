@@ -52,7 +52,7 @@ public class Utils {
         if (psiClass == null) {
             return false;
         }
-        if (psiClass.getQualifiedName().equals(JKCOMMANDS_NAME)) {
+        if (JKCOMMANDS_NAME.equals(psiClass.getQualifiedName())) {
             return true;
         }
         PsiClassType[] psiClassTypes = psiClass.getExtendsListTypes();
