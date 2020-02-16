@@ -27,7 +27,9 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -51,7 +53,7 @@ import java.util.Set;
 /**
  * @author Jerome Angibaud
  */
-public class CmdJekaDoer implements JekaDoer {
+public class CmdJekaDoer {
 
     static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
 
@@ -63,7 +65,7 @@ public class CmdJekaDoer implements JekaDoer {
 
     private String jekaScriptPath;
 
-    public void generateIml(Project project, Path moduleDir, String qualifiedClassName, Runnable doRefresh) {
+    public void generateIml(Project project, Path moduleDir, String qualifiedClassName, boolean clear, Runnable doRefresh) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         cmd.addParameters("intellij#iml", "-LH");
         cmd.setWorkDirectory(moduleDir.toFile());
@@ -71,20 +73,28 @@ public class CmdJekaDoer implements JekaDoer {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
         Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, doRefresh);
-        start(cmd, project, true, doRefresh,  onError );
+        start(cmd, project, clear, doRefresh,  onError );
     }
 
-    public void scaffoldModule(Project project, VirtualFile moduleDir,  boolean scaffoldWrap) {
+    public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStrucure, boolean createWrapper,
+                               Path wrapDelegate) {
         initView(project);
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(Paths.get(moduleDir.getPath()), true));
-        cmd.addParameters("scaffold#run", "-LH", "java#" );
-        if (scaffoldWrap) {
+        Path modulePath = Paths.get(moduleDir.getPath());
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
+        cmd.addParameter("-LH");
+        if (createStrucure) {
+            cmd.addParameters("scaffold#run", "java#");
+        }
+        if (createWrapper) {
             cmd.addParameter("scaffold#wrap");
         }
+        if (wrapDelegate != null) {
+            cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate.toString());
+        }
         cmd.setWorkDirectory(new File(moduleDir.getPath()));
-        start(cmd, project,
-                true, () -> VfsUtil.markDirtyAndRefresh(false, true, true, moduleDir),
-                null);
+        Runnable onSuccess = () -> generateIml(project, modulePath, null, false,
+                () -> VfsUtil.markDirtyAndRefresh(false, true, true, moduleDir) );
+        start(cmd, project, true, onSuccess, null);
     }
 
     private void generaImlWithJkCommnds(Project project, Path moduleDir, Runnable refresh) {
@@ -120,7 +130,10 @@ public class CmdJekaDoer implements JekaDoer {
             throw e;
         }
         attachView(project, handler, clear);
-        window.show(() -> {});
+        if (ApplicationManager.getApplication().isDispatchThread()) {
+            window.show(() -> {
+            });
+        }
     }
 
     private void initView(Project project) {

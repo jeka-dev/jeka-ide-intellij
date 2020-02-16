@@ -62,7 +62,7 @@ public class SyncImlAction extends AnAction {
                 ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0]
                 : event.getData(CommonDataKeys.VIRTUAL_FILE);
         Path path = Paths.get(virtualRoot.getPath());
-        JekaDoer jekaDoer = JekaDoer.getInstance();
+        CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
         final Object lock = new Object();
             ApplicationManager.getApplication().invokeAndWait(() -> {
@@ -73,7 +73,7 @@ public class SyncImlAction extends AnAction {
                                 lock.notify();
                             }
                         };
-                jekaDoer.generateIml(project, path, className, onSuccess);
+                jekaDoer.generateIml(project, path, className, true, onSuccess);
             });
             if (moduleClass.module == null) {
                 try {
@@ -116,8 +116,6 @@ public class SyncImlAction extends AnAction {
         }
         return false;
     }
-
-
 
     private static class ModuleClass {
         final Module module;

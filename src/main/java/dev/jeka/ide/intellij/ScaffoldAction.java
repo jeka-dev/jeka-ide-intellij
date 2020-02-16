@@ -36,7 +36,7 @@ public class ScaffoldAction extends AnAction {
     public static final ScaffoldAction INSTANCE = new ScaffoldAction();
 
     private ScaffoldAction() {
-        super("Generate Jeka files and folders", "Generate Jeka files and folders", AllIcons.Actions.Expandall);
+        super("Generate Jeka files and folders ...", "Generate Jeka files and folders", AllIcons.Actions.Expandall);
     }
 
     @Override
@@ -50,13 +50,6 @@ public class ScaffoldAction extends AnAction {
         ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(module.getProject());
         dialogWrapper.setModuleDir(virtualFile);
         dialogWrapper.show();
-        /*
-        ApplicationManager.getApplication().invokeAndWait(() -> {
-            JekaDoer jekaDoer = JekaDoer.getInstance();
-            jekaDoer.scaffoldModule(module.getProject(), path);
-            virtualFile.getFileSystem().refresh(true);
-        });
-        */
     }
 
     @Override

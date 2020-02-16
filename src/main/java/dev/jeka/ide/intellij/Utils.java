@@ -1,10 +1,13 @@
 package dev.jeka.ide.intellij;
 
+import com.intellij.ide.projectView.impl.ModuleUrl;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.PathMacros;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
@@ -15,6 +18,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -73,6 +77,15 @@ public class Utils {
         }
         return ModuleUtil.findModuleForFile(virtualFile, event.getProject());
     }
+
+    public static Path getModuleDir(Module module) {
+        Path candidate = Paths.get(ModuleUtilCore.getModuleDirPath(module));
+        if (candidate.getFileName().toString().equals(".idea")) {
+            return candidate.getParent();
+        }
+        return candidate;
+    }
+
 
 
 }
