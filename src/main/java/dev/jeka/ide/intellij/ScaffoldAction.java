@@ -23,6 +23,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.nio.file.Path;
@@ -41,13 +42,14 @@ public class ScaffoldAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (virtualFile == null) {
+        VirtualFile selectedDir = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (selectedDir == null) {
             return;
         }
-        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
-        ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(module.getProject());
-        dialogWrapper.setModuleDir(virtualFile, module);
+        Project project = event.getProject();
+        Module module = Utils.getModuleHavingRootDir(project, selectedDir);
+        ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(project);
+        dialogWrapper.setModuleDir(selectedDir, module);
         dialogWrapper.show();
     }
 

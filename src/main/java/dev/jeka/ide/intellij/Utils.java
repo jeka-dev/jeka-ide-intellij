@@ -141,12 +141,16 @@ public class Utils {
     }
 
     // has .iml file at its direct child so "is" or "can become" a module
-    static boolean isModuleHolder(VirtualFile directory) {
+    static boolean isPotentialModule(VirtualFile directory) {
         String name = directory.getName();
         if (directory.findChild(name + ".iml") != null) {
             return true;
         }
-        return directory.findChild(".idea/" + name + ".iml") != null;
+        VirtualFile ideaDir = directory.findChild(".idea");
+        if (ideaDir == null) {
+            return false;
+        }
+        return ideaDir.findChild(name + ".iml") != null;
     }
 
     static boolean isExistingModuleRoot(Project project, VirtualFile directory) {

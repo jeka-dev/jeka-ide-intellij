@@ -17,9 +17,9 @@
 
     <change-notes><![CDATA[
       <ul>
-        <il>Better module sync handling</il>
-        <li>Update Jeka embedded version</li>
-        <li>Small bug fixes</li>
+        <il>Handling generation of wrap delegate/il>
+        <li>New Jeka structure generation form/li>
+        <li>Big fixes</li>
       </ul>
     ]]>
     </change-notes>

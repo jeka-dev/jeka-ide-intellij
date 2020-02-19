@@ -91,7 +91,7 @@ public class SyncImlAction extends AnAction {
             event.getPresentation().setVisible(false);
             return;
         }
-        if (Utils.isModuleHolder(selectedFile)) {
+        if (Utils.isPotentialModule(selectedFile)) {
             String prefix = Utils.isExistingModuleRoot(event.getProject(), selectedFile) ? "" : "Add and ";
             event.getPresentation().setText(prefix + "Synchronize '" + selectedFile.getName() + "' Module");
         } else {

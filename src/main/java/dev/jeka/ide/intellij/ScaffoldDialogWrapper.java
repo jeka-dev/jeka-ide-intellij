@@ -56,15 +56,14 @@ class ScaffoldDialogWrapper extends DialogWrapper {
     @Override
     protected void doOKAction() {
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
             Module delegate = formPanel.delegatCheckBox.getState() ?
                     (Module) formPanel.moduleComboBox.getSelectedItem() :
                     null;
             Path delegatePath = delegate == null ? null : getDelegateModulePath(delegate);
             FileDocumentManager.getInstance().saveAllDocuments();
+            CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
             jekaDoer.scaffoldModule(project, moduleDir, formPanel.generateStructureCb.getState(),
                     formPanel.createWrapperFilesCb.getState(), delegatePath, exisitingModule);
-
             ScaffoldDialogWrapper.this.close(0);
         });
     }
@@ -84,17 +83,18 @@ class ScaffoldDialogWrapper extends DialogWrapper {
         public FormPanel(Project project) {
             super(new GridLayout(4, 2));
             this.add(new JLabel("Generate structure and Build class"));
+            generateStructureCb.setState(true);
             this.add(generateStructureCb);
             createWrapperFilesCb.setState(true);
             createWrapperFilesCb.addItemListener(itemEvent -> {updateState();});
             this.add(new JLabel("Generate wrapper files"));
             createWrapperFilesCb.setState(true);
             this.add(createWrapperFilesCb);
+            Module[] modules = ModuleManager.getInstance(project).getModules();
             this.add(delegateLabel);
             delegatCheckBox.addItemListener(item -> updateState());
             this.add(delegatCheckBox);
             this.add(new JLabel(""));
-            Module[] modules = ModuleManager.getInstance(project).getModules();
             moduleComboBox = new ComboBox<>(modules);
             this.add(moduleComboBox);
             updateState();
@@ -102,12 +102,24 @@ class ScaffoldDialogWrapper extends DialogWrapper {
 
         void updateModules(Project project) {
             this.moduleComboBox.removeAllItems();
-            for (Module module : ModuleManager.getInstance(project).getModules()) {
+            Module[] modules = ModuleManager.getInstance(project).getModules();
+            for (Module module : modules) {
                 Path path = Paths.get(Utils.getModuleDir(module).getPath());
                 Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");
                 if (Files.exists(wrapperProps)) {
                     moduleComboBox.addItem(module);
                 }
+            }
+            if (modules.length == 0) {
+                delegateLabel.setEnabled(false);
+                delegatCheckBox.setEnabled(false);
+                delegatCheckBox.setState(false);
+                moduleComboBox.setEnabled(false);
+            } else {
+                delegateLabel.setEnabled(true);
+                delegatCheckBox.setEnabled(true);
+                delegatCheckBox.setState(true);
+                moduleComboBox.setEnabled(true);
             }
         }
 
