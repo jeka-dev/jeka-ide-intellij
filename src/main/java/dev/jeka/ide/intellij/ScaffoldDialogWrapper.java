@@ -1,6 +1,7 @@
 package dev.jeka.ide.intellij;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -24,6 +25,8 @@ class ScaffoldDialogWrapper extends DialogWrapper {
 
     private FormPanel formPanel;
 
+    private Module exisitingModule;
+
     protected ScaffoldDialogWrapper(Project project) {
         super(project, true);
         this.project = project;
@@ -31,8 +34,9 @@ class ScaffoldDialogWrapper extends DialogWrapper {
         setTitle("Create Jeka files");
     }
 
-    void setModuleDir(VirtualFile moduleDir) {
+    void setModuleDir(VirtualFile moduleDir, Module existingModule) {
         this.moduleDir = moduleDir;
+        this.exisitingModule = existingModule;
     }
 
     @Nullable
@@ -57,8 +61,10 @@ class ScaffoldDialogWrapper extends DialogWrapper {
                     (Module) formPanel.moduleComboBox.getSelectedItem() :
                     null;
             Path delegatePath = delegate == null ? null : getDelegateModulePath(delegate);
+            FileDocumentManager.getInstance().saveAllDocuments();
             jekaDoer.scaffoldModule(project, moduleDir, formPanel.generateStructureCb.getState(),
-                    formPanel.createWrapperFilesCb.getState(), delegatePath);
+                    formPanel.createWrapperFilesCb.getState(), delegatePath, exisitingModule);
+
             ScaffoldDialogWrapper.this.close(0);
         });
     }

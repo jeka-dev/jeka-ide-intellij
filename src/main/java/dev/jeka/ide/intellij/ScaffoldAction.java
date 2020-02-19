@@ -46,9 +46,8 @@ public class ScaffoldAction extends AnAction {
             return;
         }
         Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
-        Path path = dirPath(virtualFile);
         ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(module.getProject());
-        dialogWrapper.setModuleDir(virtualFile);
+        dialogWrapper.setModuleDir(virtualFile, module);
         dialogWrapper.show();
     }
 

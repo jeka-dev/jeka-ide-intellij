@@ -23,13 +23,10 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
@@ -58,35 +55,16 @@ public class SyncImlAction extends AnAction {
             Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
             FileDocumentManager.getInstance().saveDocument(document);
         }
-        VirtualFile virtualRoot = moduleClass.module != null ?
+        VirtualFile moduleDir = moduleClass.module != null ?
                 ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0]
                 : event.getData(CommonDataKeys.VIRTUAL_FILE);
-        Path path = Paths.get(virtualRoot.getPath());
+        Path path = Paths.get(moduleDir.getPath());
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
-        final Object lock = new Object();
-            ApplicationManager.getApplication().invokeAndWait(() -> {
-                Runnable onSuccess = moduleClass.module != null ?
-                        () -> refreshModule(moduleClass.module) :
-                        () -> {
-                            synchronized (lock) {
-                                lock.notify();
-                            }
-                        };
-                jekaDoer.generateIml(project, path, className, true, onSuccess);
-            });
-            if (moduleClass.module == null) {
-                try {
-                    synchronized (lock) {
-                        lock.wait();
-                    }
-                    addModule(virtualRoot.getName(), virtualRoot, project);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            FileDocumentManager.getInstance().saveAllDocuments();
+            jekaDoer.generateIml(project, moduleDir, className, true, moduleClass.module);
+        });
     }
 
     @Override
@@ -131,12 +109,12 @@ public class SyncImlAction extends AnAction {
             Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
             PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
             if (psiFile == null) {
-                return new ModuleClass(null, null);
+                return new ModuleClass(module, null);
             }
             if (psiFile instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 if (psiJavaFile.getClasses().length == 0) {
-                    return new ModuleClass(null, null);
+                    return new ModuleClass(module, null);
                 }
                 PsiClass psiClass = psiJavaFile.getClasses()[0];
                 boolean isCommandsClass = Utils.isExtendingJkCommands(psiClass);
@@ -144,10 +122,10 @@ public class SyncImlAction extends AnAction {
                     return new ModuleClass(module, psiClass);
                 }
             }
-            if (getModuleRootDir(module).equals(virtualFile)) {
+            if (module != null && getModuleRootDir(module).equals(virtualFile)) {
                 return new ModuleClass(module, null);
             }
-            return new ModuleClass(null, null);
+            return new ModuleClass(module, null);
         }
     }
 
@@ -157,38 +135,6 @@ public class SyncImlAction extends AnAction {
             return imlParent.getParent();
         }
         return imlParent;
-    }
-
-    private static VirtualFile findImlFile(VirtualFile moduleDir) {
-        String name = moduleDir.getName() + ".iml";
-        VirtualFile candidate = moduleDir.findChild(name);
-        if (candidate != null) {
-            return candidate;
-        }
-        VirtualFile ideaDir = moduleDir.findChild(".idea");
-        if (ideaDir == null) {
-            return null;
-        }
-        return ideaDir.findChild(name);
-    }
-
-    private static void addModule(String moduleName, VirtualFile moduleDir, Project project) {
-        moduleDir.getFileSystem().refresh(false);
-        VirtualFile imlFile = findImlFile(moduleDir);
-        ModifiableModuleModel modifiableModuleModel = ModuleManager.getInstance(project).getModifiableModel();
-        ApplicationManager.getApplication().runWriteAction(() -> {
-            try {
-                modifiableModuleModel.loadModule(imlFile.getPath());
-                modifiableModuleModel.commit();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    private static void refreshModule(Module module) {
-        VirtualFile imlFile = module.getModuleFile();
-        VfsUtil.markDirtyAndRefresh(false, false, false, imlFile);
     }
 
 }

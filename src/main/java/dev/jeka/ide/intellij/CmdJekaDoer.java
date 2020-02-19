@@ -39,6 +39,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,19 +66,22 @@ public class CmdJekaDoer {
 
     private String jekaScriptPath;
 
-    public void generateIml(Project project, Path moduleDir, String qualifiedClassName, boolean clear, Runnable doRefresh) {
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
+    public void generateIml(Project project, VirtualFile moduleDir, String qualifiedClassName, boolean clearConsole,
+                            @Nullable  Module existingModule) {
+        Path modulePath = Paths.get(moduleDir.getPath());
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         cmd.addParameters("intellij#iml", "-LH");
-        cmd.setWorkDirectory(moduleDir.toFile());
+        cmd.setWorkDirectory(modulePath.toFile());
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, doRefresh);
-        start(cmd, project, clear, doRefresh,  onError );
+        Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir);
+        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, existingModule);
+        start(cmd, project, clearConsole, onSuccess,  onError );
     }
 
     public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStrucure, boolean createWrapper,
-                               Path wrapDelegate) {
+                               Path wrapDelegate, Module existingModule) {
         initView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
@@ -92,16 +96,51 @@ public class CmdJekaDoer {
             cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate.toString());
         }
         cmd.setWorkDirectory(new File(moduleDir.getPath()));
-        Runnable onSuccess = () -> generateIml(project, modulePath, null, false,
-                () -> VfsUtil.markDirtyAndRefresh(false, true, true, moduleDir) );
+        Runnable onSuccess = () -> {
+            generateIml(project, moduleDir, null, false, existingModule);
+            if (wrapDelegate != null) {
+                Utils.deleteDir(modulePath.resolve("jeka/wrapper"));
+            }
+        };
         start(cmd, project, true, onSuccess, null);
     }
 
-    private void generaImlWithJkCommnds(Project project, Path moduleDir, Runnable refresh) {
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
+    private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule) {
+        Path modulePath = Paths.get(moduleDir.getPath());
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
-        cmd.setWorkDirectory(moduleDir.toFile());
-        start(cmd, project, false, refresh, refresh);
+        cmd.setWorkDirectory(modulePath.toFile());
+        start(cmd, project, false, () -> refreshAfterIml(project, existingModule, moduleDir), null);
+    }
+
+    private static void refreshAfterIml(Project project, Module existingModule, VirtualFile moduleDir) {
+        if (existingModule == null) {
+            addModule(project, moduleDir);
+        } else {
+            VirtualFile imlFile = existingModule.getModuleFile();
+            VfsUtil.markDirtyAndRefresh(false, false, false, imlFile);
+        }
+    }
+
+    private static void addModule(Project project, VirtualFile moduleDir) {
+        Path iml = Paths.get(findImlFile(moduleDir).getPath());
+        Path projectDir = Paths.get(project.getBasePath());
+        Path modulesXml = projectDir.resolve(".idea/modules.xml");
+        Utils.addModule(projectDir, modulesXml, iml);
+        VfsUtil.markDirtyAndRefresh(false, false, false, VfsUtil.findFile(modulesXml, true));
+    }
+
+    private static VirtualFile findImlFile(VirtualFile moduleDir) {
+        String name = moduleDir.getName() + ".iml";
+        VirtualFile candidate = moduleDir.findChild(name);
+        if (candidate != null) {
+            return candidate;
+        }
+        VirtualFile ideaDir = moduleDir.findChild(".idea");
+        if (ideaDir == null) {
+            return null;
+        }
+        return ideaDir.findChild(name);
     }
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
