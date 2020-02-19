@@ -37,12 +37,6 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
             String value = System.getProperty("user.home") + File.separator + ".jeka";
             Utils.setPathVariable(JEKA_USER_HOME, value);
         }
-        if (Utils.getPathVariable(JEKA_HOME) == null) {
-            String value = System.getenv("JEKA_HOME");
-            if (value != null && !value.trim().equals("")) {
-                Utils.setPathVariable(JEKA_HOME, value);
-            }
-        }
 
     }
 }

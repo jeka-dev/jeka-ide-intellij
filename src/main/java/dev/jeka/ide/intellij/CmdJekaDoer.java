@@ -123,24 +123,25 @@ public class CmdJekaDoer {
     }
 
     private static void addModule(Project project, VirtualFile moduleDir) {
-        Path iml = Paths.get(findImlFile(moduleDir).getPath());
+        Path iml = findImlFile(Paths.get(moduleDir.getPath()));
         Path projectDir = Paths.get(project.getBasePath());
         Path modulesXml = projectDir.resolve(".idea/modules.xml");
         Utils.addModule(projectDir, modulesXml, iml);
-        VfsUtil.markDirtyAndRefresh(false, false, false, VfsUtil.findFile(modulesXml, true));
+        VfsUtil.markDirtyAndRefresh(false, false, false,
+                VfsUtil.findFile(modulesXml, true));
     }
 
-    private static VirtualFile findImlFile(VirtualFile moduleDir) {
-        String name = moduleDir.getName() + ".iml";
-        VirtualFile candidate = moduleDir.findChild(name);
-        if (candidate != null) {
+    private static Path findImlFile(Path moduleDir) {
+        String name = moduleDir.getFileName().toString() + ".iml";
+        Path candidate = moduleDir.resolve(name);
+        if (Files.exists(candidate)) {
             return candidate;
         }
-        VirtualFile ideaDir = moduleDir.findChild(".idea");
-        if (ideaDir == null) {
-            return null;
+        candidate = moduleDir.resolve(".idea").resolve(name);
+        if (Files.exists(candidate)) {
+            return candidate;
         }
-        return ideaDir.findChild(name);
+        return null;
     }
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
@@ -284,59 +285,6 @@ public class CmdJekaDoer {
                 Paths.get(System.getProperty("user.home")).resolve(".jeka");
         return userhome.resolve("intellij-plugin").resolve(version).resolve("distrib");
     }
-
-/*
-
-   public void generateImlOld(Path moduleDir, String qualifiedClassName) {
-        JkProcess iml = jeka(moduleDir)
-                .andParams("intellij#iml").withWorkingDir(moduleDir).withLogCommand(true).withLogOutput(true);
-        if (qualifiedClassName != null) {
-            iml = iml.andParams("-CC=" + qualifiedClassName);
-        }
-        int result = iml.runSync();
-        if (result != 0) {
-            iml.andParams("-CC=dev.jeka.core.tool.JkCommands", "java#").withFailOnError(true).runSync();
-        }
-    }
-
-    public void generateIml3(Project project, Path moduleDir, String qualifiedClassName) {
-        RunManager runManager = RunManager.getInstance(project);
-        ConfigurationType type = ConfigurationTypeUtil.findConfigurationType("ShConfigurationType");
-        String name = name(moduleDir);
-
-              List<RunConfiguration> runConfigurations = runManager.getAllConfigurationsList();
-        RunConfiguration shellConfigurationTemplate = runConfigurations.stream()
-                .filter(runConfiguration -> runManager.isTemplate(runConfiguration))
-                .filter(runConfiguration -> runConfiguration.getName().equals("Shell Script"))
-                .findFirst().get();
-
-
-        RunnerAndConfigurationSettings settings = runManager.createConfiguration(name, type.getClass());
-        System.out.println(settings);
-    }
-
-
-    private static String name(Path moduleDir) {
-        return "[Jeka " + moduleDir.getFileName() + "] intellij#iml";
-    }
-
-
-    private JkJavaProjectIde findProjectIde(JkCommands jkCommands) {
-        if (jkCommands instanceof JkJavaProjectIdeSupplier) {
-            JkJavaProjectIdeSupplier javaProjectIdeSupplier = (JkJavaProjectIdeSupplier) jkCommands;
-            return javaProjectIdeSupplier.getJavaProjectIde();
-        }
-        for (JkPlugin plugin : jkCommands.getPlugins().getAll()) {
-            if (plugin instanceof JkJavaProjectIdeSupplier) {
-                JkJavaProjectIdeSupplier javaProjectIdeSupplier = (JkJavaProjectIdeSupplier) plugin;
-                return javaProjectIdeSupplier.getJavaProjectIde();
-            }
-        }
-        return null;
-    }
-
-    */
-
 
 
 }

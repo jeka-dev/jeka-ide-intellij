@@ -5,7 +5,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.PathMacros;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
@@ -19,16 +20,9 @@ import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
-
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -94,9 +88,9 @@ public class Utils {
         return ModuleUtil.findModuleForFile(virtualFile, event.getProject());
     }
 
-    public static Path getModuleDir(Module module) {
-        Path candidate = Paths.get(ModuleUtilCore.getModuleDirPath(module));
-        if (candidate.getFileName().toString().equals(".idea")) {
+    public static VirtualFile getModuleDir(Module module) {
+        VirtualFile candidate = module.getModuleFile().getParent();
+        if (candidate.getName().equals(".idea")) {
             return candidate.getParent();
         }
         return candidate;
@@ -144,6 +138,36 @@ public class Utils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // has .iml file at its direct child so "is" or "can become" a module
+    static boolean isModuleHolder(VirtualFile directory) {
+        String name = directory.getName();
+        if (directory.findChild(name + ".iml") != null) {
+            return true;
+        }
+        return directory.findChild(".idea/" + name + ".iml") != null;
+    }
+
+    static boolean isExistingModuleRoot(Project project, VirtualFile directory) {
+        return getModuleHavingRootDir(project, directory) != null;
+    }
+
+    static Module getModuleHavingRootDir(Project project, VirtualFile directory) {
+        Module module = ModuleUtil.findModuleForFile(directory, project);
+        if (module == null) {
+            return null;
+        }
+        VirtualFile[] roots = ModuleRootManager.getInstance(module).getContentRoots();
+        if (roots.length == 0) {
+            return null;
+        }
+        for (VirtualFile root : roots) {
+            if (root.equals(directory) && directory.getName().equals(module.getName())) {
+                return module;
+            }
+        }
+        return null;
     }
 
 }

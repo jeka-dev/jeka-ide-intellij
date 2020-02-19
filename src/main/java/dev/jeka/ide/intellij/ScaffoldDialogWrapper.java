@@ -49,7 +49,7 @@ class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Path getDelegateModulePath(Module delegate) {
         Path thisModulePath = Paths.get(this.moduleDir.getPath()).toAbsolutePath();
-        Path delegatePath = Utils.getModuleDir(delegate);
+        Path delegatePath = Paths.get(Utils.getModuleDir(delegate).getPath());
         return thisModulePath.relativize(delegatePath);
     }
 
@@ -103,7 +103,7 @@ class ScaffoldDialogWrapper extends DialogWrapper {
         void updateModules(Project project) {
             this.moduleComboBox.removeAllItems();
             for (Module module : ModuleManager.getInstance(project).getModules()) {
-                Path path = Utils.getModuleDir(module);
+                Path path = Paths.get(Utils.getModuleDir(module).getPath());
                 Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");
                 if (Files.exists(wrapperProps)) {
                     moduleComboBox.addItem(module);

@@ -26,14 +26,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.intellij.psi.PsiJavaFile;;
 
 /**
  * @author Jerome Angibaud
@@ -48,46 +44,63 @@ public class SyncImlAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        ModuleClass moduleClass = ModuleClass.of(event);
-        String className = moduleClass.psiClass == null ? null : moduleClass.psiClass.getQualifiedName();
+        ////ModuleClass moduleClass = ModuleClass.of(event);
+        VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        PsiClass commandClass = getPsicommandClass(event);
+        String className = commandClass == null ? null : commandClass.getQualifiedName();
         if (className != null) {
             VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
             Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
             FileDocumentManager.getInstance().saveDocument(document);
         }
-        VirtualFile moduleDir = moduleClass.module != null ?
-                ModuleRootManager.getInstance(moduleClass.module).getContentRoots()[0]
-                : event.getData(CommonDataKeys.VIRTUAL_FILE);
-        Path path = Paths.get(moduleDir.getPath());
+        final Module existingModule;
+        final VirtualFile moduleDir;
+        if (commandClass != null) {
+            existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
+            moduleDir = Utils.getModuleDir(existingModule);
+        } else {
+            moduleDir = selectedFile;
+            existingModule = Utils.getModuleHavingRootDir(event.getProject(), selectedFile);
+        }
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
         ApplicationManager.getApplication().invokeAndWait(() -> {
             FileDocumentManager.getInstance().saveAllDocuments();
-            jekaDoer.generateIml(project, moduleDir, className, true, moduleClass.module);
+            jekaDoer.generateIml(project, moduleDir, className, true, existingModule);
         });
     }
 
     @Override
     public void update(AnActionEvent event) {
-        ModuleClass moduleClass = ModuleClass.of(event);
-        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (moduleClass.psiClass != null) {
-            final String text = "Synchronize '" + moduleClass.module.getName() + "' module";
+        VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        PsiClass commandClass = getPsicommandClass(event);
+        if (commandClass != null) {
+            Module module = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
+            if (module == null) {
+                event.getPresentation().setVisible(false);
+                return;
+            }
+            final String text = "Synchronize '" + module.getName() + "' module";
             event.getPresentation().setText(text);
             if ("EditorPopup".equals(event.getPlace())) {
                 event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
             }
-        } else if (moduleClass.module != null) {
-            event.getPresentation().setText("Synchronize '" + moduleClass.module.getName() + "' module");
-        } else if (virtualFile.isDirectory() && containsJekaDir(virtualFile.getChildren())) {
-            event.getPresentation().setText("Create module '" + virtualFile.getName() + "'");
-        }  else {
+            return;
+        }
+        if (!selectedFile.isDirectory() || !containsJekaDir(selectedFile)) {
             event.getPresentation().setVisible(false);
+            return;
+        }
+        if (Utils.isModuleHolder(selectedFile)) {
+            String prefix = Utils.isExistingModuleRoot(event.getProject(), selectedFile) ? "" : "Add and ";
+            event.getPresentation().setText(prefix + "Synchronize '" + selectedFile.getName() + "' Module");
+        } else {
+            event.getPresentation().setText("Create Jeka Module '" + selectedFile.getName() + "'");
         }
     }
 
-    private static boolean containsJekaDir(VirtualFile[] virtualFiles) {
-        for (VirtualFile virtualFile : virtualFiles) {
+    private static boolean containsJekaDir(VirtualFile dir) {
+        for (VirtualFile virtualFile : dir.getChildren()) {
             if ("jeka".equals(virtualFile.getName()) && virtualFile.isDirectory()) {
                 return true;
             }
@@ -95,46 +108,25 @@ public class SyncImlAction extends AnAction {
         return false;
     }
 
-    private static class ModuleClass {
-        final Module module;
-        final PsiClass psiClass;
-
-        private ModuleClass(Module module, PsiClass psiClass) {
-            this.module = module;
-            this.psiClass = psiClass;
+    private static PsiClass getPsicommandClass(AnActionEvent event) {
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
+        PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
+        if (psiFile == null) {
+            return null;
         }
-
-        static ModuleClass of(AnActionEvent event) {
-            VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-            Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
-            PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
-            if (psiFile == null) {
-                return new ModuleClass(module, null);
+        if (psiFile instanceof PsiJavaFile) {
+            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+            if (psiJavaFile.getClasses().length == 0) {
+                return null;
             }
-            if (psiFile instanceof PsiJavaFile) {
-                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-                if (psiJavaFile.getClasses().length == 0) {
-                    return new ModuleClass(module, null);
-                }
-                PsiClass psiClass = psiJavaFile.getClasses()[0];
-                boolean isCommandsClass = Utils.isExtendingJkCommands(psiClass);
-                if (isCommandsClass) {
-                    return new ModuleClass(module, psiClass);
-                }
+            PsiClass psiClass = psiJavaFile.getClasses()[0];
+            boolean isCommandsClass = Utils.isExtendingJkCommands(psiClass);
+            if (isCommandsClass) {
+                return psiClass;
             }
-            if (module != null && getModuleRootDir(module).equals(virtualFile)) {
-                return new ModuleClass(module, null);
-            }
-            return new ModuleClass(module, null);
         }
-    }
-
-    private static VirtualFile getModuleRootDir(Module module) {
-        VirtualFile imlParent = module.getModuleFile().getParent();
-        if (imlParent.getName().equals(".idea")) {
-            return imlParent.getParent();
-        }
-        return imlParent;
+        return null;
     }
 
 }
