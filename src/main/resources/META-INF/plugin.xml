@@ -18,7 +18,9 @@
       <ul>
         <il>Handling generation of wrap delegate/il>
         <li>New Jeka structure generation form/li>
-        <li>Big fixes</li>
+        <li>New 'Synchrinize all' action</li>
+        <li>Jeka icon on Jeka folder</li>
+        <li>Bug fixes</li>
       </ul>
     ]]>
     </change-notes>
@@ -34,6 +36,8 @@
     <idea-version since-build="193.2"/>
 
     <extensions defaultExtensionNs="com.intellij">
+
+        <iconProvider implementation="dev.jeka.ide.intellij.JkIconProvider" order="first"/>
 
         <applicationInitializedListener implementation="dev.jeka.ide.intellij.JekaApplicationInitializedListener"/>
 

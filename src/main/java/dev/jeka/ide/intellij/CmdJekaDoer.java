@@ -234,13 +234,8 @@ public class CmdJekaDoer {
         if (jekaScriptPath != null) {
             return jekaScriptPath;
         }
-        String scriptName = isWindows ? "jeka.bat" : "jeka";
-        try {
-            new ProcessBuilder().command(scriptName, "help").start();
-            this.jekaScriptPath = scriptName;
-        } catch (IOException e) {
-            jekaScriptPath = createDistribIfNeeed().resolve(scriptName).toAbsolutePath().toString();
-        }
+        String scriptName = isWindows ? "jeka.bat" : "jeka";;
+        jekaScriptPath = createDistribIfNeeed().resolve(scriptName).toAbsolutePath().toString();
         return jekaScriptPath;
     }
 
