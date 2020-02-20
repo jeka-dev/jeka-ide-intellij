@@ -174,4 +174,13 @@ public class Utils {
         return null;
     }
 
+    static boolean containsJekaDir(VirtualFile dir) {
+        for (VirtualFile virtualFile : dir.getChildren()) {
+            if ("jeka".equals(virtualFile.getName()) && virtualFile.isDirectory()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

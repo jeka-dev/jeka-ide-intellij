@@ -67,7 +67,7 @@ public class CmdJekaDoer {
     private String jekaScriptPath;
 
     public void generateIml(Project project, VirtualFile moduleDir, String qualifiedClassName, boolean clearConsole,
-                            @Nullable  Module existingModule) {
+                            @Nullable  Module existingModule, Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         cmd.addParameters("intellij#iml", "-LH");
@@ -75,8 +75,8 @@ public class CmdJekaDoer {
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir);
-        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, existingModule);
+        Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
+        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, existingModule, onFinish);
         start(cmd, project, clearConsole, onSuccess,  onError );
     }
 
@@ -97,7 +97,7 @@ public class CmdJekaDoer {
         }
         cmd.setWorkDirectory(new File(moduleDir.getPath()));
         Runnable onSuccess = () -> {
-            generateIml(project, moduleDir, null, false, existingModule);
+            generateIml(project, moduleDir, null, false, existingModule, null);
             if (wrapDelegate != null) {
                 Utils.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
@@ -105,20 +105,24 @@ public class CmdJekaDoer {
         start(cmd, project, true, onSuccess, null);
     }
 
-    private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule) {
+    private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule,
+                                        Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
         cmd.setWorkDirectory(modulePath.toFile());
-        start(cmd, project, false, () -> refreshAfterIml(project, existingModule, moduleDir), null);
+        start(cmd, project, false, () -> refreshAfterIml(project, existingModule, moduleDir, onFinish), null);
     }
 
-    private static void refreshAfterIml(Project project, Module existingModule, VirtualFile moduleDir) {
+    private static void refreshAfterIml(Project project, Module existingModule, VirtualFile moduleDir, Runnable onFinish) {
         if (existingModule == null) {
             addModule(project, moduleDir);
         } else {
             VirtualFile imlFile = existingModule.getModuleFile();
             VfsUtil.markDirtyAndRefresh(false, false, false, imlFile);
+        }
+        if (onFinish != null) {
+            onFinish.run();
         }
     }
 

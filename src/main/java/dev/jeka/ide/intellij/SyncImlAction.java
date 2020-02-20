@@ -66,7 +66,7 @@ public class SyncImlAction extends AnAction {
         Project project = event.getProject();
         ApplicationManager.getApplication().invokeAndWait(() -> {
             FileDocumentManager.getInstance().saveAllDocuments();
-            jekaDoer.generateIml(project, moduleDir, className, true, existingModule);
+            jekaDoer.generateIml(project, moduleDir, className, true, existingModule, null);
         });
     }
 
@@ -87,7 +87,7 @@ public class SyncImlAction extends AnAction {
             }
             return;
         }
-        if (!selectedFile.isDirectory() || !containsJekaDir(selectedFile)) {
+        if (!selectedFile.isDirectory() || !Utils.containsJekaDir(selectedFile)) {
             event.getPresentation().setVisible(false);
             return;
         }
@@ -99,14 +99,7 @@ public class SyncImlAction extends AnAction {
         }
     }
 
-    private static boolean containsJekaDir(VirtualFile dir) {
-        for (VirtualFile virtualFile : dir.getChildren()) {
-            if ("jeka".equals(virtualFile.getName()) && virtualFile.isDirectory()) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     private static PsiClass getPsicommandClass(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);

@@ -27,10 +27,9 @@ public class ProjectPopupJekaActionGroup extends DefaultActionGroup {
 
     public ProjectPopupJekaActionGroup() {
         super("Jeka", true);
-        ScaffoldAction scaffoldAction = ScaffoldAction.INSTANCE;
-        SyncImlAction syncImlAction = SyncImlAction.INSTANCE;
-        this.add(syncImlAction);
-        this.add(scaffoldAction);
+        this.add(ScaffoldAction.INSTANCE);
+        this.add(SyncImlAction.INSTANCE);
+        this.add(SyncAllImlAction.INSTANCE);
     }
 
     @Override

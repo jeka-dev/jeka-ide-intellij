@@ -1,7 +1,6 @@
 <idea-plugin>
     <id>dev.jeka.ide.intellij</id>
     <name>Jeka</name>
-    <version>1.3.0</version>
     <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
     <description><![CDATA[
