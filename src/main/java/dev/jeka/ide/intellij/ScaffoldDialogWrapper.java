@@ -37,13 +37,14 @@ class ScaffoldDialogWrapper extends DialogWrapper {
     void setModuleDir(VirtualFile moduleDir, Module existingModule) {
         this.moduleDir = moduleDir;
         this.exisitingModule = existingModule;
+        this.formPanel.updateModules(project, existingModule);
+        this.formPanel.updateState();
     }
 
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
         formPanel = new FormPanel(project);
-        formPanel.updateModules(project);
         return formPanel;
     }
 
@@ -62,8 +63,9 @@ class ScaffoldDialogWrapper extends DialogWrapper {
             Path delegatePath = delegate == null ? null : getDelegateModulePath(delegate);
             FileDocumentManager.getInstance().saveAllDocuments();
             CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
+            ScaffoldNature nature = (ScaffoldNature) formPanel.natureCombeBox.getSelectedItem();
             jekaDoer.scaffoldModule(project, moduleDir, formPanel.generateStructureCb.getState(),
-                    formPanel.createWrapperFilesCb.getState(), delegatePath, exisitingModule);
+                    formPanel.createWrapperFilesCb.getState(), delegatePath, exisitingModule, nature);
             ScaffoldDialogWrapper.this.close(0);
         });
     }
@@ -80,11 +82,23 @@ class ScaffoldDialogWrapper extends DialogWrapper {
 
         private Checkbox generateStructureCb = new Checkbox();
 
+        private JLabel natureLabel = new JLabel("Build class");
+
+        private ComboBox<ScaffoldNature> natureCombeBox;
+
         public FormPanel(Project project) {
-            super(new GridLayout(4, 2));
+            super(new GridLayout(5, 2));
             this.add(new JLabel("Generate structure and Build class"));
             generateStructureCb.setState(true);
+            generateStructureCb.addItemListener(item -> updateState());
             this.add(generateStructureCb);
+            this.add(natureLabel);
+            natureCombeBox = new ComboBox<>();
+            natureCombeBox.addItem(ScaffoldNature.SIMPLE);
+            natureCombeBox.addItem(ScaffoldNature.JAVA);
+            natureCombeBox.addItem(ScaffoldNature.SPRINGBOOT);
+            natureCombeBox.setSelectedItem(ScaffoldNature.JAVA);
+            this.add(natureCombeBox);
             createWrapperFilesCb.setState(true);
             createWrapperFilesCb.addItemListener(itemEvent -> {updateState();});
             this.add(new JLabel("Generate wrapper files"));
@@ -100,27 +114,17 @@ class ScaffoldDialogWrapper extends DialogWrapper {
             updateState();
         }
 
-        void updateModules(Project project) {
+        void updateModules(Project project, Module currentModule) {
             this.moduleComboBox.removeAllItems();
             Module[] modules = ModuleManager.getInstance(project).getModules();
             for (Module module : modules) {
                 Path path = Paths.get(Utils.getModuleDir(module).getPath());
-                Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");
-                if (Files.exists(wrapperProps)) {
+                Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");;
+                if (Files.exists(wrapperProps) && !module.equals(currentModule)) {
                     moduleComboBox.addItem(module);
                 }
             }
-            if (modules.length == 0) {
-                delegateLabel.setEnabled(false);
-                delegatCheckBox.setEnabled(false);
-                delegatCheckBox.setState(false);
-                moduleComboBox.setEnabled(false);
-            } else {
-                delegateLabel.setEnabled(true);
-                delegatCheckBox.setEnabled(true);
-                delegatCheckBox.setState(true);
-                moduleComboBox.setEnabled(true);
-            }
+
         }
 
         public boolean doesCreateWrapperFiles() {
@@ -133,6 +137,19 @@ class ScaffoldDialogWrapper extends DialogWrapper {
             moduleComboBox.setEnabled(doesCreateWrapperFiles() && delegatCheckBox.getState());
             if (!doesCreateWrapperFiles()) {
                 delegatCheckBox.setState(false);
+            }
+            this.natureCombeBox.setEnabled(this.generateStructureCb.getState());
+            this.natureLabel.setEnabled(this.generateStructureCb.getState());
+            if (moduleComboBox.getItemCount() == 0) {
+                delegateLabel.setEnabled(false);
+                delegatCheckBox.setEnabled(false);
+                delegatCheckBox.setState(false);
+                moduleComboBox.setEnabled(false);
+            } else {
+                delegateLabel.setEnabled(true);
+                delegatCheckBox.setEnabled(true);
+                delegatCheckBox.setState(true);
+                moduleComboBox.setEnabled(true);
             }
         }
 

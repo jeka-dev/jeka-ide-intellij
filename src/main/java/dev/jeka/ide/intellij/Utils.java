@@ -68,11 +68,10 @@ public class Utils {
         }
         PsiClassType[] psiClassTypes = psiClass.getExtendsListTypes();
         for (PsiClassType psiClassType : psiClassTypes) {
-            PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiClassType;
-            if (psiClassReferenceType == null) {
+            if (psiClassType == null) {
                 return false;
             }
-            PsiClass currentPsiClass = psiClassReferenceType.resolve();
+            PsiClass currentPsiClass = psiClassType.resolve();
             if (isExtendingJkCommands(currentPsiClass)) {
                 return true;
             }

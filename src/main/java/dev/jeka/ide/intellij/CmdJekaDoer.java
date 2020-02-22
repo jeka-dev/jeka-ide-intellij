@@ -81,13 +81,16 @@ public class CmdJekaDoer {
     }
 
     public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStrucure, boolean createWrapper,
-                               Path wrapDelegate, Module existingModule) {
+                               Path wrapDelegate, Module existingModule, ScaffoldNature nature) {
         initView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
-        cmd.addParameter("-LH");
+        cmd.addParameters("-CC=dev.jeka.core.tool.JkCommands", "-LH");
         if (createStrucure) {
-            cmd.addParameters("scaffold#run", "java#");
+            cmd.addParameters("scaffold#run");
+            if (nature != ScaffoldNature.SIMPLE) {
+                cmd.addParameters(natureParam(nature));
+            }
         }
         if (createWrapper) {
             cmd.addParameter("scaffold#wrap");
@@ -103,6 +106,13 @@ public class CmdJekaDoer {
             }
         };
         start(cmd, project, true, onSuccess, null);
+    }
+
+    private static String[] natureParam(ScaffoldNature nature) {
+        if (nature == ScaffoldNature.JAVA) {
+            return new String[] {"java#"};
+        }
+        return new String[] {"@dev.jeka:springboot-plugin:2.2.3.RELEASE", "springboot#"};
     }
 
     private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule,

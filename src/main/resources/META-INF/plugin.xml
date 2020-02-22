@@ -45,6 +45,8 @@
                                   id="jeka"
                                   implementationClass="dev.jeka.ide.intellij.JekaRunLineMarkerContributor"/>
 
+        <moduleType id="JEKA_MODULE_TYPE" implementationClass="dev.jeka.ide.intellij.JekaModuleType"/>
+
         <!--
         <configurationType implementation="dev.jeka.ide.intellij.unused.runconfigations.JekaToolRunConfigurationType"/>
 
