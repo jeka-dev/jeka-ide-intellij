@@ -16,11 +16,7 @@
 
     <change-notes><![CDATA[
       <ul>
-        <il>Handling generation of wrap delegate/il>
-        <li>New Jeka structure generation form/li>
-        <li>New 'Synchrinize all' action</li>
-        <li>Jeka icon on Jeka folder</li>
-        <li>Bug fixes</li>
+        <li>Conform to Jeka 0.8.18.RELEASE. Previous versions of Jeka are not supported by this version (breaking API change).</li>
       </ul>
     ]]>
     </change-notes>

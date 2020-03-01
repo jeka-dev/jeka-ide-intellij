@@ -85,7 +85,7 @@ public class CmdJekaDoer {
         initView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
-        cmd.addParameters("-CC=dev.jeka.core.tool.JkCommands", "-LH");
+        cmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
         if (createStrucure) {
             cmd.addParameters("scaffold#run");
             if (nature != ScaffoldNature.SIMPLE) {
@@ -119,7 +119,7 @@ public class CmdJekaDoer {
                                         Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
-        cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommands");
+        cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommandSet");
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, project, false, () -> refreshAfterIml(project, existingModule, moduleDir, onFinish), null);
     }
@@ -167,7 +167,7 @@ public class CmdJekaDoer {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
                     if (event.getExitCode() != 0 && onFailure != null) {
-                        view.print("\nSync has failed !!! Let's try to sync with standard class JkCommands\n",
+                        view.print("\nSync has failed !!! Let's try to sync with standard class JkCommandSet\n",
                                 ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {

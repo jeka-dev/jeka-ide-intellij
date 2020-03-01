@@ -31,7 +31,7 @@ import java.util.zip.ZipInputStream;
 
 public class Utils {
 
-    private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommands";
+    private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommandSet";
 
     public static String getPathVariable(String varName) {
         PathMacros pathMacros = PathMacros.getInstance();
@@ -181,5 +181,7 @@ public class Utils {
         }
         return false;
     }
+
+
 
 }

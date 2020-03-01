@@ -56,7 +56,7 @@ public class PluginJekaDoer {
         if (error != null) {
             if ( error.getClass().getSimpleName().equals("JkException")) {
                 argList.remove("-CC=" + qualifiedClassName);
-                argList.add("-CC=dev.jeka.core.tool.JkCommands");
+                argList.add("-CC=dev.jeka.core.tool.JkCommandSet");
                 error = execute(mainClass, moduleDir, argList.toArray(new String[0]));
                 handle(error);
             } else {
