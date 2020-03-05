@@ -46,8 +46,9 @@ public class JekaRunMethodAction extends AnAction {
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
-        ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
         RunManager.getInstance(project).addConfiguration(runnerAndConfigurationSettings);
+        RunManager.getInstance(project).setSelectedConfiguration(runnerAndConfigurationSettings);
+        ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
     }
 
 }

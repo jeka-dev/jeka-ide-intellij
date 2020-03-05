@@ -29,7 +29,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;;
 
 /**
  * @author Jerome Angibaud
@@ -117,11 +118,7 @@ public class SyncImlAction extends AnAction {
         return virtualFile.isDirectory() && Utils.containsJekaDir(virtualFile);
     }
 
-
-
     private static PsiClass getPsicommandClass(AnActionEvent event) {
-        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        Module module = ModuleUtil.findModuleForFile(virtualFile, event.getProject());
         PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
         if (psiFile == null) {
             return null;

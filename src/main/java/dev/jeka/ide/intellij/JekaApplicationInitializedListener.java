@@ -25,6 +25,7 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         Constraints menuLocation = new Constraints(Anchor.BEFORE, "Maven.GlobalProjectMenu");
         Constraints firstLocation = new Constraints(Anchor.FIRST, null);
         projectPopupGroup.addAction(Separator.getInstance(), firstLocation);
+        projectPopupGroup.addAction(ShowCommandSetAction.INSTANCE, firstLocation);
         projectPopupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
