@@ -29,7 +29,7 @@ public class ShowCommandSetAction extends AnAction {
             return;
         }
         PsiManager psiManager = PsiManager.getInstance(project);
-        VirtualFile commandSetClass = findCommandSet(psiManager, project, selectedFile);
+        VirtualFile commandSetClass = findCommandSet(psiManager, selectedFile);
         if (commandSetClass == null) {
             return;
         }
@@ -45,14 +45,14 @@ public class ShowCommandSetAction extends AnAction {
             event.getPresentation().setVisible(false);
         }
         PsiManager psiManager = PsiManager.getInstance(project);
-        VirtualFile commandSetClass = findCommandSet(psiManager, project, selectedFile);
+        VirtualFile commandSetClass = findCommandSet(psiManager, selectedFile);
         if (commandSetClass == null) {
             event.getPresentation().setVisible(false);
         }
         event.getPresentation().setText("Goto '" + commandSetClass.getName() + "'");
     }
 
-    private VirtualFile findCommandSet(PsiManager psiManager, Project project, VirtualFile moduleRoot) {
+    private VirtualFile findCommandSet(PsiManager psiManager, VirtualFile moduleRoot) {
         VirtualFile jekaDir = moduleRoot.findChild("jeka");
         if (jekaDir == null) {
             return null;
