@@ -21,10 +21,13 @@ import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -180,6 +183,44 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    static String getJekaRedirectModule(Project project, VirtualFile moduleRoot) {
+        Path root = Paths.get(moduleRoot.getPath()).normalize();
+        Path jekawBat = root.resolve("jekaw.bat");
+        Path jekaw = root.resolve("jekaw");
+        if (Files.exists(jekawBat)) {
+            String result = extract(project, moduleRoot, jekawBat, "%*", "\\");
+            if (result != null) {
+                return result;
+            }
+        }
+        if (Files.exists(jekaw)) {
+            return extract(project, moduleRoot, jekaw, "$@", "/");
+        }
+        return null;
+    }
+
+    private static String extract(Project project, VirtualFile moduleRoot, Path jekawFile, String joker, String pathSeparator) {
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(jekawFile, Charset.forName("utf-8")).stream()
+                    .filter(line -> !line.trim().isEmpty())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (lines.size() > 10) {
+            return null;  // Not a wrapper
+        }
+        for (String line : lines) {
+            String[] items = line.trim().split(" ");
+            if (items.length > 1 && items[1].trim().equals(joker)) {
+                String command = items[0].trim().replace('\\', '/');
+                return Paths.get(command).getParent().getFileName().toString();
+            }
+        }
+        return null;
     }
 
 

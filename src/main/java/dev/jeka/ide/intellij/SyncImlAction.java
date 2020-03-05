@@ -39,7 +39,7 @@ public class SyncImlAction extends AnAction {
     public static final SyncImlAction INSTANCE = new SyncImlAction();
 
     private SyncImlAction() {
-        super("Synchronize", "Synchronize iml file", AllIcons.Actions.Refresh);
+        super("Jeka Synchronize iml File", "Jeka Synchronize iml file", AllIcons.Actions.Refresh);
     }
 
     @Override
@@ -58,9 +58,12 @@ public class SyncImlAction extends AnAction {
         if (commandClass != null) {
             existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
             moduleDir = Utils.getModuleDir(existingModule);
+        } else if (isJekaProperties(selectedFile)) {
+            moduleDir = selectedFile.getParent().getParent().getParent();
+            existingModule = Utils.getModuleHavingRootDir(event.getProject(), moduleDir);
         } else {
             moduleDir = selectedFile;
-            existingModule = Utils.getModuleHavingRootDir(event.getProject(), selectedFile);
+            existingModule = Utils.getModuleHavingRootDir(event.getProject(), moduleDir);
         }
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
@@ -80,23 +83,38 @@ public class SyncImlAction extends AnAction {
                 event.getPresentation().setVisible(false);
                 return;
             }
-            final String text = "Synchronize '" + module.getName() + "' module";
+            final String text = "Jeka Synchronize '" + module.getName() + "' Module";
             event.getPresentation().setText(text);
             if ("EditorPopup".equals(event.getPlace())) {
                 event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
             }
             return;
         }
-        if (!selectedFile.isDirectory() || !Utils.containsJekaDir(selectedFile)) {
+        VirtualFile dir = selectedFile;
+        if (isJekaProperties(selectedFile)) {
+            dir = selectedFile.getParent().getParent().getParent();
+           // event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
+        } else if (!isJekaProject(dir)) {
             event.getPresentation().setVisible(false);
             return;
         }
-        if (Utils.isPotentialModule(selectedFile)) {
-            String prefix = Utils.isExistingModuleRoot(event.getProject(), selectedFile) ? "" : "Add and ";
-            event.getPresentation().setText(prefix + "Synchronize '" + selectedFile.getName() + "' Module");
+        if (Utils.isPotentialModule(dir)) {
+            String prefix = Utils.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
+            event.getPresentation().setText("Jeka " + prefix + "Synchronize '" + dir.getName() + "' Module");
         } else {
-            event.getPresentation().setText("Create Jeka Module '" + selectedFile.getName() + "'");
+            event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
         }
+    }
+
+    private static boolean isJekaProperties(VirtualFile virtualFile) {
+        if (virtualFile.isDirectory()) {
+            return false;
+        }
+        return virtualFile.getName().equals("jeka.properties");
+    }
+
+    private static boolean isJekaProject(VirtualFile virtualFile) {
+        return virtualFile.isDirectory() && Utils.containsJekaDir(virtualFile);
     }
 
 

@@ -38,6 +38,7 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import dev.jeka.ide.intellij.common.ScaffoldNature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +61,8 @@ public class CmdJekaDoer {
 
     private static final String JEKA_JAR_NAME = "dev.jeka.jeka-core.jar";
 
+    private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin:2.3.2.RELEASE";
+
     private ConsoleView view = null;
 
     private ToolWindow window = null;
@@ -74,6 +77,10 @@ public class CmdJekaDoer {
         cmd.setWorkDirectory(modulePath.toFile());
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
+        }
+        String jekaRedirect = Utils.getJekaRedirectModule(project, moduleDir);
+        if (jekaRedirect != null) {
+            cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlTestExtraModules=" + jekaRedirect);
         }
         Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
         Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, existingModule, onFinish);
@@ -112,7 +119,7 @@ public class CmdJekaDoer {
         if (nature == ScaffoldNature.JAVA) {
             return new String[] {"java#"};
         }
-        return new String[] {"@dev.jeka:springboot-plugin:2.2.3.RELEASE", "springboot#"};
+        return new String[] {"@" + SPRINGBOOT_MODULE, "springboot#"};
     }
 
     private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule,
@@ -249,11 +256,13 @@ public class CmdJekaDoer {
         return jekaScriptPath;
     }
 
-    private Path createDistribIfNeeed() {
+    public Path createDistribIfNeeed() {
         Path parent = embeddedDir();
         Path file = parent.resolve(JEKA_JAR_NAME);
         if (!Files.exists(file)) {
-            view.print("Creating local Jeka distrib\n", ConsoleViewContentType.LOG_INFO_OUTPUT);
+            if (view != null) {
+                view.print("Creating local Jeka distrib\n", ConsoleViewContentType.LOG_INFO_OUTPUT);
+            }
             try {
                 Files.createDirectories(parent);
                 InputStream is = CmdJekaDoer.class.getClassLoader().getResourceAsStream("dev.jeka.jeka-core-distrib.zip");

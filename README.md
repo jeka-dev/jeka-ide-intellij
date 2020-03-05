@@ -29,13 +29,17 @@ Roadmap :
 ## 2. Generate module
 * Right-click on it and click _jeka | Create Module_ <img src="media/create-moldule.png"/>
   
-## 3. Syncronise module on Jeka file
+## 3. Synchronise module on Jeka file
 * While editing the command class, right-click and click _Synchronize module_ <img src="media/editor-popup.png"/>
   
 ## 4. launch commands from the editor
 * In front of each command, click on the _Jeka Run icons to run/debug_ it.
 
    <img src="media/gutter1.png"/> <img src="media/gutter2.png"/>
+   
+# Idea List
+* Involve @JkDefImport content in file rename refactoring
+* Open directly commandSet class in editor when clicking on module root + (macos option key) 
    
 # How to build ?
 

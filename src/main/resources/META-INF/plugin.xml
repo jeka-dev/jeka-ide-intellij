@@ -41,26 +41,28 @@
                                   id="jeka"
                                   implementationClass="dev.jeka.ide.intellij.JekaRunLineMarkerContributor"/>
 
-        <moduleType id="JEKA_MODULE_TYPE" implementationClass="dev.jeka.ide.intellij.JekaModuleType"/>
-
         <!--
-        <configurationType implementation="dev.jeka.ide.intellij.unused.runconfigations.JekaToolRunConfigurationType"/>
 
-         <runConfigurationProducer implementation="ShellConfigurationProducer"/>
+      <moduleBuilder builderClass="dev.jeka.ide.intellij.unused.newmodule.JekaModuleBuilder"/>
 
-        <toolWindow id="jerkar"
-                    anchor="bottom"
-                    icon="/icons/knight-grey-naked.svg"
-                    factoryClass="dev.jeka.ide.intellij.unused.runconfigations.JekaToolWindowFactory"/>
 
-   <toolWindow id="Jeka"
-                    anchor="bottom"
-                    icon="/icons/knight-grey-naked.svg"
-                    factoryClass="com.intellij.execution.services.ServiceViewToolWindowFactory"/>
+      <configurationType implementation="dev.jeka.ide.intellij.unused.runconfigations.JekaToolRunConfigurationType"/>
 
-        <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
+       <runConfigurationProducer implementation="ShellConfigurationProducer"/>
 
-         -->
+      <toolWindow id="jerkar"
+                  anchor="bottom"
+                  icon="/icons/knight-grey-naked.svg"
+                  factoryClass="dev.jeka.ide.intellij.unused.runconfigations.JekaToolWindowFactory"/>
+
+ <toolWindow id="Jeka"
+                  anchor="bottom"
+                  icon="/icons/knight-grey-naked.svg"
+                  factoryClass="com.intellij.execution.services.ServiceViewToolWindowFactory"/>
+
+      <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
+
+       -->
     </extensions>
 
 

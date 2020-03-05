@@ -42,7 +42,7 @@ public class SyncAllImlAction extends AnAction {
     public static final SyncAllImlAction INSTANCE = new SyncAllImlAction();
 
     private SyncAllImlAction() {
-        super("Synchronize All", "Synchronize all iml files", AllIcons.Actions.Refresh);
+        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", JkIcons.JEKA_GREY_NAKED);
     }
 
     @Override

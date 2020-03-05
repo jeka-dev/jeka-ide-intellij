@@ -20,22 +20,38 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         ActionManager actionManager = ActionManager.getInstance();
         actionManager.registerAction(ProjectPopupJekaActionGroup.class.getName(), jekaGroup);
 
-        // Add Jeka group to popup menu
+        // Add Jeka group to Project context popup menu
         DefaultActionGroup projectPopupGroup = (DefaultActionGroup) actionManager.getAction("ProjectViewPopupMenu");
         Constraints menuLocation = new Constraints(Anchor.BEFORE, "Maven.GlobalProjectMenu");
-        //Constraints menuLocation = new Constraints(Anchor.BEFORE, "MakeModule");
+        Constraints firstLocation = new Constraints(Anchor.FIRST, null);
+        projectPopupGroup.addAction(Separator.getInstance(), firstLocation);
+        projectPopupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
 
         // Add Sync Iml to editor context popup
         DefaultActionGroup popupGroup = (DefaultActionGroup) actionManager.getAction("EditorPopupMenu");
-        Constraints actionLocation = new Constraints(Anchor.FIRST, null);
-        popupGroup.addAction(SyncImlAction.INSTANCE, actionLocation);
+        popupGroup.addAction(Separator.getInstance(), firstLocation);
+        popupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
+
+        // Add Sync All to build menu
+        DefaultActionGroup mainBuildMenu = (DefaultActionGroup) actionManager.getAction("BuildMenu");
+        Constraints syncAllLocation = new Constraints(Anchor.AFTER, "GenerateAntBuild");
+        mainBuildMenu.addAction(Separator.getInstance(), syncAllLocation);
+        mainBuildMenu.addAction(SyncAllImlAction.INSTANCE, syncAllLocation);
 
         // Add classpath variable
         if (Utils.getPathVariable(JEKA_USER_HOME) == null) {
             String value = System.getProperty("user.home") + File.separator + ".jeka";
             Utils.setPathVariable(JEKA_USER_HOME, value);
+        }
+        String jekaHome = System.getenv("JEKA_HOME");
+        if (jekaHome == null) {
+            jekaHome = CmdJekaDoer.INSTANCE.createDistribIfNeeed()
+                    .normalize().toAbsolutePath().toString();
+        }
+        if (Utils.getPathVariable(JEKA_HOME) == null && jekaHome != null) {
+            Utils.setPathVariable(JEKA_HOME, jekaHome);
         }
 
     }
