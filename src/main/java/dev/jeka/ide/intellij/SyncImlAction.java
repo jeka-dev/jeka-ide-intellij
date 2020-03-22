@@ -129,7 +129,7 @@ public class SyncImlAction extends AnAction {
                 return null;
             }
             PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = Utils.isExtendingJkCommands(psiClass);
+            boolean isCommandsClass = Utils.isExtendingJkCommandSet(psiClass);
             if (isCommandsClass) {
                 return psiClass;
             }

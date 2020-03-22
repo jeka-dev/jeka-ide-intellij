@@ -62,7 +62,7 @@ public class Utils {
         }
     }
 
-    public static boolean isExtendingJkCommands(PsiClass psiClass) {
+    public static boolean isExtendingJkCommandSet(PsiClass psiClass) {
         if (psiClass == null) {
             return false;
         }
@@ -75,7 +75,7 @@ public class Utils {
                 return false;
             }
             PsiClass currentPsiClass = psiClassType.resolve();
-            if (isExtendingJkCommands(currentPsiClass)) {
+            if (isExtendingJkCommandSet(currentPsiClass)) {
                 return true;
             }
         }

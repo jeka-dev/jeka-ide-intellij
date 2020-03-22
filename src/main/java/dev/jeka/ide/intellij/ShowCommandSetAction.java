@@ -48,8 +48,9 @@ public class ShowCommandSetAction extends AnAction {
         VirtualFile commandSetClass = findCommandSet(psiManager, selectedFile);
         if (commandSetClass == null) {
             event.getPresentation().setVisible(false);
+        } else {
+            event.getPresentation().setText("Goto '" + commandSetClass.getName() + "'");
         }
-        event.getPresentation().setText("Goto '" + commandSetClass.getName() + "'");
     }
 
     private VirtualFile findCommandSet(PsiManager psiManager, VirtualFile moduleRoot) {
@@ -68,7 +69,7 @@ public class ShowCommandSetAction extends AnAction {
         for (VirtualFile file : parent.getChildren()) {
             if (file.isDirectory()) {
                 VirtualFile result = find(psiManager, file);
-                if (result == null) {
+                if (result != null) {
                     return result;
                 }
             } else {
@@ -78,7 +79,8 @@ public class ShowCommandSetAction extends AnAction {
                         PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                         PsiClass[] psiClasses = psiJavaFile.getClasses();
                         for (PsiClass psiClass: psiClasses) {
-                            if (Utils.isExtendingJkCommands(psiClass)) {
+                            System.out.println("--" + psiClass.getName());
+                            if (Utils.isExtendingJkCommandSet(psiClass)) {
                                 return file;
                             }
                         }
