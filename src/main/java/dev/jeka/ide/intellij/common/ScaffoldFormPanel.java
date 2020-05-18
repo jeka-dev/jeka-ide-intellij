@@ -63,6 +63,9 @@ public class ScaffoldFormPanel extends JPanel {
         this.moduleComboBox.removeAllItems();
         Module[] modules = ModuleManager.getInstance(project).getModules();
         for (Module module : modules) {
+            if (module.getModuleFile() == null) {  // Sometimes IntelliJ return erased Module (so without module file)
+                continue;
+            }
             Path path = Paths.get(Utils.getModuleDir(module).getPath());
             Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");;
             if (Files.exists(wrapperProps) && !module.equals(currentModule)) {

@@ -61,7 +61,7 @@ public class CmdJekaDoer {
 
     private static final String JEKA_JAR_NAME = "dev.jeka.jeka-core.jar";
 
-    private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin:2.3.2.RELEASE";
+    private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin:+";
 
     private ConsoleView view = null;
 
@@ -167,6 +167,7 @@ public class CmdJekaDoer {
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
         OSProcessHandler handler = null;
+        createDistribIfNeeed();
         try {
             handler = new OSProcessHandler(cmd);
             handler.addProcessListener(new ProcessAdapter() {
@@ -303,6 +304,5 @@ public class CmdJekaDoer {
                 Paths.get(System.getProperty("user.home")).resolve(".jeka");
         return userhome.resolve("intellij-plugin").resolve(version).resolve("distrib");
     }
-
 
 }
