@@ -91,28 +91,35 @@ public class CmdJekaDoer {
                                Path wrapDelegate, Module existingModule, ScaffoldNature nature) {
         initView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
-        cmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
-        if (createStrucure) {
-            cmd.addParameters("scaffold#run");
-            if (nature != ScaffoldNature.SIMPLE) {
-                cmd.addParameters(natureParam(nature));
-            }
-        }
-        if (createWrapper) {
-            cmd.addParameter("scaffold#wrap");
-        }
-        if (wrapDelegate != null) {
-            cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate.toString());
-        }
-        cmd.setWorkDirectory(new File(moduleDir.getPath()));
-        Runnable onSuccess = () -> {
+        Runnable doOnSuccess = () -> {
             generateIml(project, moduleDir, null, false, existingModule, null);
             if (wrapDelegate != null) {
                 Utils.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
         };
-        start(cmd, project, true, onSuccess, null);
+        Runnable doCreateStructure = () -> {};
+        if (createStrucure) {
+            GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+            structureCmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
+            structureCmd.addParameters("scaffold#run");
+            structureCmd.setWorkDirectory(new File(moduleDir.getPath()));
+            if (nature != ScaffoldNature.SIMPLE) {
+                structureCmd.addParameters(natureParam(nature));
+            }
+            doCreateStructure = () -> start(structureCmd, project, true, doOnSuccess, null);
+        }
+        if (createWrapper) {
+            GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
+            cmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
+            cmd.addParameter("scaffold#wrap");
+            if (wrapDelegate != null) {
+                cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate.toString());
+            }
+            cmd.setWorkDirectory(new File(moduleDir.getPath()));
+            start(cmd, project, true, doCreateStructure, null);
+        } else {
+            doCreateStructure.run();
+        }
     }
 
     private static String[] natureParam(ScaffoldNature nature) {
@@ -166,7 +173,7 @@ public class CmdJekaDoer {
     }
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
-        OSProcessHandler handler = null;
+        OSProcessHandler handler;
         createDistribIfNeeed();
         try {
             handler = new OSProcessHandler(cmd);
