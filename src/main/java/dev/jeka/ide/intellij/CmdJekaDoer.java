@@ -35,6 +35,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
@@ -42,7 +43,6 @@ import dev.jeka.ide.intellij.common.ScaffoldNature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.text.View;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +69,7 @@ public class CmdJekaDoer {
     //private ConsoleView view = null;
     private Map<Project, ConsoleView> viewMap = new HashMap<>();
 
-    private ToolWindow window = null;
+    private Map<Project, ToolWindow> toolWindowMap = new HashMap<>();
 
     private String jekaScriptPath;
 
@@ -208,7 +208,7 @@ public class CmdJekaDoer {
         }
         attachView(project, handler, clear);
         if (ApplicationManager.getApplication().isDispatchThread()) {
-            window.show(() -> {
+            toolWindowMap.get(project).show(() -> {
             });
         }
     }
@@ -220,21 +220,21 @@ public class CmdJekaDoer {
     }
 
     private void attachView(Project project, OSProcessHandler handler, boolean clear) {
-        initView(project);
         getView(project).attachToProcess(handler);
         if (clear) {
             getView(project).clear();
         }
         handler.startNotify();
-        if (window == null) {
+        if (toolWindowMap.get(project) == null) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
-            window = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
-            window.setIcon(JkIcons.JEKA_GREY_NAKED_13);
-            final ContentManager contentManager = window.getContentManager();
+            ToolWindow toolWindow = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
+            toolWindow.setIcon(JkIcons.JEKA_GREY_NAKED_13);
+            final ContentManager contentManager = toolWindow.getContentManager();
             Content content = contentManager
                     .getFactory()
                     .createContent(getView(project).getComponent(), "", false);
             contentManager.addContent(content);
+            toolWindowMap.put(project, toolWindow);
         }
     }
 
