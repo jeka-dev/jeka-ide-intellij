@@ -42,6 +42,7 @@ import dev.jeka.ide.intellij.common.ScaffoldNature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.text.View;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +51,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -63,7 +66,8 @@ public class CmdJekaDoer {
 
     private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin:+";
 
-    private ConsoleView view = null;
+    //private ConsoleView view = null;
+    private Map<Project, ConsoleView> viewMap = new HashMap<>();
 
     private ToolWindow window = null;
 
@@ -129,6 +133,10 @@ public class CmdJekaDoer {
         return new String[] {"@" + SPRINGBOOT_MODULE, "springboot#"};
     }
 
+    private ConsoleView getView(Project project) {
+        return viewMap.computeIfAbsent(project, key -> initView(key));
+    }
+
     private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule,
                                         Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
@@ -182,7 +190,7 @@ public class CmdJekaDoer {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
                     if (event.getExitCode() != 0 && onFailure != null) {
-                        view.print("\nSync has failed !!! Let's try to sync with standard class JkCommandSet\n",
+                        getView(project).print("\nSync has failed !!! Let's try to sync with standard class JkCommandSet\n",
                                 ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {
@@ -205,19 +213,17 @@ public class CmdJekaDoer {
         }
     }
 
-    private void initView(Project project) {
-        if (view == null) {
-            TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
-            TextConsoleBuilder builder = factory.createBuilder(project);
-            view = builder.getConsole();
-        }
+    private static ConsoleView initView(Project project) {
+        TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
+        TextConsoleBuilder builder = factory.createBuilder(project);
+        return builder.getConsole();
     }
 
     private void attachView(Project project, OSProcessHandler handler, boolean clear) {
         initView(project);
-        view.attachToProcess(handler);
+        getView(project).attachToProcess(handler);
         if (clear) {
-            view.clear();
+            getView(project).clear();
         }
         handler.startNotify();
         if (window == null) {
@@ -227,7 +233,7 @@ public class CmdJekaDoer {
             final ContentManager contentManager = window.getContentManager();
             Content content = contentManager
                     .getFactory()
-                    .createContent(view.getComponent(), "", false);
+                    .createContent(getView(project).getComponent(), "", false);
             contentManager.addContent(content);
         }
     }
@@ -268,9 +274,6 @@ public class CmdJekaDoer {
         Path parent = embeddedDir();
         Path file = parent.resolve(JEKA_JAR_NAME);
         if (!Files.exists(file)) {
-            if (view != null) {
-                view.print("Creating local Jeka distrib\n", ConsoleViewContentType.LOG_INFO_OUTPUT);
-            }
             try {
                 Files.createDirectories(parent);
                 InputStream is = CmdJekaDoer.class.getClassLoader().getResourceAsStream("dev.jeka.jeka-core-distrib.zip");

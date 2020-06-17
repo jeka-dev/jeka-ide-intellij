@@ -16,23 +16,14 @@
 
 package dev.jeka.ide.intellij;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
 
-;
 
 /**
  * @author Jerome Angibaud
@@ -53,6 +44,11 @@ public class SyncAllImlAction extends AnAction {
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         for (int i = modules.length-1; i >=0; i--) {
             Module module = modules[i];
+
+            // module.getModuleFile().getParent() can be null if module has been deleted previously
+            if (module == null || module.getModuleFile() == null || module.getModuleFile().getParent() == null) {
+                continue;
+            }
             VirtualFile moduleDir = Utils.getModuleDir(module);
             if (!Utils.containsJekaDir(moduleDir)) {
                 continue;
@@ -69,6 +65,5 @@ public class SyncAllImlAction extends AnAction {
             runnable.run();
         });
     }
-
 
 }
