@@ -91,7 +91,7 @@ public class CmdJekaDoer {
         start(cmd, project, clearConsole, onSuccess,  onError );
     }
 
-    public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStrucure, boolean createWrapper,
+    public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStructure, boolean createWrapper,
                                Path wrapDelegate, Module existingModule, ScaffoldNature nature) {
         initView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
@@ -102,7 +102,7 @@ public class CmdJekaDoer {
             }
         };
         Runnable doCreateStructure = () -> {};
-        if (createStrucure) {
+        if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(modulePath, false));
             structureCmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
             structureCmd.addParameters("scaffold#run");
