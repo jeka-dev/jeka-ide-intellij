@@ -4,11 +4,16 @@ import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static dev.jeka.ide.intellij.Constants.JEKA_HOME;
 import static dev.jeka.ide.intellij.Constants.JEKA_USER_HOME;
 
 public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
+
+    private final static String JK_USER_HOME_ENV_NAME = "JEKA_USER_HOME";
 
     @Override
     public void componentsInitialized() {
@@ -43,7 +48,7 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
 
         // Add classpath variable
         if (Utils.getPathVariable(JEKA_USER_HOME) == null) {
-            String value = System.getProperty("user.home") + File.separator + ".jeka";
+            String value = getJekaUserHomeDir();
             Utils.setPathVariable(JEKA_USER_HOME, value);
         }
         String jekaHome = System.getenv("JEKA_HOME");
@@ -55,5 +60,13 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
             Utils.setPathVariable(JEKA_HOME, jekaHome);
         }
 
+    }
+
+    private static String getJekaUserHomeDir() {
+        final String env = System.getenv(JK_USER_HOME_ENV_NAME);
+        if (env != null && env.trim().length() > 0) {
+            return env;
+        }
+        return System.getProperty("user.home") + File.separator + ".jeka";
     }
 }
