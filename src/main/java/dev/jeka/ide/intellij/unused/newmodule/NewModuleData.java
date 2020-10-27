@@ -1,6 +1,6 @@
 package dev.jeka.ide.intellij.unused.newmodule;
 
-import dev.jeka.ide.intellij.common.ScaffoldFormPanel;
+import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 
 import java.nio.file.Paths;
 

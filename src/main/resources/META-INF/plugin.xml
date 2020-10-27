@@ -32,13 +32,13 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <iconProvider implementation="dev.jeka.ide.intellij.JkIconProvider" order="first"/>
+        <iconProvider implementation="dev.jeka.ide.intellij.extension.JkIconProvider" order="first"/>
 
-        <applicationInitializedListener implementation="dev.jeka.ide.intellij.JekaApplicationInitializedListener"/>
+        <applicationInitializedListener implementation="dev.jeka.ide.intellij.extension.JekaApplicationInitializedListener"/>
 
         <runLineMarkerContributor language="JAVA"
                                   id="jeka"
-                                  implementationClass="dev.jeka.ide.intellij.JekaRunLineMarkerContributor"/>
+                                  implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributor"/>
 
         <!--
 

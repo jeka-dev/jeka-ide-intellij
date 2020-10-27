@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.action;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.dialog.ScaffoldDialogWrapper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +47,7 @@ public class ScaffoldAction extends AnAction {
             return;
         }
         Project project = event.getProject();
-        Module module = Utils.getModuleHavingRootDir(project, selectedDir);
+        Module module = ModuleUtils.getModuleHavingRootDir(project, selectedDir);
         ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(project);
         dialogWrapper.setModuleDir(selectedDir, module);
         dialogWrapper.show();

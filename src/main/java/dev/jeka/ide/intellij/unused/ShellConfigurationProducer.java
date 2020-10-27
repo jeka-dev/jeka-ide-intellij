@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.unused;
 
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.RunConfigurationProducer;

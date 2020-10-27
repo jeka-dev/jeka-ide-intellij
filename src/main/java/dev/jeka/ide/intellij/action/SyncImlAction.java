@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.action;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -30,7 +30,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;;
+import dev.jeka.ide.intellij.common.ClassUtils;
+import dev.jeka.ide.intellij.common.Constants;
+import dev.jeka.ide.intellij.common.FileUtils;
+import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.engine.CmdJekaDoer;
+
+;
 
 /**
  * @author Jerome Angibaud
@@ -58,13 +64,13 @@ public class SyncImlAction extends AnAction {
         final VirtualFile moduleDir;
         if (commandClass != null) {
             existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
-            moduleDir = Utils.getModuleDir(existingModule);
+            moduleDir = ModuleUtils.getModuleDir(existingModule);
         } else if (isJekaProperties(selectedFile)) {
             moduleDir = selectedFile.getParent().getParent().getParent();
-            existingModule = Utils.getModuleHavingRootDir(event.getProject(), moduleDir);
+            existingModule = ModuleUtils.getModuleHavingRootDir(event.getProject(), moduleDir);
         } else {
             moduleDir = selectedFile;
-            existingModule = Utils.getModuleHavingRootDir(event.getProject(), moduleDir);
+            existingModule = ModuleUtils.getModuleHavingRootDir(event.getProject(), moduleDir);
         }
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
@@ -87,7 +93,7 @@ public class SyncImlAction extends AnAction {
             final String text = "Jeka Synchronize '" + module.getName() + "' Module";
             event.getPresentation().setText(text);
             if ("EditorPopup".equals(event.getPlace())) {
-                event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
+                event.getPresentation().setIcon(Constants.JkIcons.JEKA_GROUP_ACTION);
             }
             return;
         }
@@ -99,8 +105,8 @@ public class SyncImlAction extends AnAction {
             event.getPresentation().setVisible(false);
             return;
         }
-        if (Utils.isPotentialModule(dir)) {
-            String prefix = Utils.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
+        if (ModuleUtils.isPotentialModule(dir)) {
+            String prefix = ModuleUtils.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
             event.getPresentation().setText("Jeka " + prefix + "Synchronize '" + dir.getName() + "' Module");
         } else {
             event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
@@ -115,7 +121,7 @@ public class SyncImlAction extends AnAction {
     }
 
     private static boolean isJekaProject(VirtualFile virtualFile) {
-        return virtualFile.isDirectory() && Utils.containsJekaDir(virtualFile);
+        return virtualFile.isDirectory() && FileUtils.containsJekaDir(virtualFile);
     }
 
     private static PsiClass getPsicommandClass(AnActionEvent event) {
@@ -129,7 +135,7 @@ public class SyncImlAction extends AnAction {
                 return null;
             }
             PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = Utils.isExtendingJkCommandSet(psiClass);
+            boolean isCommandsClass = ClassUtils.isExtendingJkCommandSet(psiClass);
             if (isCommandsClass) {
                 return psiClass;
             }

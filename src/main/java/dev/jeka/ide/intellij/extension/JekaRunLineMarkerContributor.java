@@ -1,8 +1,11 @@
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.extension;
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.psi.*;
+import dev.jeka.ide.intellij.action.JekaRunMethodAction;
+import dev.jeka.ide.intellij.common.ClassUtils;
+import dev.jeka.ide.intellij.common.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +27,7 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
         }
         PsiMethod psiMethod = (PsiMethod) psiParentEl;
         PsiClass psiClass = psiMethod.getContainingClass();
-        if (!Utils.isExtendingJkCommandSet(psiClass)) {
+        if (!ClassUtils.isExtendingJkCommandSet(psiClass)) {
             return null;
         }
         if (psiMethod.hasParameters() || psiMethod.isConstructor()
@@ -36,7 +39,7 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
         final AnAction[] actions = new AnAction[] {JekaRunMethodAction.RUN_JEKA_INSTANCE,
                 JekaRunMethodAction.DEBUG_JEKA_INSTANCE};
         Function<PsiElement, String> tooltipProvider = el -> "Run '" + el.getText() + "' as Jeka command";
-        return new Info(JkIcons.JEKA_RUN, actions, tooltipProvider);
+        return new Info(Constants.JkIcons.JEKA_RUN, actions, tooltipProvider);
     }
 
     protected boolean isIdentifier(PsiElement e) {

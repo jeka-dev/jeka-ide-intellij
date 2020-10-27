@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.dialog;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -7,15 +7,17 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.ScaffoldFormPanel;
-import dev.jeka.ide.intellij.common.ScaffoldNature;
+import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.engine.ScaffoldNature;
+import dev.jeka.ide.intellij.engine.CmdJekaDoer;
+import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class ScaffoldDialogWrapper extends DialogWrapper {
+public class ScaffoldDialogWrapper extends DialogWrapper {
 
     private VirtualFile moduleDir;
 
@@ -25,14 +27,14 @@ class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Module exisitingModule;
 
-    protected ScaffoldDialogWrapper(Project project) {
+    public ScaffoldDialogWrapper(Project project) {
         super(project, true);
         this.project = project;
         init();
         setTitle("Create Jeka files");
     }
 
-    void setModuleDir(VirtualFile moduleDir, Module existingModule) {
+    public void setModuleDir(VirtualFile moduleDir, Module existingModule) {
         this.moduleDir = moduleDir;
         this.exisitingModule = existingModule;
         this.formPanel.updateModules(project, existingModule);
@@ -47,7 +49,7 @@ class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Path getDelegateModulePath(Module delegate) {
         Path thisModulePath = Paths.get(this.moduleDir.getPath()).toAbsolutePath();
-        Path delegatePath = Paths.get(Utils.getModuleDir(delegate).getPath());
+        Path delegatePath = Paths.get(ModuleUtils.getModuleDir(delegate).getPath());
         return thisModulePath.relativize(delegatePath);
     }
 
@@ -60,7 +62,7 @@ class ScaffoldDialogWrapper extends DialogWrapper {
             Path delegatePath = delegate == null ? null : getDelegateModulePath(delegate);
             FileDocumentManager.getInstance().saveAllDocuments();
             CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
-            ScaffoldNature nature = (ScaffoldNature) formPanel.getScaffoldNature();
+            ScaffoldNature nature = formPanel.getScaffoldNature();
             jekaDoer.scaffoldModule(project, moduleDir, formPanel.isGeneratingStructure(),
                     formPanel.isCreatingWrapperFiles(), delegatePath, exisitingModule, nature);
             ScaffoldDialogWrapper.this.close(0);

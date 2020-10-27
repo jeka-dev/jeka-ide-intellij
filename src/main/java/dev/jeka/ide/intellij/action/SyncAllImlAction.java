@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,6 +23,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import dev.jeka.ide.intellij.common.Constants;
+import dev.jeka.ide.intellij.common.FileUtils;
+import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
 
 /**
@@ -33,7 +37,7 @@ public class SyncAllImlAction extends AnAction {
     public static final SyncAllImlAction INSTANCE = new SyncAllImlAction();
 
     private SyncAllImlAction() {
-        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", JkIcons.JEKA_GREY_NAKED);
+        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", Constants.JkIcons.JEKA_GREY_NAKED);
     }
 
     @Override
@@ -49,8 +53,8 @@ public class SyncAllImlAction extends AnAction {
             if (module == null || module.getModuleFile() == null || module.getModuleFile().getParent() == null) {
                 continue;
             }
-            VirtualFile moduleDir = Utils.getModuleDir(module);
-            if (!Utils.containsJekaDir(moduleDir)) {
+            VirtualFile moduleDir = ModuleUtils.getModuleDir(module);
+            if (!FileUtils.containsJekaDir(moduleDir)) {
                 continue;
             }
             final Runnable next = nextStep;

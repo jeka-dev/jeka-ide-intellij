@@ -2,7 +2,7 @@ package dev.jeka.ide.intellij.unused.runconfigations;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
-import dev.jeka.ide.intellij.JkIcons;
+import dev.jeka.ide.intellij.common.Constants;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ public class JekaToolRunConfigurationType implements ConfigurationType {
 
     @Override
     public Icon getIcon() {
-        return JkIcons.JEKA_GROUP_ACTION;
+        return Constants.JkIcons.JEKA_GROUP_ACTION;
     }
 
     @NotNull

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import dev.jeka.ide.intellij.common.Constants;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,6 +35,6 @@ public class ProjectPopupJekaActionGroup extends DefaultActionGroup {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
+        e.getPresentation().setIcon(Constants.JkIcons.JEKA_GROUP_ACTION);
     }
 }

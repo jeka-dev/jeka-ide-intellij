@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.jeka.ide.intellij;
+package dev.jeka.ide.intellij.engine;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -35,11 +35,12 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.ide.intellij.common.ScaffoldNature;
+import dev.jeka.ide.intellij.common.Constants;
+import dev.jeka.ide.intellij.common.FileUtils;
+import dev.jeka.ide.intellij.common.ModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,7 +61,7 @@ import java.util.Set;
  */
 public class CmdJekaDoer {
 
-    static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
+    public static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
 
     private static final String JEKA_JAR_NAME = "dev.jeka.jeka-core.jar";
 
@@ -82,7 +83,7 @@ public class CmdJekaDoer {
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        String jekaRedirect = Utils.getJekaRedirectModule(project, moduleDir);
+        String jekaRedirect = ModuleUtils.getJekaRedirectModule(project, moduleDir);
         if (jekaRedirect != null) {
             cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlTestExtraModules=" + jekaRedirect);
         }
@@ -98,7 +99,7 @@ public class CmdJekaDoer {
         Runnable doOnSuccess = () -> {
             generateIml(project, moduleDir, null, false, existingModule, null);
             if (wrapDelegate != null) {
-                Utils.deleteDir(modulePath.resolve("jeka/wrapper"));
+                FileUtils.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
         };
         Runnable doCreateStructure = () -> {};
@@ -162,7 +163,7 @@ public class CmdJekaDoer {
         Path iml = findImlFile(Paths.get(moduleDir.getPath()));
         Path projectDir = Paths.get(project.getBasePath());
         Path modulesXml = projectDir.resolve(".idea/modules.xml");
-        Utils.addModule(projectDir, modulesXml, iml);
+        ModuleUtils.addModule(projectDir, modulesXml, iml);
         VfsUtil.markDirtyAndRefresh(false, false, false,
                 VfsUtil.findFile(modulesXml, true));
     }
@@ -228,7 +229,7 @@ public class CmdJekaDoer {
         if (toolWindowMap.get(project) == null) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
             ToolWindow toolWindow = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
-            toolWindow.setIcon(JkIcons.JEKA_GREY_NAKED_13);
+            toolWindow.setIcon(Constants.JkIcons.JEKA_GREY_NAKED_13);
             final ContentManager contentManager = toolWindow.getContentManager();
             Content content = contentManager
                     .getFactory()
@@ -277,7 +278,7 @@ public class CmdJekaDoer {
             try {
                 Files.createDirectories(parent);
                 InputStream is = CmdJekaDoer.class.getClassLoader().getResourceAsStream("dev.jeka.jeka-core-distrib.zip");
-                Utils.unzip(is, parent);
+                FileUtils.unzip(is, parent);
                 addExecPerm(parent.resolve("jeka"));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
