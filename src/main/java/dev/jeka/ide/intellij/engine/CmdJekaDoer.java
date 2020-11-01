@@ -39,8 +39,8 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import dev.jeka.ide.intellij.common.Constants;
-import dev.jeka.ide.intellij.common.FileUtils;
-import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,7 +83,7 @@ public class CmdJekaDoer {
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);
         }
-        String jekaRedirect = ModuleUtils.getJekaRedirectModule(project, moduleDir);
+        String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
         if (jekaRedirect != null) {
             cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlTestExtraModules=" + jekaRedirect);
         }
@@ -99,7 +99,7 @@ public class CmdJekaDoer {
         Runnable doOnSuccess = () -> {
             generateIml(project, moduleDir, null, false, existingModule, null);
             if (wrapDelegate != null) {
-                FileUtils.deleteDir(modulePath.resolve("jeka/wrapper"));
+                FileHelper.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
         };
         Runnable doCreateStructure = () -> {};
@@ -163,7 +163,7 @@ public class CmdJekaDoer {
         Path iml = findImlFile(Paths.get(moduleDir.getPath()));
         Path projectDir = Paths.get(project.getBasePath());
         Path modulesXml = projectDir.resolve(".idea/modules.xml");
-        ModuleUtils.addModule(projectDir, modulesXml, iml);
+        ModuleHelper.addModule(projectDir, modulesXml, iml);
         VfsUtil.markDirtyAndRefresh(false, false, false,
                 VfsUtil.findFile(modulesXml, true));
     }
@@ -278,7 +278,7 @@ public class CmdJekaDoer {
             try {
                 Files.createDirectories(parent);
                 InputStream is = CmdJekaDoer.class.getClassLoader().getResourceAsStream("dev.jeka.jeka-core-distrib.zip");
-                FileUtils.unzip(is, parent);
+                FileHelper.unzip(is, parent);
                 addExecPerm(parent.resolve("jeka"));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

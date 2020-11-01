@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
-import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -41,7 +41,7 @@ public class JekaRunMethodAction extends AnAction {
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
-        configuration.setModule(ModuleUtils.getModule(event));
+        configuration.setModule(ModuleHelper.getModule(event));
         configuration.setProgramParameters("-CC=" + className + " " + methodName);
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());

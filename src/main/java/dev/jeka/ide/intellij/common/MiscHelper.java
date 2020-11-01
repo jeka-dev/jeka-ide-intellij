@@ -2,7 +2,7 @@ package dev.jeka.ide.intellij.common;
 
 import com.intellij.openapi.application.PathMacros;
 
-public class MiscUtils {
+public class MiscHelper {
 
     public static String getPathVariable(String varName) {
         PathMacros pathMacros = PathMacros.getInstance();

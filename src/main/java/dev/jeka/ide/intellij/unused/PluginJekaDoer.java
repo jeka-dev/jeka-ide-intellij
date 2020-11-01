@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.lang.UrlClassLoader;
 import dev.jeka.ide.intellij.common.Constants;
-import dev.jeka.ide.intellij.common.MiscUtils;
+import dev.jeka.ide.intellij.common.MiscHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -100,7 +100,7 @@ public class PluginJekaDoer {
     }
 
     private Class getJekaMainClass(Path moduleRoot) {
-        Path jar = Paths.get(MiscUtils.getPathVariable(Constants.JEKA_HOME)).resolve("dev.jeka.jeka-core.jar");
+        Path jar = Paths.get(MiscHelper.getPathVariable(Constants.JEKA_HOME)).resolve("dev.jeka.jeka-core.jar");
         if (!Files.exists(jar)) {
             throw new IllegalStateException("Cannot  find " + jar);
         }

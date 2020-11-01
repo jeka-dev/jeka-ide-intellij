@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class FileUtils {
+public class FileHelper {
 
     public static void unzip(final InputStream zipSource, final Path targetFolder) {
         try (ZipInputStream zipInputStream = new ZipInputStream(zipSource)) {

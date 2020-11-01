@@ -3,7 +3,7 @@ package dev.jeka.ide.intellij.common;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 
-public class ClassUtils {
+public class ClassHelper {
 
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommandSet";
 

@@ -6,7 +6,7 @@ import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
 import dev.jeka.ide.intellij.action.ShowCommandSetAction;
 import dev.jeka.ide.intellij.action.SyncAllImlAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
-import dev.jeka.ide.intellij.common.MiscUtils;
+import dev.jeka.ide.intellij.common.MiscHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
 import java.io.File;
@@ -50,17 +50,17 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         mainBuildMenu.addAction(SyncAllImlAction.INSTANCE, syncAllLocation);
 
         // Add classpath variable
-        if (MiscUtils.getPathVariable(JEKA_USER_HOME) == null) {
+        if (MiscHelper.getPathVariable(JEKA_USER_HOME) == null) {
             String value = getJekaUserHomeDir();
-            MiscUtils.setPathVariable(JEKA_USER_HOME, value);
+            MiscHelper.setPathVariable(JEKA_USER_HOME, value);
         }
         String jekaHome = System.getenv("JEKA_HOME");
         if (jekaHome == null) {
             jekaHome = CmdJekaDoer.INSTANCE.createDistribIfNeeed()
                     .normalize().toAbsolutePath().toString();
         }
-        if (MiscUtils.getPathVariable(JEKA_HOME) == null && jekaHome != null) {
-            MiscUtils.setPathVariable(JEKA_HOME, jekaHome);
+        if (MiscHelper.getPathVariable(JEKA_HOME) == null && jekaHome != null) {
+            MiscHelper.setPathVariable(JEKA_HOME, jekaHome);
         }
 
     }

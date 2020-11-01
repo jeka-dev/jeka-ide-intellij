@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ScaffoldNature;
 
 import javax.swing.*;
@@ -67,7 +67,7 @@ public class ScaffoldFormPanel extends JPanel {
             if (module.getModuleFile() == null) {  // Sometimes IntelliJ return erased Module (so without module file)
                 continue;
             }
-            Path path = Paths.get(ModuleUtils.getModuleDir(module).getPath());
+            Path path = Paths.get(ModuleHelper.getModuleDir(module).getPath());
             Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");;
             if (Files.exists(wrapperProps) && !module.equals(currentModule)) {
                 moduleComboBox.addItem(module);

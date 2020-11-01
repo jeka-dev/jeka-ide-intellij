@@ -4,7 +4,7 @@ import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.psi.*;
 import dev.jeka.ide.intellij.action.JekaRunMethodAction;
-import dev.jeka.ide.intellij.common.ClassUtils;
+import dev.jeka.ide.intellij.common.ClassHelper;
 import dev.jeka.ide.intellij.common.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
         }
         PsiMethod psiMethod = (PsiMethod) psiParentEl;
         PsiClass psiClass = psiMethod.getContainingClass();
-        if (!ClassUtils.isExtendingJkCommandSet(psiClass)) {
+        if (!ClassHelper.isExtendingJkCommandSet(psiClass)) {
             return null;
         }
         if (psiMethod.hasParameters() || psiMethod.isConstructor()

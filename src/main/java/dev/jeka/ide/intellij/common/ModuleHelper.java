@@ -25,7 +25,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ModuleUtils {
+public class ModuleHelper {
+
     public static Module getModule(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
         if (virtualFile == null) {
@@ -106,7 +107,7 @@ public class ModuleUtils {
         return null;
     }
 
-    public static String getJekaRedirectModule(Project project, VirtualFile moduleRoot) {
+    public static String getJekaRedirectModule(VirtualFile moduleRoot) {
         Path root = Paths.get(moduleRoot.getPath()).normalize();
         Path jekawBat = root.resolve("jekaw.bat");
         Path jekaw = root.resolve("jekaw");
@@ -142,5 +143,10 @@ public class ModuleUtils {
             }
         }
         return null;
+    }
+
+    public static boolean isJekaModule(Module module) {
+        VirtualFile moduleDir = getModuleDir(module);
+        return FileHelper.containsJekaDir(moduleDir);
     }
 }

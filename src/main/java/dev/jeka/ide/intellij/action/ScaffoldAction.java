@@ -23,7 +23,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.dialog.ScaffoldDialogWrapper;
 
 import java.nio.file.Path;
@@ -47,7 +47,7 @@ public class ScaffoldAction extends AnAction {
             return;
         }
         Project project = event.getProject();
-        Module module = ModuleUtils.getModuleHavingRootDir(project, selectedDir);
+        Module module = ModuleHelper.getModuleHavingRootDir(project, selectedDir);
         ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(project);
         dialogWrapper.setModuleDir(selectedDir, module);
         dialogWrapper.show();

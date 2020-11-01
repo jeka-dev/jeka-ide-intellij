@@ -10,7 +10,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.PsiNavigateUtil;
-import dev.jeka.ide.intellij.common.ClassUtils;
+import dev.jeka.ide.intellij.common.ClassHelper;
 import dev.jeka.ide.intellij.common.Constants;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,7 +82,7 @@ public class ShowCommandSetAction extends AnAction {
                         PsiClass[] psiClasses = psiJavaFile.getClasses();
                         for (PsiClass psiClass: psiClasses) {
                             System.out.println("--" + psiClass.getName());
-                            if (ClassUtils.isExtendingJkCommandSet(psiClass)) {
+                            if (ClassHelper.isExtendingJkCommandSet(psiClass)) {
                                 return file;
                             }
                         }

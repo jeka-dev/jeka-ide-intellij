@@ -7,7 +7,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ScaffoldNature;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
@@ -49,7 +49,7 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Path getDelegateModulePath(Module delegate) {
         Path thisModulePath = Paths.get(this.moduleDir.getPath()).toAbsolutePath();
-        Path delegatePath = Paths.get(ModuleUtils.getModuleDir(delegate).getPath());
+        Path delegatePath = Paths.get(ModuleHelper.getModuleDir(delegate).getPath());
         return thisModulePath.relativize(delegatePath);
     }
 

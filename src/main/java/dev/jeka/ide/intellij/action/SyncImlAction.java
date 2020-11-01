@@ -30,10 +30,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import dev.jeka.ide.intellij.common.ClassUtils;
+import dev.jeka.ide.intellij.common.ClassHelper;
 import dev.jeka.ide.intellij.common.Constants;
-import dev.jeka.ide.intellij.common.FileUtils;
-import dev.jeka.ide.intellij.common.ModuleUtils;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
 ;
@@ -53,7 +53,7 @@ public class SyncImlAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         ////ModuleClass moduleClass = ModuleClass.of(event);
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        PsiClass commandClass = getPsicommandClass(event);
+        PsiClass commandClass = getPsiCommandClass(event);
         String className = commandClass == null ? null : commandClass.getQualifiedName();
         if (className != null) {
             VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -64,13 +64,13 @@ public class SyncImlAction extends AnAction {
         final VirtualFile moduleDir;
         if (commandClass != null) {
             existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
-            moduleDir = ModuleUtils.getModuleDir(existingModule);
+            moduleDir = ModuleHelper.getModuleDir(existingModule);
         } else if (isJekaProperties(selectedFile)) {
             moduleDir = selectedFile.getParent().getParent().getParent();
-            existingModule = ModuleUtils.getModuleHavingRootDir(event.getProject(), moduleDir);
+            existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
         } else {
             moduleDir = selectedFile;
-            existingModule = ModuleUtils.getModuleHavingRootDir(event.getProject(), moduleDir);
+            existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
         }
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
@@ -83,7 +83,7 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        PsiClass commandClass = getPsicommandClass(event);
+        PsiClass commandClass = getPsiCommandClass(event);
         if (commandClass != null) {
             Module module = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
             if (module == null) {
@@ -105,8 +105,8 @@ public class SyncImlAction extends AnAction {
             event.getPresentation().setVisible(false);
             return;
         }
-        if (ModuleUtils.isPotentialModule(dir)) {
-            String prefix = ModuleUtils.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
+        if (ModuleHelper.isPotentialModule(dir)) {
+            String prefix = ModuleHelper.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
             event.getPresentation().setText("Jeka " + prefix + "Synchronize '" + dir.getName() + "' Module");
         } else {
             event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
@@ -121,10 +121,10 @@ public class SyncImlAction extends AnAction {
     }
 
     private static boolean isJekaProject(VirtualFile virtualFile) {
-        return virtualFile.isDirectory() && FileUtils.containsJekaDir(virtualFile);
+        return virtualFile.isDirectory() && FileHelper.containsJekaDir(virtualFile);
     }
 
-    private static PsiClass getPsicommandClass(AnActionEvent event) {
+    private static PsiClass getPsiCommandClass(AnActionEvent event) {
         PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
         if (psiFile == null) {
             return null;
@@ -135,7 +135,7 @@ public class SyncImlAction extends AnAction {
                 return null;
             }
             PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = ClassUtils.isExtendingJkCommandSet(psiClass);
+            boolean isCommandsClass = ClassHelper.isExtendingJkCommandSet(psiClass);
             if (isCommandsClass) {
                 return psiClass;
             }
