@@ -23,8 +23,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.JekaIcons;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
@@ -37,7 +37,7 @@ public class SyncAllImlAction extends AnAction {
     public static final SyncAllImlAction INSTANCE = new SyncAllImlAction();
 
     private SyncAllImlAction() {
-        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", Constants.JkIcons.JEKA_GREY_NAKED);
+        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", JekaIcons.JEKA_GREY_NAKED);
     }
 
     @Override

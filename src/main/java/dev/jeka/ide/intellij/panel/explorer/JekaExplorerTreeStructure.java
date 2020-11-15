@@ -9,6 +9,7 @@ import com.intellij.openapi.util.ActionCallback;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.ui.JBColor;
 import dev.jeka.ide.intellij.panel.explorer.model.*;
+import lombok.Getter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,17 +18,13 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
 
     private static final Logger LOG = Logger.getInstance(JekaExplorerTreeStructure.class);
 
-    private final Project myProject;
-
     private final Object myRoot = new Object();
 
-    private final JekaRootManager jekaProjects;
+    @Getter
+    private final JekaRootManager jekaRootManager;
 
-    private boolean initialized;
-
-    JekaExplorerTreeStructure(final Project project) {
-        myProject = project;
-        jekaProjects = new JekaRootManager(project);
+    JekaExplorerTreeStructure(JekaRootManager jekaRootManager) {
+        this.jekaRootManager = jekaRootManager;
     }
 
     @Override
@@ -43,14 +40,15 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
     @Override
     @NotNull
     public NodeDescriptor createDescriptor(@NotNull Object element, NodeDescriptor parentDescriptor) {
+        Project project = jekaRootManager.getProject();
         if (element == myRoot) {
-            return new RootNodeDescriptor(myProject, parentDescriptor);
+            return new RootNodeDescriptor(project, parentDescriptor);
         }
         if (element instanceof String) {
-            return new TextInfoNodeDescriptor(myProject, parentDescriptor, (String) element);
+            return new TextInfoNodeDescriptor(project, parentDescriptor, (String) element);
         }
         if (element instanceof JekaModelNode) {
-            return ((JekaModelNode) element).getNodeInfo().getNodeDescriptor(myProject, parentDescriptor);
+            return ((JekaModelNode) element).getNodeInfo().getNodeDescriptor(project, parentDescriptor);
         }
         LOG.error("Unknown element for this tree structure " + element);
         return null;
@@ -60,10 +58,10 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
     @NotNull
     public Object[] getChildElements(@NotNull Object element) {
         if (element == myRoot) {
-            if (!initialized) {
+            if (!jekaRootManager.isInitialised()) {
                 return new Object[]{"Jeka is initialising project..."};
             }
-            return jekaProjects.getJekaModules().toArray(new JekaModule[0]);
+            return jekaRootManager.getJekaModules().toArray(new JekaModule[0]);
         }
         if (element instanceof JekaModelNode) {
             return ((JekaModelNode) element).getNodeInfo().getChildren().toArray(new JekaCommandClass[0]);
@@ -82,18 +80,18 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
 
     @Override
     public void commit() {
-        PsiDocumentManager.getInstance(myProject).commitAllDocuments();
+        PsiDocumentManager.getInstance(jekaRootManager.getProject()).commitAllDocuments();
     }
 
     @Override
     public boolean hasSomethingToCommit() {
-        return PsiDocumentManager.getInstance(myProject).hasUncommitedDocuments();
+        return PsiDocumentManager.getInstance(jekaRootManager.getProject()).hasUncommitedDocuments();
     }
 
     @NotNull
     @Override
     public ActionCallback asyncCommit() {
-        return asyncCommitDocuments(myProject);
+        return asyncCommitDocuments(jekaRootManager.getProject());
     }
 
     @NotNull

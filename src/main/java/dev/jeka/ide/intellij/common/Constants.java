@@ -10,20 +10,8 @@ public class Constants {
 
     public static final String JEKA_HOME = "JEKA_HOME";
 
-    /**
-     * @author Jerome Angibaud
-     */
-    public interface JkIcons {
+    public static final String JEKA_DIR_NAME = "jeka";
 
-        Icon JEKA_GROUP_ACTION = IconLoader.getIcon("/icons/knight-color-naked.svg");
+    public static final String JEKA_DEF_DIR_NAME = "def";
 
-        Icon JEKA_GREY_NAKED = IconLoader.getIcon("/icons/knight-grey-naked.svg");
-
-        Icon JEKA_GREYLIGHT_NAKED = IconLoader.getIcon("/icons/knight-greylight-naked.svg");
-
-        Icon JEKA_GREY_NAKED_13 = IconLoader.getIcon("/icons/knight-grey-naked-13.png");
-
-        Icon JEKA_RUN = IconLoader.getIcon("/icons/knight-run.svg");
-
-    }
 }

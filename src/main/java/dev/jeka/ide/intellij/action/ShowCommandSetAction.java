@@ -10,8 +10,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.PsiNavigateUtil;
-import dev.jeka.ide.intellij.common.ClassHelper;
-import dev.jeka.ide.intellij.common.Constants;
+import dev.jeka.ide.intellij.common.JekaIcons;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
 import org.jetbrains.annotations.NotNull;
 
 // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360004184479-How-to-open-editor-tab-with-code-
@@ -20,7 +20,7 @@ public class ShowCommandSetAction extends AnAction {
     public static final ShowCommandSetAction INSTANCE = new ShowCommandSetAction();
 
     private ShowCommandSetAction() {
-        super("Goto Jeka CommandSet Source", "Goto Jeka CommandSet Source", Constants.JkIcons.JEKA_RUN);
+        super("Goto Jeka CommandSet Source", "Goto Jeka CommandSet Source", JekaIcons.JEKA_RUN);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ShowCommandSetAction extends AnAction {
                         PsiClass[] psiClasses = psiJavaFile.getClasses();
                         for (PsiClass psiClass: psiClasses) {
                             System.out.println("--" + psiClass.getName());
-                            if (ClassHelper.isExtendingJkCommandSet(psiClass)) {
+                            if (PsiClassHelper.isExtendingJkCommandSet(psiClass)) {
                                 return file;
                             }
                         }

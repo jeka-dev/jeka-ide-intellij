@@ -4,7 +4,7 @@ import com.intellij.ide.projectWizard.NewProjectWizard;
 import com.intellij.ide.util.projectWizard.*;
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
-import dev.jeka.ide.intellij.common.Constants;
+import dev.jeka.ide.intellij.common.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +56,7 @@ public class JekaModuleBuilder extends EmptyModuleBuilder {
 
     @Override
     public Icon getNodeIcon() {
-        return Constants.JkIcons.JEKA_GROUP_ACTION;
+        return JekaIcons.JEKA_GROUP_ACTION;
     }
 
     @Override

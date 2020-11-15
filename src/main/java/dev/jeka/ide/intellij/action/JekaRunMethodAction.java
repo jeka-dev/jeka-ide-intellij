@@ -10,8 +10,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
+import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.ModuleHelper;
+import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import java.util.Collections;
 
 
 public class JekaRunMethodAction extends AnAction {
@@ -43,8 +49,10 @@ public class JekaRunMethodAction extends AnAction {
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(ModuleHelper.getModule(event));
         configuration.setProgramParameters("-CC=" + className + " " + methodName);
+        configuration.setBeforeRunTasks(Collections.emptyList());
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
+        runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.emptyList());
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
         RunManager.getInstance(project).addConfiguration(runnerAndConfigurationSettings);

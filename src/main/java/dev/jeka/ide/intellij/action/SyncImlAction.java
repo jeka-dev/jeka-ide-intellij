@@ -30,10 +30,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import dev.jeka.ide.intellij.common.ClassHelper;
-import dev.jeka.ide.intellij.common.Constants;
-import dev.jeka.ide.intellij.common.FileHelper;
-import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.*;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
 ;
@@ -93,14 +90,14 @@ public class SyncImlAction extends AnAction {
             final String text = "Jeka Synchronize '" + module.getName() + "' Module";
             event.getPresentation().setText(text);
             if ("EditorPopup".equals(event.getPlace())) {
-                event.getPresentation().setIcon(Constants.JkIcons.JEKA_GROUP_ACTION);
+                event.getPresentation().setIcon(JekaIcons.JEKA_GROUP_ACTION);
             }
             return;
         }
         VirtualFile dir = selectedFile;
         if (isJekaProperties(selectedFile)) {
             dir = selectedFile.getParent().getParent().getParent();
-           // event.getPresentation().setIcon(JkIcons.JEKA_GROUP_ACTION);
+           // event.getPresentation().setIcon(JekaIcons.JEKA_GROUP_ACTION);
         } else if (!isJekaProject(dir)) {
             event.getPresentation().setVisible(false);
             return;
@@ -135,7 +132,7 @@ public class SyncImlAction extends AnAction {
                 return null;
             }
             PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = ClassHelper.isExtendingJkCommandSet(psiClass);
+            boolean isCommandsClass = PsiClassHelper.isExtendingJkCommandSet(psiClass);
             if (isCommandsClass) {
                 return psiClass;
             }

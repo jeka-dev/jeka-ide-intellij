@@ -38,8 +38,8 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.JekaIcons;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -229,7 +229,7 @@ public class CmdJekaDoer {
         if (toolWindowMap.get(project) == null) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
             ToolWindow toolWindow = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
-            toolWindow.setIcon(Constants.JkIcons.JEKA_GREY_NAKED_13);
+            toolWindow.setIcon(JekaIcons.JEKA_GREY_NAKED_13);
             final ContentManager contentManager = toolWindow.getContentManager();
             Content content = contentManager
                     .getFactory()
