@@ -61,10 +61,10 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
             if (!jekaRootManager.isInitialised()) {
                 return new Object[]{"Jeka is initialising project..."};
             }
-            return jekaRootManager.getJekaModules().toArray(new JekaModule[0]);
+            return jekaRootManager.getJekaFolders().toArray(new JekaFolder[0]);
         }
         if (element instanceof JekaModelNode) {
-            return ((JekaModelNode) element).getNodeInfo().getChildren().toArray(new JekaCommandClass[0]);
+            return ((JekaModelNode) element).getNodeInfo().getChildren().toArray(new Object[0]);
         }
         return new Object[0];
     }

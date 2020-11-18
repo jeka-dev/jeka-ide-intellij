@@ -7,14 +7,16 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.*;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class JekaRootManager {
 
@@ -27,7 +29,7 @@ public class JekaRootManager {
     private volatile boolean initialised = false;
 
     @Getter
-    private final List<JekaModule> jekaModules = new LinkedList<>();
+    private final List<JekaFolder> jekaFolders = new LinkedList<>();
 
     private final List<Runnable> changeListeners = new LinkedList<>();
 
@@ -61,9 +63,9 @@ public class JekaRootManager {
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setIndeterminate(true);
                 indicator.pushState();
-                jekaModules.clear();
+                jekaFolders.clear();
                 ApplicationManager.getApplication().runReadAction(() -> {
-                    jekaModules.addAll(loadJekaModules());
+                    jekaFolders.addAll(jekaFolderTree());
                 });
                 indicator.stop();
                 initialised = true;
@@ -72,17 +74,23 @@ public class JekaRootManager {
         };
     }
 
-    private List<JekaModule> loadJekaModules() {
+    private List<JekaFolder> jekaFolderTree() {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
-        List<JekaModule> result = new LinkedList<>();
+        TreeMap<String, Module>  sortedModulesMap = new TreeMap<>();
         for (Module module : moduleManager.getModules()) {
-            if (ModuleHelper.isJekaModule(module)) {
-                result.add(JekaModule.fromModule(null, module));
-            }
+            sortedModulesMap.put(ModuleHelper.getModuleDir(module).getPath(), module);
         }
-        System.out.println(result);
-        return result;
+        Path projectRoot = Paths.get(project.getBasePath());
+        JekaFolder root = JekaFolder.ofSimpleDir(null, projectRoot);
+        for(Map.Entry<String, Module> moduleEntry : sortedModulesMap.entrySet()) {
+            Module module = moduleEntry.getValue();
+            root.createJekaFolderAsDescendant(module);
+        }
+        return Collections.singletonList(root);
     }
+
+
+
 
     private class MyPsiAdapter extends PsiTreeChangeAdapter {
 

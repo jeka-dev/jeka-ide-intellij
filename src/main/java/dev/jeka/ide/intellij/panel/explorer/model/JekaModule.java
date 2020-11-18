@@ -13,27 +13,18 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Getter
-public class JekaModule implements JekaModelNode {
+public class JekaModule  {
 
-    private final String name;
+    private final Module module;
 
-    private final JekaModule parentProject;
+    private final List<JekaCommandClass> commandClasses;
 
-    private final List<JekaCommandClass> commandClasses = new LinkedList<>();
-
-    @Override
-    public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, AllIcons.Nodes.Folder,
-                this::getName, this::getParentProject, this::getCommandClasses);
-    }
-
-    static JekaModule fromModule(JekaModule parent, Module module) {
+    static JekaModule fromModule(JekaFolder moduleFolder, Module module) {
         List<PsiClass> jekaPsilasses = PsiClassHelper.findJekaCommandClasses(module);
-        JekaModule result = new JekaModule(module.getName(), parent);
-        List<JekaCommandClass> jekaCommandClasses = jekaPsilasses.stream().map(psiClass ->
-                JekaCommandClass.fromPsiClass(result, psiClass)).collect(Collectors.toList());
-        result.getCommandClasses().addAll(jekaCommandClasses);
-        return result;
+        List<JekaCommandClass> jekaCommandClasses = jekaPsilasses.stream()
+                .map(psiClass -> JekaCommandClass.fromPsiClass(moduleFolder, psiClass))
+                .collect(Collectors.toList());
+        return new JekaModule(module, jekaCommandClasses);
     }
 
 }
