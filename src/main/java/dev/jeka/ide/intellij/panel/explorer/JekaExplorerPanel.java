@@ -3,9 +3,11 @@ package dev.jeka.ide.intellij.panel.explorer;
 
 import com.google.common.collect.ImmutableList;
 import com.intellij.execution.dashboard.actions.RunAction;
+import com.intellij.ide.DataManager;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ex.CheckboxAction;
 import com.intellij.openapi.externalSystem.action.task.AssignShortcutAction;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -16,6 +18,7 @@ import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.tree.AsyncTreeModel;
 import com.intellij.ui.tree.StructureTreeModel;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 import dev.jeka.ide.intellij.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.common.data.ModuleAndMethod;
@@ -27,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 
 
 public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposable {
@@ -73,9 +77,32 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 popupInvoked(tree, comp, x, y);
             }
         });
+        new EditSourceOnDoubleClickHandler.TreeMouseListener(tree, null) {
+            @Override
+            protected void processDoubleClick(@NotNull MouseEvent e, @NotNull DataContext dataContext, @NotNull TreePath treePath) {
+                doubleClick(tree, e.getX(), e.getY());
+            }
+        }.installOn(tree);
     }
 
-    private void popupInvoked(Tree tree, final Component comp, final int x, final int y) {
+    private static void doubleClick(Tree tree, final int x, final int y) {
+        Object userObject = null;
+        final TreePath path = tree.getSelectionPath();
+        if (path != null) {
+            final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+            if (node != null) {
+                userObject = node.getUserObject();
+            }
+        }
+        NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
+        if (nodeDescriptor.getElement() instanceof JekaCommand) {
+            AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
+                    ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
+            JekaRunMethodAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
+        }
+    }
+
+    private static void popupInvoked(Tree tree, final Component comp, final int x, final int y) {
         Object userObject = null;
         final TreePath path = tree.getSelectionPath();
         if (path != null) {
@@ -95,6 +122,10 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);
         popupMenu.getComponent().show(comp, x, y);
     }
+
+
+
+
 
     @Nullable
     @Override
