@@ -17,21 +17,27 @@ public class JekaCommandClass implements JekaModelNode {
 
     private final JekaFolder parent;
 
-    private List<JekaCommand> commands = new LinkedList<>();
+    private volatile List<JekaCommand> cachedCommands;
 
     @Override
     public NodeInfo getNodeInfo() {
         return NodeInfo.simple(this, AllIcons.Nodes.Class,
-                () -> psiClass.getName(), this::getParent, this::getCommands);
+                () -> psiClass.getName(), this::getParent, this::jekaCommands);
     }
 
     static JekaCommandClass fromPsiClass(JekaFolder parent, PsiClass psiClass) {
         JekaCommandClass result =  new JekaCommandClass(psiClass, parent);
-        result.commands = result.jekaCommands(psiClass);
         return result;
     }
 
-    private List<JekaCommand> jekaCommands(PsiClass psiClass) {
+    void invalidateCommands() {
+        cachedCommands = null;
+    }
+
+    private List<JekaCommand> jekaCommands() {
+        if (cachedCommands != null) {
+            return cachedCommands;
+        }
         PsiMethod[] methods = psiClass.getAllMethods();
         List<JekaCommand> commands = new LinkedList<>();
         Set<String> methodNames = new HashSet<>();
@@ -42,6 +48,7 @@ public class JekaCommandClass implements JekaModelNode {
                 methodNames.add(methodName);
             }
         }
+        cachedCommands = commands;
         return commands;
     }
 }

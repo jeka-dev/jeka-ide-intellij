@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 @Getter
@@ -69,6 +71,13 @@ public class JekaFolder implements JekaModelNode {
         this.subFolders.add(newChild);
     }
 
-
+    Stream<JekaModule> moduleStream() {
+        List<JekaFolder> folders= new LinkedList<>();
+        folders.add(this);
+        folders.addAll(subFolders);
+        return folders.stream()
+                .filter(folder -> folder.jekaModule != null)
+                .flatMap(folder -> folder.moduleStream());
+    }
 
 }

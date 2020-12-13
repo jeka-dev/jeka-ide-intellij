@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -7,7 +8,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.*;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
@@ -17,13 +17,14 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 
-public class JekaRootManager {
+public class JekaRootManager implements Disposable {
 
     @Getter
     private final Project project;
 
-    private final PsiManager psiManager;
+    private final PsiAdapter psiAdapter;;
 
     @Getter
     private volatile boolean initialised = false;
@@ -35,8 +36,8 @@ public class JekaRootManager {
 
     public JekaRootManager(Project project) {
         this.project = project;
-        this.psiManager = PsiManager.getInstance(project);
-        this.psiManager.addPsiTreeChangeListener(new MyPsiAdapter());
+        this.psiAdapter = new PsiAdapter();
+        PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiAdapter());
     }
 
     public void addChangeListener(Runnable runnable) {
@@ -89,10 +90,13 @@ public class JekaRootManager {
         return Collections.singletonList(root);
     }
 
+    @Override
+    public void dispose() {
+        PsiManager.getInstance(project).removePsiTreeChangeListener(this.psiAdapter);
+    }
 
 
-
-    private class MyPsiAdapter extends PsiTreeChangeAdapter {
+    private class PsiAdapter extends PsiTreeChangeAdapter {
 
         @Override
         public void childAdded(@NotNull PsiTreeChangeEvent event) {
@@ -117,12 +121,15 @@ public class JekaRootManager {
         // renamed
         @Override
         public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-            PsiMethod psiMethod = PsiMethodHelper.toJekaCommand(event.getParent());
-            if (psiMethod == null) {
-                return;
-            }
-            super.childReplaced(event);
+            JekaRootManager.this.notifyChange();
         }
+    }
+
+    Stream<JekaCommandClass> allClasses() {
+        return jekaFolders.stream()
+                .flatMap(folder -> folder.moduleStream())
+                .flatMap(jekaModule -> jekaModule.getCommandClasses().stream());
+
     }
 
 }

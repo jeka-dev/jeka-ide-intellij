@@ -1,14 +1,10 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package dev.jeka.ide.intellij.panel.explorer;
 
-import com.google.common.collect.ImmutableList;
-import com.intellij.execution.dashboard.actions.RunAction;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.actionSystem.ex.CheckboxAction;
-import com.intellij.openapi.externalSystem.action.task.AssignShortcutAction;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -60,12 +56,14 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     }
 
     public void refreshTree() {
+        tree.invalidate();
         structureTreeModel.invalidate();
     }
 
     @Override
     public void dispose() {
-        jekaRootManager.removeChangeListener(this::populateTree);
+        jekaRootManager.removeChangeListener(this::refreshTree);
+        jekaRootManager.dispose();
     }
 
     private void setupActions() {
@@ -122,10 +120,6 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);
         popupMenu.getComponent().show(comp, x, y);
     }
-
-
-
-
 
     @Nullable
     @Override
