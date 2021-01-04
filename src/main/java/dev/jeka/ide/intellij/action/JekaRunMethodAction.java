@@ -7,23 +7,16 @@ import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
-import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.data.ModuleAndMethod;
-import org.intellij.lang.annotations.JdkConstants;
+import dev.jeka.ide.intellij.common.data.CommandInfo;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.util.Collections;
-import java.util.NavigableMap;
 
 
 public class JekaRunMethodAction extends AnAction {
@@ -46,27 +39,33 @@ public class JekaRunMethodAction extends AnAction {
         Project project = event.getProject();
         DataContext dataContext = event.getDataContext();
         PsiLocation<PsiIdentifier> location = (PsiLocation<PsiIdentifier>) dataContext.getData(Location.DATA_KEY);
-        final PsiMethod psiMethod;
+        final String methodName;
+        final String simpleClassName;
         final Module module;
+        final String pluginName;
         if (location != null) {
-            psiMethod = (PsiMethod) location.getPsiElement().getParent();
+            PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
+            methodName = psiMethod.getName();
+            simpleClassName = psiMethod.getContainingClass().getName();
             module = ModuleHelper.getModule(event);
+            pluginName = null;
         } else {
-            ModuleAndMethod moduleAndMethod = ModuleAndMethod.KEY.getData(dataContext);
-            if (moduleAndMethod == null) {
+            CommandInfo commandInfo = CommandInfo.KEY.getData(dataContext);
+            if (commandInfo == null) {
                 throw new IllegalStateException("Can not find reference to Psi method");
             }
-            psiMethod = moduleAndMethod.getMethod();
-            module = moduleAndMethod.getModule();
+            methodName = commandInfo.getMethodName();
+            simpleClassName = commandInfo.getCommandClass().getName();
+            module = commandInfo.getModule();
+            pluginName = commandInfo.getPluginName();
         }
-        String methodName = psiMethod.getName();
-        String className = psiMethod.getContainingClass().getName();
-        String name = module.getName() + " [jeka " + methodName + "]";
+        String method = pluginName == null ? methodName : pluginName + "#" + methodName;
+        String name = module.getName() + " [jeka " + method + "]";
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(module);
-        configuration.setProgramParameters("-CC=" + className + " " + methodName);
+        configuration.setProgramParameters("-CC=" + simpleClassName + " " + method);
         configuration.setBeforeRunTasks(Collections.emptyList());
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());

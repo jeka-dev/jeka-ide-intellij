@@ -1,54 +1,72 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import dev.jeka.ide.intellij.common.PsiMethodHelper;
-import lombok.*;
+import com.intellij.psi.PsiClassType;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiType;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
+import lombok.Getter;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import javax.swing.*;
+import java.util.LinkedList;
+import java.util.List;
 
-@RequiredArgsConstructor
 @Getter
-public class JekaCommandClass implements JekaModelNode {
+public class JekaCommandClass extends JekaCommandHolder {
 
-    private final PsiClass psiClass;
-
-    private final JekaFolder parent;
-
-    private volatile List<JekaCommand> cachedCommands;
-
-    @Override
-    public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, AllIcons.Nodes.Class,
-                () -> psiClass.getName(), this::getParent, this::jekaCommands);
+    private JekaCommandClass(JekaModelNode parent, PsiClass psiClass) {
+        super(parent, psiClass);
     }
 
     static JekaCommandClass fromPsiClass(JekaFolder parent, PsiClass psiClass) {
-        JekaCommandClass result =  new JekaCommandClass(psiClass, parent);
+        return  new JekaCommandClass(parent, psiClass);
+    }
+
+    @Override
+    protected Icon getIcon() {
+        return AllIcons.Nodes.Class;
+    }
+
+    @Override
+    public Module getModule() {
+        JekaFolder jekaFolder = (JekaFolder) this.getParent();
+        return jekaFolder.getModule();
+    }
+
+    @Override
+    protected String getName() {
+        return getContainingClass().getName();
+    }
+
+    @Override
+    public PsiClass getCommandClass() {
+        return this.getContainingClass();
+    }
+
+    @Override
+    protected List<JekaModelNode> getChildren() {
+        List<JekaModelNode> result = new LinkedList<>(plugins());
+        result.addAll(super.getChildren());
         return result;
     }
 
-    void invalidateCommands() {
-        cachedCommands = null;
-    }
-
-    private List<JekaCommand> jekaCommands() {
-        if (cachedCommands != null) {
-            return cachedCommands;
-        }
-        PsiMethod[] methods = psiClass.getAllMethods();
-        List<JekaCommand> commands = new LinkedList<>();
-        Set<String> methodNames = new HashSet<>();
-        for (PsiMethod method : methods) {
-            if (PsiMethodHelper.isJekaCommand(method)) {
-                String methodName = method.getName();
-                commands.add(new JekaCommand(this, methodName, method));
-                methodNames.add(methodName);
+    private List<JekaPlugin> plugins() {
+        PsiClass commandPsiClass = getContainingClass();
+        PsiField[] psiFields = commandPsiClass.getAllFields();
+        List<JekaPlugin> result = new LinkedList<>();
+        for (PsiField psiField : psiFields) {
+            PsiType psiType = psiField.getType();
+            if (psiType instanceof PsiClassType) {
+                PsiClassType classType = (PsiClassType) psiType;
+                PsiClass psiClass = classType.resolve();
+                if (PsiClassHelper.isExtendingJkPlugin(psiClass)) {
+                    JekaPlugin plugin = JekaPlugin.fromPsiClass(this, psiClass);
+                    result.add(plugin);
+                }
             }
         }
-        cachedCommands = commands;
-        return commands;
+        return result;
     }
 }

@@ -14,6 +14,8 @@ public class PsiClassHelper {
 
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommandSet";
 
+    private static final String JKPLUGIN_CLASS_NAME = "dev.jeka.core.tool.JkPlugin";
+
     public static boolean isExtendingJkCommandSet(PsiClass psiClass) {
         if (psiClass == null) {
             return false;
@@ -28,6 +30,25 @@ public class PsiClassHelper {
             }
             PsiClass currentPsiClass = psiClassType.resolve();
             if (isExtendingJkCommandSet(currentPsiClass)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isExtendingJkPlugin(PsiClass psiClass) {
+        return isExtending(psiClass, JKPLUGIN_CLASS_NAME);
+    }
+
+    public static boolean isExtending(PsiClass psiClass, String superclassName) {
+        if (psiClass == null) {
+            return false;
+        }
+        if (superclassName.equals(psiClass.getQualifiedName())) {
+            return true;
+        }
+        for (PsiClass superPsiClass : psiClass.getSupers()) {
+            if (superclassName.equals(superPsiClass.getQualifiedName())) {
                 return true;
             }
         }

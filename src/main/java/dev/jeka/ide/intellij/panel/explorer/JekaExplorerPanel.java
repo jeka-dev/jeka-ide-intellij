@@ -17,8 +17,10 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 import dev.jeka.ide.intellij.action.JekaRunMethodAction;
-import dev.jeka.ide.intellij.common.data.ModuleAndMethod;
+import dev.jeka.ide.intellij.common.data.CommandInfo;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaCommand;
+import dev.jeka.ide.intellij.panel.explorer.model.JekaModelNode;
+import dev.jeka.ide.intellij.panel.explorer.model.JekaPlugin;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -124,7 +126,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (CommonDataKeys.NAVIGATABLE.is(dataId) || ModuleAndMethod.KEY.is(dataId)) {
+        if (CommonDataKeys.NAVIGATABLE.is(dataId) || CommandInfo.KEY.is(dataId)) {
             TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
             if (treePath == null) {
                 return null;
@@ -137,7 +139,14 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return command.getPsiMethod();
                 }
-                return new ModuleAndMethod(command.getBuildClass().getParent().getModule(), command.getPsiMethod());
+                JekaModelNode parent = command.getHolder();
+                String pluginName = null;
+                if (parent instanceof JekaPlugin) {
+                    JekaPlugin jekaPlugin = (JekaPlugin) parent;
+                    pluginName = jekaPlugin.getPluginName();
+                }
+                return new CommandInfo(command.getHolder().getModule(),
+                        command.getHolder().getCommandClass(), pluginName, command.getPsiMethod().getName());
             }
         }
         return super.getData(dataId);

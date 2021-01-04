@@ -7,20 +7,9 @@ import com.intellij.psi.PsiType;
 
 public class PsiMethodHelper {
 
-    public static PsiMethod toJekaCommand(PsiElement psiElement) {
-        if (psiElement instanceof PsiMethod) {  // rename
-            PsiMethod psiMethod = (PsiMethod) psiElement.getParent();
-            if (isJekaCommand(psiMethod)) {
-                return psiMethod;
-            }
-            return null;
-        }
-        return null;
-    }
-
-    public static boolean isJekaCommand(PsiMethod psiMethod) {
+    public static boolean isInstancePublicVoidNoArgsNotFromObject(PsiMethod psiMethod) {
         PsiClass psiClass = psiMethod.getContainingClass();
-        if (!PsiClassHelper.isExtendingJkCommandSet(psiClass)) {
+        if (psiClass.getQualifiedName().equals(Object.class.getName())) {
             return false;
         }
         if (psiMethod.isConstructor() || psiMethod.hasParameters()) {
