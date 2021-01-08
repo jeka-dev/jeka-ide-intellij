@@ -1,5 +1,7 @@
 package dev.jeka.ide.intellij.action;
 
+import com.google.common.collect.ImmutableList;
+import com.intellij.compiler.options.CompileStepBeforeRunNoErrorCheck;
 import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.executors.DefaultDebugExecutor;
@@ -9,6 +11,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
@@ -69,7 +72,13 @@ public class JekaRunMethodAction extends AnAction {
         configuration.setBeforeRunTasks(Collections.emptyList());
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
-        runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.emptyList());
+
+        // Uncomment to not force build
+        CompileStepBeforeRunNoErrorCheck check = new CompileStepBeforeRunNoErrorCheck(project);
+        CompileStepBeforeRunNoErrorCheck.MakeBeforeRunTaskNoErrorCheck task =
+                check.createTask(runnerAndConfigurationSettings.getConfiguration());
+        runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.singletonList(task));
+
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
         RunManager.getInstance(project).addConfiguration(runnerAndConfigurationSettings);

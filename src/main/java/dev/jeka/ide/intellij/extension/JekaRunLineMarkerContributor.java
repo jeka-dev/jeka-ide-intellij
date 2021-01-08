@@ -17,7 +17,6 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
     @Nullable
     @Override
     public Info getInfo(@NotNull PsiElement psiEl) {
-      ///  if (Registry.is("ide.jvm.run.marker")) return null;
         if (!isIdentifier(psiEl)) {
             return null;
         }

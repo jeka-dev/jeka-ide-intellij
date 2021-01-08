@@ -18,10 +18,7 @@ import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 import dev.jeka.ide.intellij.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaCommand;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaModelNode;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaPlugin;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
+import dev.jeka.ide.intellij.panel.explorer.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -117,6 +114,12 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             group.add(JekaRunMethodAction.RUN_JEKA_INSTANCE);
             group.add(JekaRunMethodAction.DEBUG_JEKA_INSTANCE);
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
+
+        } else if (nodeDescriptor.getElement() instanceof JekaField) {
+            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
+
+        } else if (nodeDescriptor.getElement() instanceof JekaCommandHolder) {
+            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
         }
         final ActionPopupMenu popupMenu = ActionManager.getInstance()
                 .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);
@@ -147,6 +150,18 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 }
                 return new CommandInfo(command.getHolder().getModule(),
                         command.getHolder().getCommandClass(), pluginName, command.getPsiMethod().getName());
+            }
+            if (element instanceof JekaField) {
+                JekaField jekaField = (JekaField) element;
+                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
+                    return jekaField.getField();
+                }
+            }
+            if (element instanceof JekaCommandHolder) {
+                JekaCommandHolder holder = (JekaCommandHolder) element;
+                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
+                    return holder.getContainingClass();
+                }
             }
         }
         return super.getData(dataId);

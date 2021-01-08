@@ -1,13 +1,17 @@
 package dev.jeka.ide.intellij.common;
 
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.SneakyThrows;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -52,6 +56,11 @@ public class FileHelper {
             }
         }
         return false;
+    }
+
+    @SneakyThrows
+    public static URL toUrl(VirtualFile file) {
+        return Paths.get(file.getPresentableUrl()).toUri().toURL();
     }
 
 

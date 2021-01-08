@@ -81,7 +81,6 @@ public class ShowCommandSetAction extends AnAction {
                         PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                         PsiClass[] psiClasses = psiJavaFile.getClasses();
                         for (PsiClass psiClass: psiClasses) {
-                            System.out.println("--" + psiClass.getName());
                             if (PsiClassHelper.isExtendingJkCommandSet(psiClass)) {
                                 return file;
                             }

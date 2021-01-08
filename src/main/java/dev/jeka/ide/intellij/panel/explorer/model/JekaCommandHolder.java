@@ -1,8 +1,9 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
+import dev.jeka.ide.intellij.common.JkCommandSetHelper;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,16 +39,36 @@ public abstract class JekaCommandHolder implements JekaModelNode {
 
     protected List<JekaModelNode> getChildren() {
         PsiMethod[] methods = containingClass.getAllMethods();
-        List<JekaModelNode> commands = new LinkedList<>();
+        List<JekaModelNode> result = new LinkedList<>();
+        result.addAll(plugins());
+        result.add(new JekaFieldSet(this));
         Set<String> methodNames = new HashSet<>();
         for (PsiMethod method : methods) {
             if (PsiMethodHelper.isInstancePublicVoidNoArgsNotFromObject(method)) {
                 String methodName = method.getName();
-                commands.add(new JekaCommand(this, methodName, method));
+                result.add(new JekaCommand(this, methodName, method));
                 methodNames.add(methodName);
             }
         }
-        return commands;
+        return result;
+    }
+
+    private List<JekaPlugin> plugins() {
+        PsiClass commandPsiClass = getContainingClass();
+        PsiField[] psiFields = commandPsiClass.getAllFields();
+        List<JekaPlugin> result = new LinkedList<>();
+        for (PsiField psiField : psiFields) {
+            PsiType psiType = psiField.getType();
+            if (psiType instanceof PsiClassType) {
+                PsiClassType classType = (PsiClassType) psiType;
+                PsiClass psiClass = classType.resolve();
+                if (PsiClassHelper.isExtendingJkPlugin(psiClass)) {
+                    JekaPlugin plugin = JekaPlugin.fromPsiClass(this, psiClass);
+                    result.add(plugin);
+                }
+            }
+        }
+        return result;
     }
 
 }

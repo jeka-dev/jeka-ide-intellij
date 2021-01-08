@@ -3,6 +3,8 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
+import dev.jeka.ide.intellij.common.JkCommandSetHelper;
+import dev.jeka.ide.intellij.common.MiscHelper;
 
 import javax.swing.*;
 
@@ -16,7 +18,6 @@ public class JekaPlugin extends JekaCommandHolder {
         return new JekaPlugin(parent, psiClass);
     }
 
-
     @Override
     protected Icon getIcon() {
         return AllIcons.Nodes.Plugin;
@@ -24,28 +25,30 @@ public class JekaPlugin extends JekaCommandHolder {
 
     @Override
     public Module getModule() {
-        if (getParent() instanceof JekaCommandClass) {
-            JekaCommandClass command = (JekaCommandClass) getParent();
-            return command.getModule();
-        }
-        throw new IllegalStateException();
+        return getJekaCommandClass().getModule();
     }
 
     @Override
     protected String getName() {
-        return getContainingClass().getName().substring("JkPlugin".length());
+        return MiscHelper.pluginName(getContainingClass().getName());
     }
 
     @Override
     public PsiClass getCommandClass() {
+        return getJekaCommandClass().getCommandClass();
+    }
+
+    private JekaCommandClass getJekaCommandClass() {
         if (getParent() instanceof JekaCommandClass) {
-            JekaCommandClass command = (JekaCommandClass) getParent();
-            return command.getCommandClass();
+            return (JekaCommandClass) getParent();
+        }
+        if (getParent() instanceof JekaPlugin) {
+            return ((JekaPlugin) getParent()).getJekaCommandClass();
         }
         throw new IllegalStateException();
     }
 
     public String getPluginName() {
-        return getName().toLowerCase();
+        return getName();
     }
 }
