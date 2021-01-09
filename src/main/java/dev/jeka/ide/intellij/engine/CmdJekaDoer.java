@@ -38,9 +38,7 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.ide.intellij.common.FileHelper;
-import dev.jeka.ide.intellij.common.JekaIcons;
-import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,6 +77,10 @@ public class CmdJekaDoer {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         cmd.addParameters("intellij#iml", "-LH");
+        String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
+        if (jekaHomeVar != null) {
+            cmd.addParameters("-intellij#jekaHome=" + jekaHomeVar);
+        }
         cmd.setWorkDirectory(modulePath.toFile());
         if (qualifiedClassName != null) {
             cmd.addParameter("-CC=" + qualifiedClassName);

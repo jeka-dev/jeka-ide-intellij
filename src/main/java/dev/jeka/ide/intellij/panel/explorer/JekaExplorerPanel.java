@@ -16,7 +16,7 @@ import com.intellij.ui.tree.StructureTreeModel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
-import dev.jeka.ide.intellij.action.JekaRunMethodAction;
+import dev.jeka.ide.intellij.action.JekaRunCommandAction;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
 import dev.jeka.ide.intellij.panel.explorer.model.*;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +95,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         if (nodeDescriptor.getElement() instanceof JekaCommand) {
             AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
                     ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
-            JekaRunMethodAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
+            JekaRunCommandAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
         }
     }
 
@@ -111,8 +111,8 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
         final DefaultActionGroup group = new DefaultActionGroup();
         if (nodeDescriptor.getElement() instanceof JekaCommand) {
-            group.add(JekaRunMethodAction.RUN_JEKA_INSTANCE);
-            group.add(JekaRunMethodAction.DEBUG_JEKA_INSTANCE);
+            group.add(JekaRunCommandAction.RUN_JEKA_INSTANCE);
+            group.add(JekaRunCommandAction.DEBUG_JEKA_INSTANCE);
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
         } else if (nodeDescriptor.getElement() instanceof JekaField) {

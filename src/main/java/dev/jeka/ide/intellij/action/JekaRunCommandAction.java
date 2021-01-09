@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.action;
 
-import com.google.common.collect.ImmutableList;
 import com.intellij.compiler.options.CompileStepBeforeRunNoErrorCheck;
 import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationConfiguration;
@@ -11,7 +10,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
@@ -22,15 +20,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 
 
-public class JekaRunMethodAction extends AnAction {
+public class JekaRunCommandAction extends AnAction {
 
-    public static final JekaRunMethodAction RUN_JEKA_INSTANCE = new JekaRunMethodAction(false);
+    public static final JekaRunCommandAction RUN_JEKA_INSTANCE = new JekaRunCommandAction(false);
 
-    public static final JekaRunMethodAction DEBUG_JEKA_INSTANCE = new JekaRunMethodAction(true);
+    public static final JekaRunCommandAction DEBUG_JEKA_INSTANCE = new JekaRunCommandAction(true);
 
     private final boolean debug;
 
-    private JekaRunMethodAction(boolean debug) {
+    private JekaRunCommandAction(boolean debug) {
         super((debug ? "Debug" : "Run") +   " Command",
                 (debug ? "Debug" : "Run") +   " Command",
                 debug ? AllIcons.Actions.StartDebugger : AllIcons.RunConfigurations.TestState.Run);
@@ -72,8 +70,6 @@ public class JekaRunMethodAction extends AnAction {
         configuration.setBeforeRunTasks(Collections.emptyList());
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
-
-        // Uncomment to not force build
         CompileStepBeforeRunNoErrorCheck check = new CompileStepBeforeRunNoErrorCheck(project);
         CompileStepBeforeRunNoErrorCheck.MakeBeforeRunTaskNoErrorCheck task =
                 check.createTask(runnerAndConfigurationSettings.getConfiguration());

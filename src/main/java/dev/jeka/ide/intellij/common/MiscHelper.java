@@ -1,9 +1,6 @@
 package dev.jeka.ide.intellij.common;
 
 import com.intellij.openapi.application.PathMacros;
-import lombok.SneakyThrows;
-
-import java.net.URL;
 
 public class MiscHelper {
 
