@@ -31,23 +31,8 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         // Add Jeka group to Project context popup menu
         DefaultActionGroup projectPopupGroup = (DefaultActionGroup) actionManager.getAction("ProjectViewPopupMenu");
         Constraints menuLocation = new Constraints(Anchor.BEFORE, "Maven.GlobalProjectMenu");
-        Constraints firstLocation = new Constraints(Anchor.FIRST, null);
-        projectPopupGroup.addAction(Separator.getInstance(), firstLocation);
-        projectPopupGroup.addAction(ShowCommandSetAction.INSTANCE, firstLocation);
-        projectPopupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
-
-        // Add Sync Iml to editor context popup
-        DefaultActionGroup popupGroup = (DefaultActionGroup) actionManager.getAction("EditorPopupMenu");
-        popupGroup.addAction(Separator.getInstance(), firstLocation);
-        popupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
-
-        // Add Sync All to build menu
-        DefaultActionGroup mainBuildMenu = (DefaultActionGroup) actionManager.getAction("BuildMenu");
-        Constraints syncAllLocation = new Constraints(Anchor.AFTER, "GenerateAntBuild");
-        mainBuildMenu.addAction(Separator.getInstance(), syncAllLocation);
-        mainBuildMenu.addAction(SyncAllImlAction.INSTANCE, syncAllLocation);
 
         // Add classpath variable
         if (MiscHelper.getPathVariable(JEKA_USER_HOME) == null) {

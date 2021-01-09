@@ -16,6 +16,7 @@
 
 package dev.jeka.ide.intellij.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -37,7 +38,7 @@ public class SyncAllImlAction extends AnAction {
     public static final SyncAllImlAction INSTANCE = new SyncAllImlAction();
 
     private SyncAllImlAction() {
-        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", JekaIcons.JEKA_GREY_NAKED);
+        super("Synchronize all Jeka Modules", "Synchronize all iml files in aka modules", AllIcons.Actions.Refresh);
     }
 
     @Override

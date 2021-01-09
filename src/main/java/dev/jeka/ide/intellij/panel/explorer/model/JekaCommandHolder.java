@@ -2,7 +2,6 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
-import dev.jeka.ide.intellij.common.JkCommandSetHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import lombok.Getter;

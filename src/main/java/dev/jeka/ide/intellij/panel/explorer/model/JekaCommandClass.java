@@ -3,11 +3,6 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiType;
-import dev.jeka.ide.intellij.common.JkCommandSetHelper;
-import dev.jeka.ide.intellij.common.PsiClassHelper;
 import lombok.Getter;
 
 import javax.swing.*;

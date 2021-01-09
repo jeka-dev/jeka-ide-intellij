@@ -4,12 +4,10 @@ import com.intellij.icons.AllIcons;
 import com.intellij.lang.jvm.JvmModifier;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
-import dev.jeka.ide.intellij.common.JkCommandSetHelper;
 import dev.jeka.ide.intellij.common.PsiFieldHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 

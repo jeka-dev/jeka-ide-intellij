@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.common;
+package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.JdkUtils;
@@ -6,7 +6,24 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.util.lang.UrlClassLoader;
+/*
 import dev.jeka.core.api.utils.JkUtilsReflect;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.MiscHelper;
+import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
+
+import dev.jeka.core.api.utils.JkUtilsReflect;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.MiscHelper;
+import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
+ */
+
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.MiscHelper;
+import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
 import lombok.SneakyThrows;
 import lombok.Value;
 
@@ -18,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JkCommandSetHelper {
+class JkCommandSetHelper {
 
     private static final String BASE_DIR_METHOD = "baseDirContext";
 
@@ -50,12 +67,12 @@ public class JkCommandSetHelper {
     @SneakyThrows
     private static Object instantiate(Module module, PsiClass commandSetPsiClass, ClassLoader classLoader) {
         Class clazz = classLoader.loadClass(commandSetPsiClass.getQualifiedName());
-        Method baseDirMethod = JkUtilsReflect.findMethodMethodDeclaration(clazz, BASE_DIR_METHOD, Path.class);
+        Method baseDirMethod = null; // = JkUtilsReflect.findMethodMethodDeclaration(clazz, BASE_DIR_METHOD, Path.class);
         VirtualFile dir = ModuleHelper.getModuleDir(module);
         Path path = Paths.get(dir.getPresentableUrl());
         baseDirMethod.setAccessible(true);
         baseDirMethod.invoke(null, path);
-        Method factoryMethod = JkUtilsReflect.findMethodMethodDeclaration(clazz, FACTORY_METHOD, Class.class);
+        Method factoryMethod = null; //JkUtilsReflect.findMethodMethodDeclaration(clazz, FACTORY_METHOD, Class.class);
         factoryMethod.setAccessible(true);
         ClassLoader currentClassloader = Thread.currentThread().getContextClassLoader();
         try {

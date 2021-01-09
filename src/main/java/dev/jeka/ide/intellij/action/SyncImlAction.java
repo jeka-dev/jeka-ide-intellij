@@ -33,8 +33,6 @@ import com.intellij.psi.PsiJavaFile;
 import dev.jeka.ide.intellij.common.*;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
-;
-
 /**
  * @author Jerome Angibaud
  */
@@ -97,14 +95,13 @@ public class SyncImlAction extends AnAction {
         VirtualFile dir = selectedFile;
         if (isJekaProperties(selectedFile)) {
             dir = selectedFile.getParent().getParent().getParent();
-           // event.getPresentation().setIcon(JekaIcons.JEKA_GROUP_ACTION);
         } else if (!isJekaProject(dir)) {
             event.getPresentation().setVisible(false);
             return;
         }
         if (ModuleHelper.isPotentialModule(dir)) {
             String prefix = ModuleHelper.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
-            event.getPresentation().setText("Jeka " + prefix + "Synchronize '" + dir.getName() + "' Module");
+            event.getPresentation().setText("Synchronize Module");
         } else {
             event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
         }

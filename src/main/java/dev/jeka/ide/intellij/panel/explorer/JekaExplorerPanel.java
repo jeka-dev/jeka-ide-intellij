@@ -8,6 +8,8 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
@@ -17,11 +19,14 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 import dev.jeka.ide.intellij.action.JekaRunCommandAction;
+import dev.jeka.ide.intellij.action.SyncAllImlAction;
+import dev.jeka.ide.intellij.action.SyncImlAction;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
 import dev.jeka.ide.intellij.panel.explorer.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -48,6 +53,14 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         setupActions();
         setContent(ScrollPaneFactory.createScrollPane(tree));
         DumbService.getInstance(project).smartInvokeLater(this::populateTree);
+
+        // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360006504879-Add-an-action-buttons-to-my-custom-tool-window
+        final ActionManager actionManager = ActionManager.getInstance();
+        DefaultActionGroup actionGroup = new DefaultActionGroup("ACTION_GROUP", false);
+        actionGroup.add(SyncAllImlAction.INSTANCE);
+        ActionToolbar actionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true);
+        actionToolbar.setOrientation(SwingConstants.HORIZONTAL);
+        this.setToolbar(actionToolbar.getComponent());
     }
 
     private void populateTree() {
@@ -120,6 +133,12 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
 
         } else if (nodeDescriptor.getElement() instanceof JekaCommandHolder) {
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
+
+        } else if (nodeDescriptor.getElement() instanceof JekaFolder) {
+            JekaFolder jekaFolder = (JekaFolder) nodeDescriptor.getElement();
+            if (jekaFolder.getJekaModule() != null) {
+                group.add(SyncImlAction.INSTANCE);
+            }
         }
         final ActionPopupMenu popupMenu = ActionManager.getInstance()
                 .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);
@@ -129,7 +148,8 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (CommonDataKeys.NAVIGATABLE.is(dataId) || CommandInfo.KEY.is(dataId)) {
+        if (CommonDataKeys.NAVIGATABLE.is(dataId) || CommandInfo.KEY.is(dataId)
+                || CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
             TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
             if (treePath == null) {
                 return null;
@@ -161,6 +181,14 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 JekaCommandHolder holder = (JekaCommandHolder) element;
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return holder.getContainingClass();
+                }
+            }
+            if (element instanceof JekaFolder) {
+                JekaFolder folder = (JekaFolder) element;
+                if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
+                    VirtualFile virtualFile =
+                            LocalFileSystem.getInstance().findFileByIoFile(folder.getFolderPath().toFile());
+                    return virtualFile;
                 }
             }
         }

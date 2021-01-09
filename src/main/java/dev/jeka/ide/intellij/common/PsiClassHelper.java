@@ -14,7 +14,7 @@ public class PsiClassHelper {
 
     private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommandSet";
 
-    static final String JKPLUGIN_CLASS_NAME = "dev.jeka.core.tool.JkPlugin";
+    public static final String JKPLUGIN_CLASS_NAME = "dev.jeka.core.tool.JkPlugin";
 
     public static boolean isExtendingJkCommandSet(PsiClass psiClass) {
         if (psiClass == null) {
