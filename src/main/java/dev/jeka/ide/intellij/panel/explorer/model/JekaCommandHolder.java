@@ -8,10 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
 public abstract class JekaCommandHolder implements JekaModelNode {
@@ -21,6 +18,8 @@ public abstract class JekaCommandHolder implements JekaModelNode {
 
     @Getter
     private final PsiClass containingClass;
+
+    private List<JekaPlugin> cachedPlugins;
 
     @Override
     public NodeInfo getNodeInfo() {
@@ -52,7 +51,10 @@ public abstract class JekaCommandHolder implements JekaModelNode {
         return result;
     }
 
-    private List<JekaPlugin> plugins() {
+    public List<JekaPlugin> plugins() {
+        if (cachedPlugins != null) {
+            return cachedPlugins;
+        }
         PsiClass commandPsiClass = getContainingClass();
         PsiField[] psiFields = commandPsiClass.getAllFields();
         List<JekaPlugin> result = new LinkedList<>();
@@ -67,6 +69,7 @@ public abstract class JekaCommandHolder implements JekaModelNode {
                 }
             }
         }
+        cachedPlugins = Collections.unmodifiableList(result);
         return result;
     }
 

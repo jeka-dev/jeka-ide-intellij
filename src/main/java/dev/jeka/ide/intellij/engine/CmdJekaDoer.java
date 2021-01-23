@@ -87,10 +87,10 @@ public class CmdJekaDoer {
         }
         String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
         if (jekaRedirect != null) {
-            cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlTestExtraModules=" + jekaRedirect);
+            cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlJekaExtraModules=" + jekaRedirect);
         }
         Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
-        Runnable onError = () -> generaImlWithJkCommnds(project, moduleDir, existingModule, onFinish);
+        Runnable onError = () -> generaImlWithJkCommands(project, moduleDir, existingModule, onFinish);
         start(cmd, project, clearConsole, onSuccess,  onError );
     }
 
@@ -140,11 +140,19 @@ public class CmdJekaDoer {
         return viewMap.computeIfAbsent(project, key -> initView(key));
     }
 
-    private void generaImlWithJkCommnds(Project project, VirtualFile moduleDir, Module existingModule,
-                                        Runnable onFinish) {
+    private void generaImlWithJkCommands(Project project, VirtualFile moduleDir, Module existingModule,
+                                         Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommandSet");
+        String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
+        String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
+        if (jekaHomeVar != null) {
+            cmd.addParameters("-intellij#jekaHome=" + jekaHomeVar);
+        }
+        if (jekaRedirect != null) {
+            cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlJekaExtraModules=" + jekaRedirect);
+        }
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, project, false, () -> refreshAfterIml(project, existingModule, moduleDir, onFinish), null);
     }

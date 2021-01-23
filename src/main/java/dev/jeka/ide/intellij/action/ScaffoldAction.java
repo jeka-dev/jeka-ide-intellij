@@ -56,8 +56,9 @@ public class ScaffoldAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        event.getPresentation().setVisible(virtualFile.isDirectory());
-
+        if (virtualFile != null) {
+            event.getPresentation().setVisible(virtualFile.isDirectory());
+        }
     }
 
     private static Path dirPath(VirtualFile virtualFile) {

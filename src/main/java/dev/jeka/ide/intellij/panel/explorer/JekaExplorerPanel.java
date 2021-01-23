@@ -138,6 +138,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             JekaFolder jekaFolder = (JekaFolder) nodeDescriptor.getElement();
             if (jekaFolder.getJekaModule() != null) {
                 group.add(SyncImlAction.INSTANCE);
+                group.add(RefreshViewAction.INSTANCE);
             }
         }
         final ActionPopupMenu popupMenu = ActionManager.getInstance()
@@ -149,7 +150,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     @Override
     public Object getData(@NotNull String dataId) {
         if (CommonDataKeys.NAVIGATABLE.is(dataId) || CommandInfo.KEY.is(dataId)
-                || CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
+                || CommonDataKeys.VIRTUAL_FILE.is(dataId) || RefreshViewAction.DATA_KEY.is(dataId)) {
             TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
             if (treePath == null) {
                 return null;
@@ -162,14 +163,16 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return command.getPsiMethod();
                 }
-                JekaModelNode parent = command.getHolder();
-                String pluginName = null;
-                if (parent instanceof JekaPlugin) {
-                    JekaPlugin jekaPlugin = (JekaPlugin) parent;
-                    pluginName = jekaPlugin.getPluginName();
+                if (CommandInfo.KEY.is(dataId)) {
+                    JekaModelNode parent = command.getHolder();
+                    String pluginName = null;
+                    if (parent instanceof JekaPlugin) {
+                        JekaPlugin jekaPlugin = (JekaPlugin) parent;
+                        pluginName = jekaPlugin.getPluginName();
+                    }
+                    return new CommandInfo(command.getHolder().getModule(),
+                            command.getHolder().getCommandClass(), pluginName, command.getPsiMethod().getName());
                 }
-                return new CommandInfo(command.getHolder().getModule(),
-                        command.getHolder().getCommandClass(), pluginName, command.getPsiMethod().getName());
             }
             if (element instanceof JekaField) {
                 JekaField jekaField = (JekaField) element;
@@ -188,7 +191,12 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
                     VirtualFile virtualFile =
                             LocalFileSystem.getInstance().findFileByIoFile(folder.getFolderPath().toFile());
-                    return virtualFile;
+                    if (virtualFile != null) {
+                        return virtualFile;
+                    }
+                }
+                if (RefreshViewAction.DATA_KEY.is(dataId)) {
+                    return new RefreshViewAction.RootAndJekaFolder(this.jekaRootManager, folder);
                 }
             }
         }

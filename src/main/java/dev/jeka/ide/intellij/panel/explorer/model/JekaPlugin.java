@@ -44,6 +44,10 @@ public class JekaPlugin extends JekaCommandHolder {
         if (getParent() instanceof JekaPlugin) {
             return ((JekaPlugin) getParent()).getJekaCommandClass();
         }
+        if (getParent() instanceof JekaUnboundPlugins) {
+            JekaUnboundPlugins jekaUnboundPlugins = (JekaUnboundPlugins) getParent();
+            return jekaUnboundPlugins.getParent();
+        }
         throw new IllegalStateException();
     }
 

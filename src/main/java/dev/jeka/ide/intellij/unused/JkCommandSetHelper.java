@@ -1,10 +1,13 @@
 package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.JdkUtils;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.SearchScope;
+import com.intellij.psi.search.searches.AllClassesSearch;
 import com.intellij.util.lang.UrlClassLoader;
 /*
 import dev.jeka.core.api.utils.JkUtilsReflect;
