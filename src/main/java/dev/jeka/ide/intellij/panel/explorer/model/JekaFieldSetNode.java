@@ -12,10 +12,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class JekaFieldSet implements JekaModelNode {
+public class JekaFieldSetNode implements JekaModelNode {
 
     @Getter
-    private final JekaCommandHolder parent;
+    private final JekaCommandHolderNode parent;
 
     @Override
     public NodeInfo getNodeInfo() {
@@ -27,8 +27,8 @@ public class JekaFieldSet implements JekaModelNode {
         PsiClass containingClass = parent.getContainingClass();
         List<JekaModelNode> result = new LinkedList<>();
         final String pluginName;
-        if (parent instanceof JekaPlugin) {
-            JekaPlugin jekaPlugin = (JekaPlugin) parent;
+        if (parent instanceof JekaPluginNode) {
+            JekaPluginNode jekaPlugin = (JekaPluginNode) parent;
             pluginName = jekaPlugin.getPluginName();
         } else {
             pluginName = null;
@@ -43,7 +43,7 @@ public class JekaFieldSet implements JekaModelNode {
             if (psiField.hasModifier(JvmModifier.STATIC)) {
                 continue;
             }
-            JekaField jekaField = new JekaField(this, psiField);
+            JekaFieldNode jekaField = new JekaFieldNode(this, psiField);
             result.add(jekaField);
         }
         return result;

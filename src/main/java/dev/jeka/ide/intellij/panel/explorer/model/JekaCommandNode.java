@@ -8,10 +8,10 @@ import lombok.Getter;
 import java.util.Collections;
 
 @AllArgsConstructor
-public class JekaCommand implements JekaModelNode {
+public class JekaCommandNode implements JekaModelNode {
 
     @Getter
-    private JekaCommandHolder holder;
+    private JekaCommandHolderNode holder;
 
     private String name;
 

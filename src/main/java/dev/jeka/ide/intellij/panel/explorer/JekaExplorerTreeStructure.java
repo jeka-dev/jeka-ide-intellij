@@ -34,7 +34,7 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
 
     @Override
     public boolean isAlwaysLeaf(@NotNull Object element) {
-        return element instanceof JekaCommand;
+        return element instanceof JekaCommandNode;
     }
 
     @Override
@@ -61,7 +61,7 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
             if (!jekaRootManager.isInitialised()) {
                 return new Object[]{"Jeka is initialising project..."};
             }
-            return jekaRootManager.getJekaFolders().toArray(new JekaFolder[0]);
+            return jekaRootManager.getJekaFolders().toArray(new JekaFolderNode[0]);
         }
         if (element instanceof JekaModelNode) {
             return ((JekaModelNode) element).getNodeInfo().getChildren().toArray(new Object[0]);

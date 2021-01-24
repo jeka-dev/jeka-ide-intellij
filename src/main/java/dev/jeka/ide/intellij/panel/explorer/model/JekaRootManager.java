@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
+import com.google.gson.internal.Streams;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class JekaRootManager implements Disposable {
 
@@ -33,7 +35,7 @@ public class JekaRootManager implements Disposable {
     private EventFilter eventFilter;
 
     @Getter
-    private final List<JekaFolder> jekaFolders = new LinkedList<>();
+    private final List<JekaFolderNode> jekaFolders = new LinkedList<>();
 
     private final List<Runnable> changeListeners = new LinkedList<>();
 
@@ -56,16 +58,21 @@ public class JekaRootManager implements Disposable {
         changeListeners.forEach(Runnable::run);
     }
 
-    public void refreshModule(JekaFolder jekaFolder) {
-        jekaFolders.stream()
+    public void refreshModule(JekaFolderNode jekaFolder) {
+        jekaFoldersRecursive()
                 .filter(folder -> folder.equals(jekaFolder))
-                .forEach(folder -> folder.getJekaModule().refresh());
+                .forEach(folder -> folder.getJekaModuleContainer().refresh());
         notifyChange(null);
     }
 
     public void init() {
         ProgressManager progressManager = ProgressManager.getInstance();
         progressManager.run(initTask());
+    }
+
+    private Stream<JekaFolderNode> jekaFoldersRecursive() {
+        return jekaFolders.stream()
+                .flatMap(jekaFolderNode -> jekaFolderNode.recursiveFolders().stream());
     }
 
     private Task initTask() {
@@ -86,14 +93,14 @@ public class JekaRootManager implements Disposable {
         };
     }
 
-    private List<JekaFolder> jekaFolderTree() {
+    private List<JekaFolderNode> jekaFolderTree() {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
         TreeMap<String, Module>  sortedModulesMap = new TreeMap<>();
         for (Module module : moduleManager.getModules()) {
             sortedModulesMap.put(ModuleHelper.getModuleDir(module).getPath(), module);
         }
         Path projectRoot = Paths.get(project.getBasePath());
-        JekaFolder root = JekaFolder.ofSimpleDir(null, projectRoot);
+        JekaFolderNode root = JekaFolderNode.ofSimpleDir(null, projectRoot);
         for(Map.Entry<String, Module> moduleEntry : sortedModulesMap.entrySet()) {
             Module module = moduleEntry.getValue();
             root.createJekaFolderAsDescendant(module);
@@ -140,7 +147,7 @@ public class JekaRootManager implements Disposable {
         }
     }
 
-    Stream<JekaCommandClass> allClasses() {
+    Stream<JekaCommandClassNode> allClasses() {
         return jekaFolders.stream()
                 .flatMap(folder -> folder.moduleStream())
                 .flatMap(jekaModule -> jekaModule.getCommandClasses().stream());

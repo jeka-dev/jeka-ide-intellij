@@ -7,14 +7,14 @@ import dev.jeka.ide.intellij.common.MiscHelper;
 
 import javax.swing.*;
 
-public class JekaPlugin extends JekaCommandHolder {
+public class JekaPluginNode extends JekaCommandHolderNode {
 
-    private JekaPlugin(JekaModelNode parent, PsiClass psiClass) {
+    private JekaPluginNode(JekaModelNode parent, PsiClass psiClass) {
         super(parent, psiClass);
     }
 
-    static JekaPlugin fromPsiClass(JekaModelNode parent, PsiClass psiClass) {
-        return new JekaPlugin(parent, psiClass);
+    static JekaPluginNode fromPsiClass(JekaModelNode parent, PsiClass psiClass) {
+        return new JekaPluginNode(parent, psiClass);
     }
 
     @Override
@@ -37,15 +37,15 @@ public class JekaPlugin extends JekaCommandHolder {
         return getJekaCommandClass().getCommandClass();
     }
 
-    private JekaCommandClass getJekaCommandClass() {
-        if (getParent() instanceof JekaCommandClass) {
-            return (JekaCommandClass) getParent();
+    private JekaCommandClassNode getJekaCommandClass() {
+        if (getParent() instanceof JekaCommandClassNode) {
+            return (JekaCommandClassNode) getParent();
         }
-        if (getParent() instanceof JekaPlugin) {
-            return ((JekaPlugin) getParent()).getJekaCommandClass();
+        if (getParent() instanceof JekaPluginNode) {
+            return ((JekaPluginNode) getParent()).getJekaCommandClass();
         }
-        if (getParent() instanceof JekaUnboundPlugins) {
-            JekaUnboundPlugins jekaUnboundPlugins = (JekaUnboundPlugins) getParent();
+        if (getParent() instanceof JekaUnboundPluginsNode) {
+            JekaUnboundPluginsNode jekaUnboundPlugins = (JekaUnboundPluginsNode) getParent();
             return jekaUnboundPlugins.getParent();
         }
         throw new IllegalStateException();

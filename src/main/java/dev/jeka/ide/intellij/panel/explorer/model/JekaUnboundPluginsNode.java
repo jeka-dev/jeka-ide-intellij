@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class JekaUnboundPlugins implements JekaModelNode {
+public class JekaUnboundPluginsNode implements JekaModelNode {
 
     @Getter
-    private final JekaCommandClass  parent;
+    private final JekaCommandClassNode parent;
 
     @Override
     public NodeInfo getNodeInfo() {
@@ -26,15 +26,16 @@ public class JekaUnboundPlugins implements JekaModelNode {
         return unboundPlugins();
     }
 
-    private List<JekaPlugin> unboundPlugins() {
-        JekaFolder jekaFolder = (JekaFolder) (getParent().getParent());
-        if (jekaFolder.getJekaModule() == null) {
+    private List<JekaPluginNode> unboundPlugins() {
+        JekaFolderNode jekaFolder = (JekaFolderNode) parent.getParent();
+        JekaModuleContainer moduleContainer = jekaFolder.getJekaModuleContainer();
+        if (moduleContainer == null) {
             return Collections.emptyList();
         }
-        Collection<PsiClass> psiClasses = jekaFolder.getJekaModule().getCachedPluginClasses();
-        List<JekaPlugin> result = new LinkedList<>();
+        Collection<PsiClass> psiClasses = moduleContainer.getAllPluginClasses();
+        List<JekaPluginNode> result = new LinkedList<>();
         for (PsiClass psiClass : psiClasses) {
-            JekaPlugin plugin = JekaPlugin.fromPsiClass(this, psiClass);
+            JekaPluginNode plugin = JekaPluginNode.fromPsiClass(this, psiClass);
             result.add(plugin);
         }
         return result;

@@ -60,6 +60,15 @@ public class Iml {
                 .collect(Collectors.toList());
     }
 
+    public List<String> getAllJekaModules() {
+        List<String> result = new LinkedList<>();
+        return orderEntries.stream()
+                .filter(loe -> loe.forJeka)
+                .filter(loe -> loe.moduleName != null)
+                .map(loe -> loe.moduleName)
+                .collect(Collectors.toList());
+    }
+
     private static String resolve(String url) {
         String result = url
                 .replace("$" + Constants.JEKA_USER_HOME + "$", MiscHelper.getPathVariable(Constants.JEKA_USER_HOME))

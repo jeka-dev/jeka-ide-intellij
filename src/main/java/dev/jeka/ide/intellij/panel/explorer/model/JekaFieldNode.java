@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import java.util.Collections;
 
 @RequiredArgsConstructor
-public class JekaField implements JekaModelNode {
+public class JekaFieldNode implements JekaModelNode {
 
     @Getter
-    private final JekaFieldSet parent;
+    private final JekaFieldSetNode parent;
 
     @Getter
     private final PsiField field;

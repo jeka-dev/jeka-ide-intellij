@@ -105,7 +105,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             }
         }
         NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
-        if (nodeDescriptor.getElement() instanceof JekaCommand) {
+        if (nodeDescriptor.getElement() instanceof JekaCommandNode) {
             AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
                     ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
             JekaRunCommandAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
@@ -123,20 +123,20 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         }
         NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
         final DefaultActionGroup group = new DefaultActionGroup();
-        if (nodeDescriptor.getElement() instanceof JekaCommand) {
+        if (nodeDescriptor.getElement() instanceof JekaCommandNode) {
             group.add(JekaRunCommandAction.RUN_JEKA_INSTANCE);
             group.add(JekaRunCommandAction.DEBUG_JEKA_INSTANCE);
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
-        } else if (nodeDescriptor.getElement() instanceof JekaField) {
+        } else if (nodeDescriptor.getElement() instanceof JekaFieldNode) {
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
-        } else if (nodeDescriptor.getElement() instanceof JekaCommandHolder) {
+        } else if (nodeDescriptor.getElement() instanceof JekaCommandHolderNode) {
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
-        } else if (nodeDescriptor.getElement() instanceof JekaFolder) {
-            JekaFolder jekaFolder = (JekaFolder) nodeDescriptor.getElement();
-            if (jekaFolder.getJekaModule() != null) {
+        } else if (nodeDescriptor.getElement() instanceof JekaFolderNode) {
+            JekaFolderNode jekaFolder = (JekaFolderNode) nodeDescriptor.getElement();
+            if (jekaFolder.getJekaModuleContainer() != null) {
                 group.add(SyncImlAction.INSTANCE);
                 group.add(RefreshViewAction.INSTANCE);
             }
@@ -158,36 +158,36 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
             NodeDescriptor nodeDescriptor = (NodeDescriptor) node.getUserObject();
             Object element = nodeDescriptor.getElement();
-            if (element instanceof JekaCommand) {
-                JekaCommand command = (JekaCommand) element;
+            if (element instanceof JekaCommandNode) {
+                JekaCommandNode command = (JekaCommandNode) element;
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return command.getPsiMethod();
                 }
                 if (CommandInfo.KEY.is(dataId)) {
                     JekaModelNode parent = command.getHolder();
                     String pluginName = null;
-                    if (parent instanceof JekaPlugin) {
-                        JekaPlugin jekaPlugin = (JekaPlugin) parent;
+                    if (parent instanceof JekaPluginNode) {
+                        JekaPluginNode jekaPlugin = (JekaPluginNode) parent;
                         pluginName = jekaPlugin.getPluginName();
                     }
                     return new CommandInfo(command.getHolder().getModule(),
                             command.getHolder().getCommandClass(), pluginName, command.getPsiMethod().getName());
                 }
             }
-            if (element instanceof JekaField) {
-                JekaField jekaField = (JekaField) element;
+            if (element instanceof JekaFieldNode) {
+                JekaFieldNode jekaField = (JekaFieldNode) element;
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return jekaField.getField();
                 }
             }
-            if (element instanceof JekaCommandHolder) {
-                JekaCommandHolder holder = (JekaCommandHolder) element;
+            if (element instanceof JekaCommandHolderNode) {
+                JekaCommandHolderNode holder = (JekaCommandHolderNode) element;
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return holder.getContainingClass();
                 }
             }
-            if (element instanceof JekaFolder) {
-                JekaFolder folder = (JekaFolder) element;
+            if (element instanceof JekaFolderNode) {
+                JekaFolderNode folder = (JekaFolderNode) element;
                 if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
                     VirtualFile virtualFile =
                             LocalFileSystem.getInstance().findFileByIoFile(folder.getFolderPath().toFile());

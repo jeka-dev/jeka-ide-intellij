@@ -20,9 +20,8 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKey;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaFolder;
+import dev.jeka.ide.intellij.panel.explorer.model.JekaFolderNode;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
-import lombok.Data;
 import lombok.Value;
 
 /**
@@ -47,7 +46,7 @@ public class RefreshViewAction extends AnAction {
     @Value
     public static class RootAndJekaFolder {
         JekaRootManager rootManager;
-        JekaFolder jekaFolder;
+        JekaFolderNode jekaFolder;
     }
 
 }

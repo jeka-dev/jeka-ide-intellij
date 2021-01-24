@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.util.*;
 
 @RequiredArgsConstructor
-public abstract class JekaCommandHolder implements JekaModelNode {
+public abstract class JekaCommandHolderNode implements JekaModelNode {
 
     @Getter
     private final JekaModelNode parent;
@@ -19,7 +19,7 @@ public abstract class JekaCommandHolder implements JekaModelNode {
     @Getter
     private final PsiClass containingClass;
 
-    private List<JekaPlugin> cachedPlugins;
+    private List<JekaPluginNode> cachedPlugins;
 
     @Override
     public NodeInfo getNodeInfo() {
@@ -39,32 +39,32 @@ public abstract class JekaCommandHolder implements JekaModelNode {
         PsiMethod[] methods = containingClass.getAllMethods();
         List<JekaModelNode> result = new LinkedList<>();
         result.addAll(plugins());
-        result.add(new JekaFieldSet(this));
+        result.add(new JekaFieldSetNode(this));
         Set<String> methodNames = new HashSet<>();
         for (PsiMethod method : methods) {
             if (PsiMethodHelper.isInstancePublicVoidNoArgsNotFromObject(method)) {
                 String methodName = method.getName();
-                result.add(new JekaCommand(this, methodName, method));
+                result.add(new JekaCommandNode(this, methodName, method));
                 methodNames.add(methodName);
             }
         }
         return result;
     }
 
-    public List<JekaPlugin> plugins() {
+    public List<JekaPluginNode> plugins() {
         if (cachedPlugins != null) {
             return cachedPlugins;
         }
         PsiClass commandPsiClass = getContainingClass();
         PsiField[] psiFields = commandPsiClass.getAllFields();
-        List<JekaPlugin> result = new LinkedList<>();
+        List<JekaPluginNode> result = new LinkedList<>();
         for (PsiField psiField : psiFields) {
             PsiType psiType = psiField.getType();
             if (psiType instanceof PsiClassType) {
                 PsiClassType classType = (PsiClassType) psiType;
                 PsiClass psiClass = classType.resolve();
                 if (PsiClassHelper.isExtendingJkPlugin(psiClass)) {
-                    JekaPlugin plugin = JekaPlugin.fromPsiClass(this, psiClass);
+                    JekaPluginNode plugin = JekaPluginNode.fromPsiClass(this, psiClass);
                     result.add(plugin);
                 }
             }

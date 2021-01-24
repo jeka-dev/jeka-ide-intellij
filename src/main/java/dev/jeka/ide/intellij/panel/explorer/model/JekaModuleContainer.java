@@ -8,43 +8,44 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class JekaModule  {
+public class JekaModuleContainer {
 
     @Getter
     private final Module module;
 
-    private final JekaFolder moduleFolder;
+    private final JekaFolderNode moduleFolder;
 
-    private List<JekaCommandClass> cachedCommandClasses;
+    private List<JekaCommandClassNode> cachedCommandClasses;
 
     private Collection<PsiClass> cachedPluginClasses;
 
-    static JekaModule fromModule(JekaFolder moduleFolder, Module module) {
-        JekaModule result = new JekaModule(module, moduleFolder);
+    static JekaModuleContainer fromModule(JekaFolderNode moduleFolder, Module module) {
+        JekaModuleContainer result = new JekaModuleContainer(module, moduleFolder);
         result.getCommandClasses();
         return  result;
     }
 
-    List<JekaCommandClass> getCommandClasses() {
+    List<JekaCommandClassNode> getCommandClasses() {
         if (cachedCommandClasses != null) {
             return cachedCommandClasses;
         }
         List<PsiClass> jekaPsilasses = PsiClassHelper.findJekaCommandClasses(module);
         cachedCommandClasses = jekaPsilasses.stream()
-                .map(psiClass -> JekaCommandClass.fromPsiClass(moduleFolder, psiClass))
+                .map(psiClass -> JekaCommandClassNode.fromPsiClass(moduleFolder, psiClass))
                 .collect(Collectors.toList());
         return cachedCommandClasses;
     }
 
-    Collection<PsiClass> getCachedPluginClasses() {
+    Collection<PsiClass> getAllPluginClasses() {
         if (cachedPluginClasses != null) {
             return cachedPluginClasses;
         }
-        cachedPluginClasses = JkPluginHelper.getPluginClasses(module);
+        cachedPluginClasses = JkPluginHelper.getPluginClasses(module, new HashMap<>());
         return cachedPluginClasses;
     }
 

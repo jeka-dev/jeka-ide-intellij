@@ -28,7 +28,8 @@ import java.util.zip.ZipFile;
 
 public class JkPluginHelper {
 
-    public static Collection<PsiClass> getPluginClasses(Module module) {
+    public static Collection<PsiClass> getPluginClasses(Module module,
+                                                        Map<String, Collection<PsiClass>> context) {
         Iml iml;
         try (InputStream is = module.getModuleFile().getInputStream()) {
             iml = Iml.of(is);
@@ -46,6 +47,18 @@ public class JkPluginHelper {
             PsiClass psiClass = facade.findClass(className, searchScope);
             result.add(psiClass);
         }
+        ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
+        for (String moduleName : iml.getAllJekaModules()) {
+            if (context.containsKey(moduleName)) {
+                result.addAll(context.get(moduleName));
+            } else {
+                Module otherModule = moduleManager.findModuleByName(moduleName);
+                if (otherModule != null) {
+                    result.addAll(getPluginClasses(otherModule, context));
+                }
+            }
+        }
+        context.put(module.getName(), result);
         return result;
     }
 

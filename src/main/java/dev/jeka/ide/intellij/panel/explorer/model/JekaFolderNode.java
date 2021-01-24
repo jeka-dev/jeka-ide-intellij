@@ -3,10 +3,8 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.batik.parser.PathHandler;
 
 import javax.swing.*;
 import java.nio.file.Path;
@@ -14,32 +12,31 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 @Getter
-public class JekaFolder implements JekaModelNode {
+public class JekaFolderNode implements JekaModelNode {
 
-    private final JekaFolder parent;
+    private final JekaFolderNode parent;
 
     private final Path folderPath;
 
-    private final List<JekaFolder> subFolders = new LinkedList<>();
+    private final List<JekaFolderNode> subFolders = new LinkedList<>();
 
     private Module module;
 
-    private JekaModule jekaModule; // null if it is not a module
+    private JekaModuleContainer jekaModuleContainer; // null if it is not a module
 
-    static JekaFolder ofSimpleDir(JekaFolder parent, Path folderPath) {
-        return new JekaFolder(parent, folderPath);
+    static JekaFolderNode ofSimpleDir(JekaFolderNode parent, Path folderPath) {
+        return new JekaFolderNode(parent, folderPath);
     }
 
     @Override
     public NodeInfo getNodeInfo() {
-        Icon icon = jekaModule == null ? AllIcons.Nodes.Folder : AllIcons.Nodes.ConfigFolder;
+        Icon icon = jekaModuleContainer == null ? AllIcons.Nodes.Folder : AllIcons.Nodes.ConfigFolder;
         List<JekaModelNode> children = new LinkedList<>();
-        if (jekaModule != null) {
-            children.addAll(jekaModule.getCommandClasses());
+        if (jekaModuleContainer != null) {
+            children.addAll(jekaModuleContainer.getCommandClasses());
         }
         children.addAll(subFolders);
         return NodeInfo.simple(this, icon, this::getName, this::getParent, () -> children);
@@ -54,30 +51,36 @@ public class JekaFolder implements JekaModelNode {
         Path relativePath = this.folderPath.relativize(modulePath);
         if (relativePath.getNameCount() == 1 && relativePath.getName(0).toString().equals("")) {
             this.module = module;
-            JekaModule jekaModule = ModuleHelper.isJekaModule(module) ? JekaModule.fromModule(this, module) : null;
-            this.jekaModule = jekaModule;
+            JekaModuleContainer jekaModuleContainer = ModuleHelper.isJekaModule(module) ? JekaModuleContainer.fromModule(this, module) : null;
+            this.jekaModuleContainer = jekaModuleContainer;
             return;
         }
         Path nextPath = relativePath.getName(0);
         Path childPath = this.folderPath.resolve(nextPath);
-        for (JekaFolder subFolder : subFolders) {
+        for (JekaFolderNode subFolder : subFolders) {
             if (subFolder.getFolderPath().equals(childPath)) {
                 subFolder.createJekaFolderAsDescendant(module);
                 return;
             }
         }
-        JekaFolder newChild = JekaFolder.ofSimpleDir(this, childPath);
+        JekaFolderNode newChild = JekaFolderNode.ofSimpleDir(this, childPath);
         newChild.createJekaFolderAsDescendant(module);
         this.subFolders.add(newChild);
     }
 
-    Stream<JekaModule> moduleStream() {
-        List<JekaFolder> folders= new LinkedList<>();
+    Stream<JekaModuleContainer> moduleStream() {
+        List<JekaFolderNode> folders= new LinkedList<>();
         folders.add(this);
         folders.addAll(subFolders);
         return folders.stream()
-                .filter(folder -> folder.jekaModule != null)
+                .filter(folder -> folder.jekaModuleContainer != null)
                 .flatMap(folder -> folder.moduleStream());
     }
 
+    List<JekaFolderNode> recursiveFolders() {
+        List<JekaFolderNode> result = new LinkedList<>();
+        result.add(this);
+        result.addAll(subFolders);
+        return result;
+    }
 }
