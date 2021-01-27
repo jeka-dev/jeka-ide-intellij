@@ -27,20 +27,18 @@ import lombok.Value;
 /**
  * @author Jerome Angibaud
  */
-public class RefreshViewAction extends AnAction {
+class RefreshAllViewAction extends AnAction {
 
-    public static final RefreshViewAction INSTANCE = new RefreshViewAction();
+    private final JekaRootManager rootManager;
 
-    public static final DataKey<RootAndJekaFolder> DATA_KEY = DataKey.create("jekaFolder");
-
-    private RefreshViewAction() {
-        super("Force Refresh View", "Force Refresh Module View", AllIcons.Actions.ChangeView);
+    RefreshAllViewAction(JekaRootManager rootManager) {
+        super("Force Refresh View", "Force Refresh View On All Modules", AllIcons.Actions.ChangeView);
+        this.rootManager = rootManager;
     }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        RootAndJekaFolder rootAndJekaFolder = event.getData(DATA_KEY);
-        rootAndJekaFolder.rootManager.refreshModule(rootAndJekaFolder.jekaFolder);
+        rootManager.refreshAllModules();
     }
 
     @Value

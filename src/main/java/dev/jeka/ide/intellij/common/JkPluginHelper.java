@@ -59,7 +59,7 @@ public class JkPluginHelper {
             }
         }
         context.put(module.getName(), result);
-        return result;
+        return result.stream().distinct().collect(Collectors.toList());
     }
 
     private static List<String> jekaPluginClassNamesContainedIn(String url) {

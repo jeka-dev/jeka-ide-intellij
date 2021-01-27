@@ -58,6 +58,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         final ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup("ACTION_GROUP", false);
         actionGroup.add(SyncAllImlAction.INSTANCE);
+        actionGroup.add(new RefreshAllViewAction(this.jekaRootManager));
         ActionToolbar actionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true);
         actionToolbar.setOrientation(SwingConstants.HORIZONTAL);
         this.setToolbar(actionToolbar.getComponent());

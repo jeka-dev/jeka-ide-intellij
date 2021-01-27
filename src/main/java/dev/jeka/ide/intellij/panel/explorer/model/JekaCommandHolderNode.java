@@ -73,4 +73,17 @@ public abstract class JekaCommandHolderNode implements JekaModelNode {
         return result;
     }
 
+    List<JekaPluginNode> pluginsRecursive() {
+        List<JekaPluginNode> result = new LinkedList<>();
+        if (this instanceof JekaPluginNode) {
+            result.add((JekaPluginNode) this);
+        }
+        plugins().forEach(pluginNode -> result.addAll(pluginNode.pluginsRecursive()));
+        return result;
+    }
+
+    void refresh() {
+        cachedPlugins = null;
+    }
+
 }

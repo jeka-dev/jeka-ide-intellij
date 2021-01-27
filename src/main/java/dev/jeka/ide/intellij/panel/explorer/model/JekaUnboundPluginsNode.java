@@ -34,9 +34,15 @@ public class JekaUnboundPluginsNode implements JekaModelNode {
         }
         Collection<PsiClass> psiClasses = moduleContainer.getAllPluginClasses();
         List<JekaPluginNode> result = new LinkedList<>();
+        List<JekaPluginNode> boundPlugins = parent.pluginsRecursive();
         for (PsiClass psiClass : psiClasses) {
-            JekaPluginNode plugin = JekaPluginNode.fromPsiClass(this, psiClass);
-            result.add(plugin);
+            boolean isBound = boundPlugins.stream()
+                    .filter(pluginNode -> pluginNode.getContainingClass().equals(psiClass))
+                    .findAny().isPresent();
+            if (! isBound) {
+                JekaPluginNode plugin = JekaPluginNode.fromPsiClass(this, psiClass);
+                result.add(plugin);
+            }
         }
         return result;
     }

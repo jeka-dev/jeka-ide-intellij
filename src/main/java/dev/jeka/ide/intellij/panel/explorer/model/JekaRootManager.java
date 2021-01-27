@@ -27,7 +27,7 @@ public class JekaRootManager implements Disposable {
     @Getter
     private final Project project;
 
-    private final PsiAdapter psiAdapter;;
+   private final PsiAdapter psiAdapter;;
 
     @Getter
     private volatile boolean initialised = false;
@@ -41,7 +41,8 @@ public class JekaRootManager implements Disposable {
 
     public JekaRootManager(Project project) {
         this.project = project;
-        this.psiAdapter = new PsiAdapter();
+//        this.psiAdapter = new PsiAdapter();
+        this.psiAdapter = null;
         this.eventFilter = new EventFilter(project);
         PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiAdapter());
     }
@@ -59,10 +60,18 @@ public class JekaRootManager implements Disposable {
     }
 
     public void refreshModule(JekaFolderNode jekaFolder) {
+        _refreshModule(jekaFolder);
+        notifyChange(null);
+    }
+
+    private void _refreshModule(JekaFolderNode jekaFolder) {
         jekaFoldersRecursive()
                 .filter(folder -> folder.equals(jekaFolder))
                 .forEach(folder -> folder.getJekaModuleContainer().refresh());
-        notifyChange(null);
+    }
+
+    public void refreshAllModules() {
+        init();
     }
 
     public void init() {
@@ -112,6 +121,8 @@ public class JekaRootManager implements Disposable {
     public void dispose() {
         PsiManager.getInstance(project).removePsiTreeChangeListener(this.psiAdapter);
     }
+
+
 
 
     private class PsiAdapter extends PsiTreeChangeAdapter {
