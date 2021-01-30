@@ -3,7 +3,7 @@ package dev.jeka.ide.intellij.extension;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.psi.*;
-import dev.jeka.ide.intellij.action.JekaRunCommandAction;
+import dev.jeka.ide.intellij.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.common.JekaIcons;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import org.jetbrains.annotations.NotNull;
@@ -35,8 +35,8 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
                 || !psiMethod.getReturnType().equals(PsiType.VOID)) {
             return null;
         }
-        final AnAction[] actions = new AnAction[] {JekaRunCommandAction.RUN_JEKA_INSTANCE,
-                JekaRunCommandAction.DEBUG_JEKA_INSTANCE};
+        final AnAction[] actions = new AnAction[] {JekaRunMethodAction.RUN_JEKA_INSTANCE,
+                JekaRunMethodAction.DEBUG_JEKA_INSTANCE};
         Function<PsiElement, String> tooltipProvider = el -> "Run '" + el.getText() + "' as Jeka command";
         return new Info(JekaIcons.JEKA_RUN, actions, tooltipProvider);
     }

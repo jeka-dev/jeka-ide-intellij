@@ -20,15 +20,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 
 
-public class JekaRunCommandAction extends AnAction {
+public class JekaRunMethodAction extends AnAction {
 
-    public static final JekaRunCommandAction RUN_JEKA_INSTANCE = new JekaRunCommandAction(false);
+    public static final JekaRunMethodAction RUN_JEKA_INSTANCE = new JekaRunMethodAction(false);
 
-    public static final JekaRunCommandAction DEBUG_JEKA_INSTANCE = new JekaRunCommandAction(true);
+    public static final JekaRunMethodAction DEBUG_JEKA_INSTANCE = new JekaRunMethodAction(true);
 
     private final boolean debug;
 
-    private JekaRunCommandAction(boolean debug) {
+    private JekaRunMethodAction(boolean debug) {
         super((debug ? "Debug" : "Run") +   " Command",
                 (debug ? "Debug" : "Run") +   " Command",
                 debug ? AllIcons.Actions.StartDebugger : AllIcons.RunConfigurations.TestState.Run);

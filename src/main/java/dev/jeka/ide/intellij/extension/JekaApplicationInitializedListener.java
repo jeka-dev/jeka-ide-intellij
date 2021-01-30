@@ -3,8 +3,7 @@ package dev.jeka.ide.intellij.extension;
 import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
 import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
-import dev.jeka.ide.intellij.action.ShowCommandSetAction;
-import dev.jeka.ide.intellij.action.SyncAllImlAction;
+import dev.jeka.ide.intellij.action.ShowJekaClassAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
 import dev.jeka.ide.intellij.common.MiscHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
@@ -33,6 +32,9 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         Constraints menuLocation = new Constraints(Anchor.BEFORE, "Maven.GlobalProjectMenu");
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
+        Constraints firstLocation = new Constraints(Anchor.FIRST, null);
+        projectPopupGroup.addAction(ShowJekaClassAction.INSTANCE, firstLocation);
+        projectPopupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
 
         // Add classpath variable
         if (MiscHelper.getPathVariable(JEKA_USER_HOME) == null) {
