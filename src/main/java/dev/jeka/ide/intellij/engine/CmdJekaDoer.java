@@ -76,21 +76,21 @@ public class CmdJekaDoer {
                             @Nullable  Module existingModule, Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
-        cmd.addParameters("intellij#iml", "-LH");
+        cmd.addParameters("intellij#iml", "-LB", "-LRI");
         String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
         if (jekaHomeVar != null) {
             cmd.addParameters("-intellij#jekaHome=" + jekaHomeVar);
         }
         cmd.setWorkDirectory(modulePath.toFile());
         if (qualifiedClassName != null) {
-            cmd.addParameter("-CC=" + qualifiedClassName);
+            cmd.addParameter("-JKC=" + qualifiedClassName);
         }
         String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
         if (jekaRedirect != null) {
             cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlJekaExtraModules=" + jekaRedirect);
         }
         Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
-        Runnable onError = () -> generaImlWithJkCommands(project, moduleDir, existingModule, onFinish);
+        Runnable onError = () -> generaImlWithJkClass(project, moduleDir, existingModule, onFinish);
         start(cmd, project, clearConsole, onSuccess,  onError );
     }
 
@@ -107,7 +107,7 @@ public class CmdJekaDoer {
         Runnable doCreateStructure = () -> {};
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(modulePath, false));
-            structureCmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
+            structureCmd.addParameters("-JKC=", "-LB");
             structureCmd.addParameters("scaffold#run");
             structureCmd.setWorkDirectory(new File(moduleDir.getPath()));
             if (nature != ScaffoldNature.SIMPLE) {
@@ -117,7 +117,7 @@ public class CmdJekaDoer {
         }
         if (createWrapper) {
             GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
-            cmd.addParameters("-CC=dev.jeka.core.tool.JkCommandSet", "-LH");
+            cmd.addParameters("-JKC=", "-LB");
             cmd.addParameter("scaffold#wrap");
             if (wrapDelegate != null) {
                 cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate.toString());
@@ -127,6 +127,14 @@ public class CmdJekaDoer {
         } else {
             doCreateStructure.run();
         }
+    }
+
+    public void showRuntimeInformation(Module module) {
+        Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+        cmd.addParameters("-JKC=", "-LRI");
+        cmd.setWorkDirectory(modulePath.toFile());
+        start(cmd, module.getProject(), true, null, null);
     }
 
     private static String[] natureParam(ScaffoldNature nature) {
@@ -140,11 +148,11 @@ public class CmdJekaDoer {
         return viewMap.computeIfAbsent(project, key -> initView(key));
     }
 
-    private void generaImlWithJkCommands(Project project, VirtualFile moduleDir, Module existingModule,
-                                         Runnable onFinish) {
+    private void generaImlWithJkClass(Project project, VirtualFile moduleDir, Module existingModule,
+                                      Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
-        cmd.addParameters("intellij#iml", "-LH", "-CC=JkCommandSet");
+        cmd.addParameters("intellij#iml", "-LB", "-LRI", "-JKC=");
         String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
         String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
         if (jekaHomeVar != null) {
@@ -201,7 +209,7 @@ public class CmdJekaDoer {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
                     if (event.getExitCode() != 0 && onFailure != null) {
-                        getView(project).print("\nSync has failed !!! Let's try to sync with standard class JkCommandSet\n",
+                        getView(project).print("\nSync has failed !!! Let's try to sync with standard class JkClass\n",
                                 ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {

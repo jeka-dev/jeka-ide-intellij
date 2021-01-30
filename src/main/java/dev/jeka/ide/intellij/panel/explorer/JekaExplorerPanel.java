@@ -22,6 +22,10 @@ import dev.jeka.ide.intellij.action.JekaRunCommandAction;
 import dev.jeka.ide.intellij.action.SyncAllImlAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
+import dev.jeka.ide.intellij.panel.explorer.action.RefreshAllViewAction;
+import dev.jeka.ide.intellij.panel.explorer.action.RefreshViewAction;
+import dev.jeka.ide.intellij.panel.explorer.action.RootAndJekaFolder;
+import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
 import dev.jeka.ide.intellij.panel.explorer.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -140,6 +144,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             if (jekaFolder.getJekaModuleContainer() != null) {
                 group.add(SyncImlAction.INSTANCE);
                 group.add(RefreshViewAction.INSTANCE);
+                group.add(ShowRuntimeInformationAction.INSTANCE);
             }
         }
         final ActionPopupMenu popupMenu = ActionManager.getInstance()
@@ -150,8 +155,10 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (CommonDataKeys.NAVIGATABLE.is(dataId) || CommandInfo.KEY.is(dataId)
-                || CommonDataKeys.VIRTUAL_FILE.is(dataId) || RefreshViewAction.DATA_KEY.is(dataId)) {
+        if (CommonDataKeys.NAVIGATABLE.is(dataId)
+                || CommandInfo.KEY.is(dataId)
+                || CommonDataKeys.VIRTUAL_FILE.is(dataId)
+                || RootAndJekaFolder.DATA_KEY.is(dataId)) {
             TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
             if (treePath == null) {
                 return null;
@@ -196,8 +203,8 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                         return virtualFile;
                     }
                 }
-                if (RefreshViewAction.DATA_KEY.is(dataId)) {
-                    return new RefreshViewAction.RootAndJekaFolder(this.jekaRootManager, folder);
+                if (RootAndJekaFolder.DATA_KEY.is(dataId)) {
+                    return new RootAndJekaFolder(jekaRootManager, folder);
                 }
             }
         }

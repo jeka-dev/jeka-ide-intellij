@@ -40,7 +40,7 @@ class EventFilter {
         return null;
     }
 
-    Module moduleFromChildIsIdentiferOfJkCommandSetOrJkPlugin(PsiTreeChangeEvent event) {
+    Module moduleFromChildIsIdentiferOfJkClassOrJkPlugin(PsiTreeChangeEvent event) {
         if (! (event.getChild() instanceof PsiJavaFile)) {
             return null;
         }

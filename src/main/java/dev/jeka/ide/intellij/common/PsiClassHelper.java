@@ -3,24 +3,22 @@ package dev.jeka.ide.intellij.common;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.psi.util.PsiUtil;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class PsiClassHelper {
 
-    private static final String JKCOMMANDS_NAME = "dev.jeka.core.tool.JkCommandSet";
+    private static final String JKCLASS_NAME = "dev.jeka.core.tool.JkClass";
 
     public static final String JKPLUGIN_CLASS_NAME = "dev.jeka.core.tool.JkPlugin";
 
-    public static boolean isExtendingJkCommandSet(PsiClass psiClass) {
+    public static boolean isExtendingJkClass(PsiClass psiClass) {
         if (psiClass == null) {
             return false;
         }
-        if (JKCOMMANDS_NAME.equals(psiClass.getQualifiedName())) {
+        if (JKCLASS_NAME.equals(psiClass.getQualifiedName())) {
             return true;
         }
         PsiClassType[] psiClassTypes = psiClass.getExtendsListTypes();
@@ -29,7 +27,7 @@ public class PsiClassHelper {
                 return false;
             }
             PsiClass currentPsiClass = psiClassType.resolve();
-            if (isExtendingJkCommandSet(currentPsiClass)) {
+            if (isExtendingJkClass(currentPsiClass)) {
                 return true;
             }
         }
@@ -72,7 +70,7 @@ public class PsiClassHelper {
             if (psiFile instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 for (PsiClass psiClass : psiJavaFile.getClasses()) {
-                    if (PsiClassHelper.isExtendingJkCommandSet(psiClass)) {
+                    if (PsiClassHelper.isExtendingJkClass(psiClass)) {
                         result.add(psiClass);
                     }
                 }

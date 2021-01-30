@@ -46,7 +46,7 @@ public class PluginJekaDoer {
     public void generateIml(Project project, Path moduleDir, String qualifiedClassName, VirtualFile moduleRoot) {
         List<String> argList = new LinkedList<>();
         if (qualifiedClassName != null) {
-            argList.add("-CC=" + qualifiedClassName);
+            argList.add("-JKC=" + qualifiedClassName);
         }
         argList.add("intellij#iml");
         argList.add("java#");
@@ -55,8 +55,8 @@ public class PluginJekaDoer {
         Throwable error = execute(mainClass, moduleDir, args);
         if (error != null) {
             if ( error.getClass().getSimpleName().equals("JkException")) {
-                argList.remove("-CC=" + qualifiedClassName);
-                argList.add("-CC=dev.jeka.core.tool.JkCommandSet");
+                argList.remove("-JKC=" + qualifiedClassName);
+                argList.add("-JKC=");
                 error = execute(mainClass, moduleDir, argList.toArray(new String[0]));
                 handle(error);
             } else {
