@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-
 public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
 
     @Nullable

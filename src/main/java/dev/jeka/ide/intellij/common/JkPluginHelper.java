@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -31,8 +33,9 @@ public class JkPluginHelper {
     public static Collection<PsiClass> getPluginClasses(Module module,
                                                         Map<String, Collection<PsiClass>> context) {
         Iml iml;
+        Path moduleDir = Paths.get(ModuleHelper.getModuleDir(module).getPath());
         try (InputStream is = module.getModuleFile().getInputStream()) {
-            iml = Iml.of(is);
+            iml = Iml.of(is, moduleDir);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

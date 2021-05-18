@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.common;
 
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.SneakyThrows;
 
@@ -62,9 +61,5 @@ public class FileHelper {
     public static URL toUrl(VirtualFile file) {
         return Paths.get(file.getPresentableUrl()).toUri().toURL();
     }
-
-
-
-
 
 }

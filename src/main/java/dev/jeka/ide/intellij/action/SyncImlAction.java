@@ -48,6 +48,9 @@ public class SyncImlAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         ////ModuleClass moduleClass = ModuleClass.of(event);
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (selectedFile.getName().equals("jeka")) {
+            selectedFile = selectedFile.getParent();
+        }
         PsiClass commandClass = getPsiCommandClass(event);
         String className = commandClass == null ? null : commandClass.getQualifiedName();
         if (className != null) {
@@ -78,6 +81,12 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (selectedFile.getName().equals("jeka")) {
+            selectedFile = selectedFile.getParent();
+        } else if ("ProjectViewPopup".equals(event.getPlace())) {
+            event.getPresentation().setVisible(false);
+            return;
+        }
         PsiClass commandClass = getPsiCommandClass(event);
         if (commandClass != null) {
             Module module = ModuleUtil.findModuleForFile(selectedFile, event.getProject());

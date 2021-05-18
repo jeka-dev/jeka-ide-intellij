@@ -82,7 +82,4 @@ public class PsiClassHelper {
         return result;
     }
 
-
-
-
 }
