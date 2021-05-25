@@ -22,12 +22,14 @@ Roadmap :
 
 # How to use it ?
 
+<img src="media/ide.png"/>
+
 ## 1. Create Jeka module from scratch
 * Create an empty directory
-* Right-click on it and click _jeka | Generate Jeka files and folder_ <img src="media/scaffold-menu.png"/>
+* Right-click on directory icon and _jeka | Generate Jeka files and folder_ <img src="media/scaffold-menu.png"/>
 
 ## 2. Generate module
-* Right-click on it and click _jeka | Create Module_ <img src="media/create-moldule.png"/>
+* Right-click on module directory icon and _jeka | Create Module_ <img src="media/create-moldule.png"/>
   
 ## 3. Synchronise module on Jeka file
 * While editing the command class, right-click and click _Synchronize module_ <img src="media/editor-popup.png"/>
@@ -36,6 +38,10 @@ Roadmap :
 * In front of each command, click on the _Jeka Run icons to run/debug_ it.
 
    <img src="media/gutter1.png"/> <img src="media/gutter2.png"/>
+
+## 5. Tool window
+
+The tool window located at right side of the ide allows exploring and executing Jeka features.
    
 # Idea List
 * Involve @JkDefImport content in file rename refactoring
