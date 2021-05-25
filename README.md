@@ -42,6 +42,7 @@ Roadmap :
 ## 5. Tool window
 
 The tool window located at right side of the ide allows exploring and executing Jeka features.
+<img src="media/tool_window.png"/>
    
 # Idea List
 * Involve @JkDefImport content in file rename refactoring
@@ -56,8 +57,6 @@ Use Gradle _buildPlugin_ task
 * https://plugins.jetbrains.com/plugin/13489-jeka/
 
 * https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html
-
-* https://plugins.jetbrains.com/plugin/13489-jeka/
 
 * https://www.jetbrains.org/intellij/sdk/docs/basics/run_configurations/run_configuration_management.html
    
