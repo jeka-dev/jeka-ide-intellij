@@ -40,11 +40,7 @@ Roadmap :
 
 The tool window located at right side of the ide allows exploring and executing Jeka features.
 <img src="media/tool_window.png"/>
-   
-# Idea List
-* Involve @JkDefImport content in file rename refactoring
-* Open directly commandSet class in editor when clicking on module root + (macos option key) 
-   
+
 # How to build ?
 
 Use Gradle _buildPlugin_ task
