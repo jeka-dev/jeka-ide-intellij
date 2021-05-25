@@ -7,14 +7,14 @@ This plugin provides right now :
 * An embedded version of Jeka : you don't have to install Jeka on your machine to use it !
 * Jeka project creation from scratch
 * Sync .iml files with Jeka command classes
+* right-side tool panel to explore commands and options on a given project
 * Buttons to run/debug command methods directly from editor (similarly to @Test methods)
 * Register automatically RunConfiguration while launching run/debug commands
 
 Roadmap : 
-* provide tree base collapsable output
+
+* provide tree base collapsable console output
 * Maven module auto-completion within Java Editor for `JkDependencies` API
-* right-side tool panel to explore commands and options on a given project
- 
 
 # Where to download ?
 
@@ -28,18 +28,15 @@ Roadmap :
 * Create an empty directory
 * Right-click on directory icon and _jeka | Generate Jeka files and folder_ <img src="media/scaffold-menu.png"/>
 
-## 2. Generate module
-* Right-click on module directory icon and _jeka | Create Module_ <img src="media/create-moldule.png"/>
-  
-## 3. Synchronise module on Jeka file
+## 2. Synchronise module on Jeka file
 * While editing the command class, right-click and click _Synchronize module_ <img src="media/editor-popup.png"/>
   
-## 4. launch commands from the editor
+## 3. launch commands from the editor
 * In front of each command, click on the _Jeka Run icons to run/debug_ it.
 
    <img src="media/gutter1.png"/> <img src="media/gutter2.png"/>
 
-## 5. Tool window
+## 4. Tool window
 
 The tool window located at right side of the ide allows exploring and executing Jeka features.
 <img src="media/tool_window.png"/>
