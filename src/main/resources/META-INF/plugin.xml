@@ -9,6 +9,7 @@
         <li>Scaffolding capabilities to create Jeka projects from scratch</li>
         <li>Synchronize Intellij module dependencies on Jeka definition</li>
         <li>Run/Debug Jeka methods from Java editor</li>
+        <li>Jeka explorer as right-side window tool</li>
       </ul>
       More information at <a href="https://github.com/jerkar/jeka-ide-intellij">Git Page</a>
       ]]>
@@ -16,7 +17,7 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Action 'Goto Xxxx.java' was invisible when build classes were located in a package</li>
+        <li>Add Jeka explorer window tool</li>
       </ul>
     ]]>
     </change-notes>

@@ -39,7 +39,11 @@ public class ModuleHelper {
     }
 
     public static VirtualFile getModuleDir(Module module) {
-        VirtualFile candidate = module.getModuleFile().getParent();
+        VirtualFile imlFile = module.getModuleFile();
+        if (imlFile == null) {
+            return null;
+        }
+        VirtualFile candidate = imlFile.getParent();
         if (candidate.getName().equals(".idea")) {
             return candidate.getParent();
         }

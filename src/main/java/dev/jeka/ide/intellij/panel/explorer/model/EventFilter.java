@@ -3,10 +3,7 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiTreeChangeEvent;
 import dev.jeka.ide.intellij.common.Constants;
@@ -40,7 +37,7 @@ class EventFilter {
         return null;
     }
 
-    Module moduleFromChildIsIdentiferOfJkClassOrJkPlugin(PsiTreeChangeEvent event) {
+    Module moduleFromChildIsIdentifierOfJkClassOrJkPlugin(PsiTreeChangeEvent event) {
         if (! (event.getChild() instanceof PsiJavaFile)) {
             return null;
         }

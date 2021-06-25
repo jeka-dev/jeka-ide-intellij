@@ -99,7 +99,8 @@ public class CmdJekaDoer {
         initView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
         Runnable doOnSuccess = () -> {
-            generateIml(project, moduleDir, null, false, existingModule, null);
+            Runnable onFinish = () ->refreshAfterIml(project, existingModule, moduleDir, null);
+            generateIml(project, moduleDir, null, false, existingModule, onFinish);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
@@ -120,7 +121,7 @@ public class CmdJekaDoer {
             cmd.addParameters("-JKC=", "-LB");
             cmd.addParameter("scaffold#wrap");
             if (wrapDelegate != null) {
-                cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate.toString());
+                cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate);
             }
             cmd.setWorkDirectory(new File(moduleDir.getPath()));
             start(cmd, project, true, doCreateStructure, null);
@@ -201,7 +202,7 @@ public class CmdJekaDoer {
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
         OSProcessHandler handler;
-        createDistribIfNeeed();
+        createDistribIfNeeded();
         try {
             handler = new OSProcessHandler(cmd);
             handler.addProcessListener(new ProcessAdapter() {
@@ -285,11 +286,11 @@ public class CmdJekaDoer {
             return jekaScriptPath;
         }
         String scriptName = isWindows ? "jeka.bat" : "jeka";;
-        jekaScriptPath = createDistribIfNeeed().resolve(scriptName).toAbsolutePath().toString();
+        jekaScriptPath = createDistribIfNeeded().resolve(scriptName).toAbsolutePath().toString();
         return jekaScriptPath;
     }
 
-    public Path createDistribIfNeeed() {
+    public Path createDistribIfNeeded() {
         Path parent = embeddedDir();
         Path file = parent.resolve(JEKA_JAR_NAME);
         if (!Files.exists(file)) {

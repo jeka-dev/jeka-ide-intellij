@@ -53,6 +53,9 @@ public class ShowJekaClassAction extends AnAction {
         PsiManager psiManager = PsiManager.getInstance(project);
         Module module = ModuleHelper.getModule(event);
         VirtualFile moduleDir = ModuleHelper.getModuleDir(module);
+        if (moduleDir == null) {
+            return;
+        }
         VirtualFile jekaClass = findJekaClass(psiManager, moduleDir);
         if (jekaClass == null) {
             event.getPresentation().setVisible(false);

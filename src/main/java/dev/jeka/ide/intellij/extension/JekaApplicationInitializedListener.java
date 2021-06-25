@@ -43,7 +43,7 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         }
         String jekaHome = System.getenv("JEKA_HOME");
         if (jekaHome == null) {
-            jekaHome = CmdJekaDoer.INSTANCE.createDistribIfNeeed()
+            jekaHome = CmdJekaDoer.INSTANCE.createDistribIfNeeded()
                     .normalize().toAbsolutePath().toString();
         }
         if (MiscHelper.getPathVariable(JEKA_HOME) == null && jekaHome != null) {

@@ -52,7 +52,4 @@ public class ShowRuntimeInformationAction extends AnAction {
     }
     */
 
-
-
-
 }

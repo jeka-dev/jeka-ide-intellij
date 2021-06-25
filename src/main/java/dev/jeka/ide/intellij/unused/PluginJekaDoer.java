@@ -18,13 +18,14 @@ package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.lang.UrlClassLoader;
 import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.MiscHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +52,7 @@ public class PluginJekaDoer {
         argList.add("intellij#iml");
         argList.add("java#");
         String [] args = argList.toArray(new String[0]);
-        Class mainClass = getJekaMainClass(moduleDir);
+        Class mainClass = getJekaMainClass();
         Throwable error = execute(mainClass, moduleDir, args);
         if (error != null) {
             if ( error.getClass().getSimpleName().equals("JkException")) {
@@ -65,9 +66,9 @@ public class PluginJekaDoer {
         }
     }
 
-    public void scaffoldModule(Project project, Path moduleDir) {
+    public void scaffoldModule(Path moduleDir) {
         String[] args = new String[] {"scaffold#run", "scaffold#wrap", "scaffold#wrap", "java#", "intellij#iml"};
-        Class mainClass = getJekaMainClass(moduleDir);
+        Class mainClass = getJekaMainClass();
         handle(execute(mainClass, moduleDir, args));
     }
 
@@ -99,17 +100,15 @@ public class PluginJekaDoer {
         return null;
     }
 
-    private Class getJekaMainClass(Path moduleRoot) {
+    private Class getJekaMainClass() {
         Path jar = Paths.get(MiscHelper.getPathVariable(Constants.JEKA_HOME)).resolve("dev.jeka.jeka-core.jar");
         if (!Files.exists(jar)) {
             throw new IllegalStateException("Cannot  find " + jar);
         }
         ClassLoader classloader= classLoaders.computeIfAbsent(jar, path -> {
             try {
-                UrlClassLoader urlClassLoader = UrlClassLoader.build()
-                        .parent(ClassLoader.getSystemClassLoader())
-                        .urls(jar.toUri().toURL()).get();
-                return urlClassLoader;
+                URL[] urls = new URL[] {jar.toUri().toURL()};
+                return new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }

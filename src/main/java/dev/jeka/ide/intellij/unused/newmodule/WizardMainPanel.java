@@ -2,7 +2,7 @@ package dev.jeka.ide.intellij.unused.newmodule;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.ui.DocumentAdapter;
-import dev.jeka.ide.intellij.panel.explorer.ScaffoldFormPanel;
+import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

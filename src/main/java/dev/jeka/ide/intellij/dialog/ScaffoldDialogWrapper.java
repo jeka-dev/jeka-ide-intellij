@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ScaffoldNature;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
-import dev.jeka.ide.intellij.panel.explorer.ScaffoldFormPanel;
+import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
