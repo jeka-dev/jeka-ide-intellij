@@ -16,6 +16,7 @@
 
 package dev.jeka.ide.intellij.engine;
 
+import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.filters.TextConsoleBuilder;
@@ -33,6 +34,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -96,16 +98,21 @@ public class CmdJekaDoer {
 
     public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStructure, boolean createWrapper,
                                Path wrapDelegate, Module existingModule, ScaffoldNature nature) {
-        initView(project);
+        initConsoleView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
-        Runnable doOnSuccess = () -> {
-            Runnable onFinish = () ->refreshAfterIml(project, existingModule, moduleDir, null);
-            generateIml(project, moduleDir, null, false, existingModule, onFinish);
+        Runnable afterScaffold = () -> {
+            Runnable afterGenerateIml = () -> refreshAfterIml(project, existingModule, moduleDir, null);
+            generateIml(project, moduleDir, null, false, existingModule, afterGenerateIml);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
         };
         Runnable doCreateStructure = () -> {};
+
+        // see https://intellij-support.jetbrains.com/hc/en-us/community/posts/206118439-Refresh-after-external-changes-to-project-structure-and-sources
+        //project.save();
+        //StoreReloadManager.getInstance().blockReloadingProjectOnExternalChanges();
+
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(modulePath, false));
             structureCmd.addParameters("-JKC=", "-LB");
@@ -114,7 +121,7 @@ public class CmdJekaDoer {
             if (nature != ScaffoldNature.SIMPLE) {
                 structureCmd.addParameters(natureParam(nature));
             }
-            doCreateStructure = () -> start(structureCmd, project, true, doOnSuccess, null);
+            doCreateStructure = () -> start(structureCmd, project, true, afterScaffold, null);
         }
         if (createWrapper) {
             GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
@@ -146,7 +153,7 @@ public class CmdJekaDoer {
     }
 
     private ConsoleView getView(Project project) {
-        return viewMap.computeIfAbsent(project, key -> initView(key));
+        return viewMap.computeIfAbsent(project, key -> initConsoleView(key));
     }
 
     private void generaImlWithJkClass(Project project, VirtualFile moduleDir, Module existingModule,
@@ -171,7 +178,7 @@ public class CmdJekaDoer {
             addModule(project, moduleDir);
         } else {
             VirtualFile imlFile = existingModule.getModuleFile();
-            VfsUtil.markDirtyAndRefresh(false, false, false, imlFile);
+            VfsUtil.markDirtyAndRefresh(false, true, true, moduleDir);
         }
         if (onFinish != null) {
             onFinish.run();
@@ -183,8 +190,7 @@ public class CmdJekaDoer {
         Path projectDir = Paths.get(project.getBasePath());
         Path modulesXml = projectDir.resolve(".idea/modules.xml");
         ModuleHelper.addModule(projectDir, modulesXml, iml);
-        VfsUtil.markDirtyAndRefresh(false, false, false,
-                VfsUtil.findFile(modulesXml, true));
+        VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
     }
 
     private static Path findImlFile(Path moduleDir) {
@@ -233,7 +239,7 @@ public class CmdJekaDoer {
         }
     }
 
-    private static ConsoleView initView(Project project) {
+    private static ConsoleView initConsoleView(Project project) {
         TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
         TextConsoleBuilder builder = factory.createBuilder(project);
         return builder.getConsole();

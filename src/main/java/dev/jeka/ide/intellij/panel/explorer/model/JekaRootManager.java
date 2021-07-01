@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiTreeChangeEvent;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.Getter;
@@ -94,6 +95,10 @@ public class JekaRootManager implements Disposable {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
         TreeMap<String, Module>  sortedModulesMap = new TreeMap<>();
         for (Module module : moduleManager.getModules()) {
+            VirtualFile moduleVirtualFile = ModuleHelper.getModuleDir(module);
+            if (moduleVirtualFile == null) {
+                continue;
+            }
             sortedModulesMap.put(ModuleHelper.getModuleDir(module).getPath(), module);
         }
         Path projectRoot = Paths.get(project.getBasePath());
