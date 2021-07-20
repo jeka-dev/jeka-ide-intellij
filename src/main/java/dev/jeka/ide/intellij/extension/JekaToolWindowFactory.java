@@ -16,22 +16,20 @@
 
 package dev.jeka.ide.intellij.extension;
 
-import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import dev.jeka.ide.intellij.action.SyncAllImlAction;
 import dev.jeka.ide.intellij.panel.explorer.JekaExplorerPanel;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
 
 /**
  * @author Jerome Angibaud
  */
 public class JekaToolWindowFactory implements ToolWindowFactory {
+
+    static final String ID = "Jeka";
 
     @Override
     public void createToolWindowContent(@NotNull Project project,

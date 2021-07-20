@@ -17,8 +17,11 @@
 package dev.jeka.ide.intellij.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.vfs.VirtualFile;
 import dev.jeka.ide.intellij.common.JekaIcons;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,7 +35,11 @@ public class ProjectPopupJekaActionGroup extends DefaultActionGroup {
     }
 
     @Override
-    public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setIcon(JekaIcons.JEKA_GROUP_ACTION);
+    public void update(@NotNull AnActionEvent event) {
+        event.getPresentation().setIcon(JekaIcons.JEKA_GROUP_ACTION);
+        VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        boolean isModuleRoot = virtualFile != null &&
+                ModuleHelper.getModuleHavingRootDir(event.getProject(), virtualFile)  != null;
+        event.getPresentation().setVisible(isModuleRoot);
     }
 }

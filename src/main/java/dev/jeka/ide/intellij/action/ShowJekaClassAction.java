@@ -47,8 +47,10 @@ public class ShowJekaClassAction extends AnAction {
     public void update(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (!selectedFile.isDirectory() || !selectedFile.getName().equals("jeka")) {
+        if (!selectedFile.isDirectory() && (!selectedFile.getName().equals("jeka")
+                && !SyncImlAction.isJekaModuleDir(selectedFile))) {
             event.getPresentation().setVisible(false);
+            return;
         }
         PsiManager psiManager = PsiManager.getInstance(project);
         Module module = ModuleHelper.getModule(event);

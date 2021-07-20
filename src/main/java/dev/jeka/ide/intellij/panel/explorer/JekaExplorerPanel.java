@@ -8,11 +8,13 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
+import com.intellij.ui.content.Content;
 import com.intellij.ui.tree.AsyncTreeModel;
 import com.intellij.ui.tree.StructureTreeModel;
 import com.intellij.ui.treeStructure.Tree;
@@ -22,11 +24,10 @@ import dev.jeka.ide.intellij.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.action.SyncAllImlAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
-import dev.jeka.ide.intellij.panel.explorer.action.RefreshAllViewAction;
-import dev.jeka.ide.intellij.panel.explorer.action.RefreshViewAction;
 import dev.jeka.ide.intellij.panel.explorer.action.RootAndJekaFolder;
 import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
 import dev.jeka.ide.intellij.panel.explorer.model.*;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +40,7 @@ import java.awt.event.MouseEvent;
 
 public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposable {
 
+    @Getter
     private final JekaRootManager jekaRootManager;
 
     private final StructureTreeModel structureTreeModel;
@@ -48,6 +50,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     public JekaExplorerPanel(Project project) {
         super(true, true);
         this.jekaRootManager = new JekaRootManager(project);
+        Disposer.register(this, jekaRootManager);
         JekaExplorerTreeStructure treeStructure = new JekaExplorerTreeStructure(this.jekaRootManager);
         this.structureTreeModel = new StructureTreeModel(treeStructure, this);
         this.jekaRootManager.addChangeListener(this::refreshTree);
@@ -62,7 +65,6 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         final ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup("ACTION_GROUP", false);
         actionGroup.add(SyncAllImlAction.INSTANCE);
-        actionGroup.add(new RefreshAllViewAction(this.jekaRootManager));
         ActionToolbar actionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true);
         actionToolbar.setOrientation(SwingConstants.HORIZONTAL);
         this.setToolbar(actionToolbar.getComponent());
@@ -79,8 +81,8 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
 
     @Override
     public void dispose() {
+        System.out.println(this.getClass() + " disposed !!!!!!!!!!!!");
         jekaRootManager.removeChangeListener(this::refreshTree);
-        jekaRootManager.dispose();
     }
 
     private void setupActions() {
@@ -143,7 +145,6 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             JekaFolderNode jekaFolder = (JekaFolderNode) nodeDescriptor.getElement();
             if (jekaFolder.getJekaModuleContainer() != null) {
                 group.add(SyncImlAction.INSTANCE);
-                group.add(RefreshViewAction.INSTANCE);
                 group.add(ShowRuntimeInformationAction.INSTANCE);
             }
         }

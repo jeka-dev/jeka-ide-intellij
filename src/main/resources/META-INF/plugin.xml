@@ -69,5 +69,10 @@
 
        -->
     </extensions>
+    
+    <projectListeners>
+        <listener class="dev.jeka.ide.intellij.extension.JekaToolWindowManagerListener"
+                  topic="com.intellij.openapi.wm.ex.ToolWindowManagerListener"/>
+    </projectListeners>
 
 </idea-plugin>

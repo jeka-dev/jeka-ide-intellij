@@ -26,9 +26,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.dialog.ScaffoldDialogWrapper;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
  * @author Jerome Angibaud
  */
@@ -56,20 +53,9 @@ public class ScaffoldAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (virtualFile != null) {
-            event.getPresentation().setVisible(virtualFile.isDirectory());
-        }
-    }
-
-    private static Path dirPath(VirtualFile virtualFile) {
-        return  Paths.get(dirVirtualFile(virtualFile).getPath());
-    }
-
-    private static VirtualFile dirVirtualFile(VirtualFile virtualFile) {
-        if (virtualFile.isDirectory()) {
-            return virtualFile;
-        }
-        return virtualFile.getParent();
+        boolean isModuleRoot = virtualFile != null &&
+                ModuleHelper.getModuleHavingRootDir(event.getProject(), virtualFile)  != null;
+        event.getPresentation().setVisible(isModuleRoot);
     }
 
 }

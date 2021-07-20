@@ -81,6 +81,7 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+
         if (selectedFile.getName().equals("jeka")) {
             selectedFile = selectedFile.getParent();
         } else if ("ProjectViewPopup".equals(event.getPlace())) {
@@ -104,12 +105,11 @@ public class SyncImlAction extends AnAction {
         VirtualFile dir = selectedFile;
         if (isJekaProperties(selectedFile)) {
             dir = selectedFile.getParent().getParent().getParent();
-        } else if (!isJekaProject(dir)) {
-            event.getPresentation().setVisible(false);
+        } else if (!isJekaModuleDir(dir)) {
+            event.getPresentation().setVisible(true);
             return;
         }
         if (ModuleHelper.isPotentialModule(dir)) {
-            String prefix = ModuleHelper.isExistingModuleRoot(event.getProject(), dir) ? "" : "Add and ";
             event.getPresentation().setText("Synchronize Module");
         } else {
             event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
@@ -123,7 +123,7 @@ public class SyncImlAction extends AnAction {
         return virtualFile.getName().equals("jeka.properties");
     }
 
-    private static boolean isJekaProject(VirtualFile virtualFile) {
+    static boolean isJekaModuleDir(VirtualFile virtualFile) {
         return virtualFile.isDirectory() && FileHelper.containsJekaDir(virtualFile);
     }
 
