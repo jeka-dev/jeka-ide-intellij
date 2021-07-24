@@ -41,7 +41,7 @@ public class SyncImlAction extends AnAction {
     public static final SyncImlAction INSTANCE = new SyncImlAction();
 
     private SyncImlAction() {
-        super("Jeka Synchronize iml File", "Jeka Synchronize iml file", AllIcons.Actions.Refresh);
+        super("Jeka Synchronize iml File", "Jeka Synchronize Module", AllIcons.Actions.Refresh);
     }
 
     @Override
@@ -81,6 +81,11 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if ("EditorPopup".equals(event.getPlace())) {
+            Module module = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
+            event.getPresentation().setVisible(module != null && FileHelper.isProjectJekaFile(module, selectedFile));
+            return;
+        }
 
         if (selectedFile.getName().equals("jeka")) {
             selectedFile = selectedFile.getParent();
@@ -95,11 +100,8 @@ public class SyncImlAction extends AnAction {
                 event.getPresentation().setVisible(false);
                 return;
             }
-            final String text = "Jeka Synchronize '" + module.getName() + "' Module";
+            final String text = "Jeka Synchronize Module";
             event.getPresentation().setText(text);
-            if ("EditorPopup".equals(event.getPlace())) {
-                event.getPresentation().setIcon(JekaIcons.JEKA_GROUP_ACTION);
-            }
             return;
         }
         VirtualFile dir = selectedFile;
@@ -110,7 +112,7 @@ public class SyncImlAction extends AnAction {
             return;
         }
         if (ModuleHelper.isPotentialModule(dir)) {
-            event.getPresentation().setText("Synchronize Module");
+            event.getPresentation().setText("Jeka Synchronize Module");
         } else {
             event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
         }

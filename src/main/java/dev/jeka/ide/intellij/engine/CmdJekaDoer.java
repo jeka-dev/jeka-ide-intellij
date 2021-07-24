@@ -16,7 +16,6 @@
 
 package dev.jeka.ide.intellij.engine;
 
-import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.filters.TextConsoleBuilder;
@@ -34,7 +33,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -78,6 +76,7 @@ public class CmdJekaDoer {
                             @Nullable  Module existingModule, Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+        setJekaJDKEnv(cmd, project, existingModule);
         cmd.addParameters("intellij#iml", "-LB", "-LRI");
         String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
         if (jekaHomeVar != null) {
@@ -115,6 +114,7 @@ public class CmdJekaDoer {
 
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+            setJekaJDKEnv(structureCmd, project, existingModule);
             structureCmd.addParameters("-JKC=", "-LB");
             structureCmd.addParameters("scaffold#run");
             structureCmd.setWorkDirectory(new File(moduleDir.getPath()));
@@ -140,6 +140,7 @@ public class CmdJekaDoer {
     public void showRuntimeInformation(Module module) {
         Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+        setJekaJDKEnv(cmd, module.getProject(), module);
         cmd.addParameters("-JKC=", "-LRI");
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, module.getProject(), true, null, null);
@@ -160,6 +161,7 @@ public class CmdJekaDoer {
                                       Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+        setJekaJDKEnv(cmd, project, existingModule);
         cmd.addParameters("intellij#iml", "-LB", "-LRI", "-JKC=");
         String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
         String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
@@ -339,6 +341,13 @@ public class CmdJekaDoer {
         Path userhome = jekaUserHomeEnv != null ? Paths.get(jekaUserHomeEnv) :
                 Paths.get(System.getProperty("user.home")).resolve(".jeka");
         return userhome.resolve("intellij-plugin").resolve(version).resolve("distrib");
+    }
+
+    private static void setJekaJDKEnv(GeneralCommandLine cmd, Project project, Module module) {
+        VirtualFile sdkRoot = ModuleHelper.getSdkRoot(project, module);
+        if (sdkRoot != null && sdkRoot.exists()) {
+            cmd.withEnvironment("JEKA_JDK", sdkRoot.getCanonicalPath());
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.common;
 
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.SneakyThrows;
 
@@ -55,6 +56,15 @@ public class FileHelper {
             }
         }
         return false;
+    }
+
+    public static boolean isProjectJekaFile(Module module, VirtualFile virtualFile) {
+        VirtualFile moduleRoot = ModuleHelper.getModuleDir(module);
+        VirtualFile jekaDir = moduleRoot.findChild("jeka");
+        if (jekaDir == null) {
+            return false;
+        }
+        return virtualFile.getPath().startsWith(jekaDir.getPath());
     }
 
     @SneakyThrows

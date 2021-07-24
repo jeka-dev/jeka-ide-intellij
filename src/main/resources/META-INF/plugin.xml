@@ -17,7 +17,9 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Add Jeka explorer window tool</li>
+        <li>Automatic refresh of window tool</li>
+        <li>Polished menus</li>
+        <li>Bug Fixes</li>
       </ul>
     ]]>
     </change-notes>
@@ -55,15 +57,7 @@
 
        <runConfigurationProducer implementation="ShellConfigurationProducer"/>
 
-      <toolWindow id="jerkar"
-                  anchor="bottom"
-                  icon="/icons/knight-grey-naked.svg"
-                  factoryClass="dev.jeka.ide.intellij.unused.runconfigations.JekaToolWindowFactory"/>
 
- <toolWindow id="Jeka"
-                  anchor="bottom"
-                  icon="/icons/knight-grey-naked.svg"
-                  factoryClass="com.intellij.execution.services.ServiceViewToolWindowFactory"/>
 
       <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
 

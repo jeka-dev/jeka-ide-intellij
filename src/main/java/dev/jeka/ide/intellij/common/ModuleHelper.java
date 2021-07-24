@@ -5,8 +5,11 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.bouncycastle.math.raw.Mod;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.filter.Filters;
@@ -152,6 +155,17 @@ public class ModuleHelper {
     public static boolean isJekaModule(Module module) {
         VirtualFile moduleDir = getModuleDir(module);
         return FileHelper.containsJekaDir(moduleDir);
+    }
+
+    public static VirtualFile getSdkRoot(Project project, Module module) {
+        if (module != null) {
+            ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+            Sdk sdk = moduleRootManager.getSdk();
+            return sdk.getHomeDirectory();
+        }
+        ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
+        Sdk sdk = projectRootManager.getProjectSdk();
+        return sdk.getHomeDirectory();
     }
 
 }
