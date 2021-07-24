@@ -30,7 +30,7 @@ public class ScaffoldFormPanel extends JPanel {
     private ComboBox<ScaffoldNature> natureCombeBox;
 
     public ScaffoldFormPanel(Module[] allModules) {
-        super(new GridLayout(5, 2));
+        super(gridLayout());
         this.add(new JLabel("Generate structure and Build class"));
         generateStructureCb.setState(true);
         generateStructureCb.addItemListener(item -> update());
@@ -111,6 +111,12 @@ public class ScaffoldFormPanel extends JPanel {
             delegateCheckBox.setState(false);
             moduleComboBox.setEnabled(false);
         }
+    }
+
+    private static GridLayout gridLayout() {
+        GridLayout gridLayout = new GridLayout(5,2);
+        gridLayout.setHgap(10);
+        return gridLayout;
     }
 
 }

@@ -14,8 +14,9 @@ This plugin provides right now :
 Roadmap : 
 
 * Provide a specific launcher to propose checkbox options
-* provide tree base collapsable console output
+* Provide tree base collapsable console output
 * Maven module auto-completion within Java Editor for `JkDependencies` API
+* Display dependency trees in tool window.
 
 # Where to download ?
 
