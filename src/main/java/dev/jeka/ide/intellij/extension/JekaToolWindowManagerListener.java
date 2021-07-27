@@ -21,10 +21,10 @@ public class JekaToolWindowManagerListener implements ToolWindowManagerListener 
     @Override
     public void stateChanged(@NotNull ToolWindowManager toolWindowManager) {
         String toolId =  toolWindowManager.getActiveToolWindowId();
-        System.out.println("state changed --------------");
+        //System.out.println("state changed --------------");
             ToolWindow jekaTool = toolWindowManager.getToolWindow(JekaToolWindowFactory.ID);
             if (!jekaTool.isVisible()) {
-                System.out.println("Unactivated !");
+                //System.out.println("Unactivated !");
                 unactivatedOnce = true;
                 unactivated = true;
                 jekaExplorerPanel(jekaTool).getJekaRootManager().listenPsi(false);
@@ -36,7 +36,7 @@ public class JekaToolWindowManagerListener implements ToolWindowManagerListener 
         }
         //ToolWindow jekaTool = toolWindowManager.getToolWindow(JekaToolWindowFactory.ID);
         if (unactivated && jekaTool.isVisible()) {
-            System.out.println("Activated !");
+            //System.out.println("Activated !");
             unactivated = false;
             JekaRootManager jekaRootManager = jekaExplorerPanel(jekaTool).getJekaRootManager();
             jekaRootManager.notifyChange();

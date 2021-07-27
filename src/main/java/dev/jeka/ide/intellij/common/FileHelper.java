@@ -12,6 +12,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
 import java.util.Comparator;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -25,9 +27,11 @@ public class FileHelper {
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 final Path toPath = targetFolder.resolve(entry.getName());
                 if (entry.isDirectory()) {
-                    Files.createDirectory(toPath);
+                    if (!Files.exists(toPath)) {
+                        Files.createDirectory(toPath);
+                    }
                 } else {
-                    Files.copy(zipInputStream, toPath);
+                    Files.copy(zipInputStream, toPath, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
         } catch (IOException e) {
