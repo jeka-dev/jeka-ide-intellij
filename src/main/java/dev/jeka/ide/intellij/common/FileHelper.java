@@ -62,6 +62,14 @@ public class FileHelper {
         return false;
     }
 
+    @SneakyThrows
+    public static boolean containsJekaDir(Path dir) {
+        return Files.walk(dir, 1)
+                .filter(path -> Files.isDirectory(path))
+                .filter(path -> path.getFileName().endsWith("jeka"))
+                .findAny().isPresent();
+    }
+
     public static boolean isProjectJekaFile(Module module, VirtualFile virtualFile) {
         VirtualFile moduleRoot = ModuleHelper.getModuleDir(module);
         VirtualFile jekaDir = moduleRoot.findChild("jeka");
@@ -74,6 +82,16 @@ public class FileHelper {
     @SneakyThrows
     public static URL toUrl(VirtualFile file) {
         return Paths.get(file.getPresentableUrl()).toUri().toURL();
+    }
+
+    public static String toUnixPath(String path) {
+        if (path == null) {
+            return null;
+        }
+        if (File.separatorChar=='\\') {
+            return path.replace('\\', '/');
+        }
+        return path;
     }
 
 }

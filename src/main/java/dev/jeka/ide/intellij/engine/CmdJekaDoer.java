@@ -39,6 +39,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import dev.jeka.ide.intellij.common.*;
+import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

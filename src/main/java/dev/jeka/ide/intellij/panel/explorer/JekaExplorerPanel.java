@@ -49,7 +49,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
 
     public JekaExplorerPanel(Project project) {
         super(true, true);
-        this.jekaRootManager = new JekaRootManager(project);
+        this.jekaRootManager = project.getService(JekaRootManager.class);
         Disposer.register(this, jekaRootManager);
         JekaExplorerTreeStructure treeStructure = new JekaExplorerTreeStructure(this.jekaRootManager);
         this.structureTreeModel = new StructureTreeModel(treeStructure, this);

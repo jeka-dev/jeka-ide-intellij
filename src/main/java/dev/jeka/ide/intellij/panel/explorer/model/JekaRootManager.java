@@ -2,6 +2,7 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -15,14 +16,14 @@ import com.intellij.psi.PsiTreeChangeEvent;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.java.generate.psi.PsiAdapter;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class JekaRootManager implements Disposable {
+@Service
+public final class JekaRootManager implements Disposable {
 
     @Getter
     private final Project project;
@@ -30,8 +31,8 @@ public class JekaRootManager implements Disposable {
     @Getter
     private volatile boolean initialised = false;
 
-    @Getter
-    private final List<JekaFolderNode> jekaFolders = new LinkedList<>();
+    @Getter   // Singleton List
+    private final List<JekaFolderNode> jekaFolderRoot = new LinkedList<>();
 
     private final List<Runnable> changeListeners = new LinkedList<>();
 
@@ -40,6 +41,9 @@ public class JekaRootManager implements Disposable {
     private boolean listeningPsi;
 
     private EventFilter eventFilter;
+
+    @Getter
+    private boolean modulesDirty;
 
     public JekaRootManager(Project project) {
         this.project = project;
@@ -79,7 +83,18 @@ public class JekaRootManager implements Disposable {
         changeListeners.forEach(Runnable::run);
     }
 
-    public void refreshModule(JekaFolderNode jekaFolder) {
+    public void addModuleAndNotify(Module module) {
+        jekaFolderRoot.get(0).createJekaFolderAsDescendant(module);
+        notifyChange();
+    }
+
+    public void refreshModule(Module module) {
+        JekaFolderNode jekaFolder = jekaFolderRoot.stream()
+                .filter(jekaFolderNode -> module.equals(jekaFolderNode.getModule()))
+                .findFirst().orElse(null);
+        if (jekaFolder == null) {
+            return;
+        }
         _refreshModule(jekaFolder);
         notifyChange(null);
     }
@@ -100,7 +115,7 @@ public class JekaRootManager implements Disposable {
     }
 
     private Stream<JekaFolderNode> jekaFoldersRecursive() {
-        return jekaFolders.stream()
+        return jekaFolderRoot.stream()
                 .flatMap(jekaFolderNode -> jekaFolderNode.recursiveFolders().stream());
     }
 
@@ -111,9 +126,9 @@ public class JekaRootManager implements Disposable {
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setIndeterminate(true);
                 indicator.pushState();
-                jekaFolders.clear();
+                jekaFolderRoot.clear();
                 ApplicationManager.getApplication().runReadAction(() -> {
-                    jekaFolders.addAll(jekaFolderTree());
+                    jekaFolderRoot.addAll(jekaFolderTree());
                 });
                 indicator.stop();
                 initialised = true;
@@ -182,7 +197,7 @@ public class JekaRootManager implements Disposable {
     }
 
     Stream<JekaCommandClassNode> allClasses() {
-        return jekaFolders.stream()
+        return jekaFolderRoot.stream()
                 .flatMap(folder -> folder.moduleStream())
                 .flatMap(jekaModule -> jekaModule.getCommandClasses().stream());
 

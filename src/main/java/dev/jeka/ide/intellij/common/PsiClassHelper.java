@@ -55,6 +55,9 @@ public class PsiClassHelper {
 
     public static List<PsiClass> findJekaCommandClasses(Module module) {
         VirtualFile rootDir = ModuleHelper.getModuleDir(module);
+        if (rootDir == null) {
+            return Collections.emptyList();
+        }
         VirtualFile jekaDefFolder = rootDir.findFileByRelativePath(Constants.JEKA_DIR_NAME + "/" + Constants.JEKA_DEF_DIR_NAME);
         if (jekaDefFolder == null) {
             return Collections.emptyList();

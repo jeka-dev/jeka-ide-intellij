@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -47,11 +49,13 @@ public class JekaFolderNode implements JekaModelNode {
     }
 
     void createJekaFolderAsDescendant(Module module) {
-        Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
+        Path modulePath = ModuleHelper.getModuleDirPath(module);
         Path relativePath = this.folderPath.relativize(modulePath);
         if (relativePath.getNameCount() == 1 && relativePath.getName(0).toString().equals("")) {
             this.module = module;
-            JekaModuleContainer jekaModuleContainer = ModuleHelper.isJekaModule(module) ? JekaModuleContainer.fromModule(this, module) : null;
+            JekaModuleContainer jekaModuleContainer = ModuleHelper.isJekaModule(module) ?
+                    JekaModuleContainer.fromModule(this, module)
+                    : null;
             this.jekaModuleContainer = jekaModuleContainer;
             return;
         }
@@ -66,6 +70,10 @@ public class JekaFolderNode implements JekaModelNode {
         JekaFolderNode newChild = JekaFolderNode.ofSimpleDir(this, childPath);
         newChild.createJekaFolderAsDescendant(module);
         this.subFolders.add(newChild);
+        if (subFolders.size() > 2) {
+            Collections.sort(this.subFolders, Comparator.comparing(JekaFolderNode::getName));
+        }
+
     }
 
     Stream<JekaModuleContainer> moduleStream() {

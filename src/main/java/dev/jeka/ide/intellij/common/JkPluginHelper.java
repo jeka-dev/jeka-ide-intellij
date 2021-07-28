@@ -41,6 +41,7 @@ public class JkPluginHelper {
         }
         List<String> jekaUrls = iml.getAllJekaBinUrl();
         List<String> pluginClassNames = jekaUrls.stream()
+                .map(FileHelper::toUnixPath)
                 .flatMap(url -> jekaPluginClassNamesContainedIn(url).stream())
                 .collect(Collectors.toList());
         List<PsiClass> result = new LinkedList<>();

@@ -50,6 +50,20 @@ public class ModuleHelper {
         return candidate;
     }
 
+    // Sometime, when modules are newly created, module#getModuleFile returns null while module#getModuleFilePath not.
+    public static Path getModuleDirPath(Module module) {
+        String imlFile = module.getModuleFilePath();
+        if (imlFile == null) {
+            return null;
+        }
+        Path imlFilePath = Paths.get(imlFile);
+        Path candidate = imlFilePath.getParent();
+        if (candidate.getFileName().equals(".idea")) {
+            return candidate.getParent();
+        }
+        return candidate;
+    }
+
     public static void addModule(Path projectDir, Path modulesXmlPath, Path moduleImlFile) {
         SAXBuilder builder = new SAXBuilder();
         org.jdom2.Document doc;
@@ -153,8 +167,8 @@ public class ModuleHelper {
     }
 
     public static boolean isJekaModule(Module module) {
-        VirtualFile moduleDir = getModuleDir(module);
-        return FileHelper.containsJekaDir(moduleDir);
+        Path moduleRoot = getModuleDirPath(module);
+        return FileHelper.containsJekaDir(moduleRoot);
     }
 
     public static VirtualFile getSdkRoot(Project project, Module module) {
