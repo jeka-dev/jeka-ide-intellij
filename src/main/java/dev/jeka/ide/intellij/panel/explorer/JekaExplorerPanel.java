@@ -14,15 +14,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
-import com.intellij.ui.content.Content;
 import com.intellij.ui.tree.AsyncTreeModel;
 import com.intellij.ui.tree.StructureTreeModel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
-import dev.jeka.ide.intellij.action.JekaRunMethodAction;
-import dev.jeka.ide.intellij.action.SyncAllImlAction;
-import dev.jeka.ide.intellij.action.SyncImlAction;
+import dev.jeka.ide.intellij.action.*;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
 import dev.jeka.ide.intellij.panel.explorer.action.RootAndJekaFolder;
 import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
@@ -65,6 +62,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         final ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup("ACTION_GROUP", false);
         actionGroup.add(SyncAllImlAction.INSTANCE);
+        actionGroup.add(RefreshWindowToolAction.INSTANCE);
         ActionToolbar actionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true);
         actionToolbar.setOrientation(SwingConstants.HORIZONTAL);
         this.setToolbar(actionToolbar.getComponent());
@@ -112,7 +110,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             }
         }
         NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
-        if (nodeDescriptor.getElement() instanceof JekaCommandNode) {
+        if (nodeDescriptor.getElement() instanceof JekaMethodNode) {
             AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
                     ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
             JekaRunMethodAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
@@ -130,7 +128,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         }
         NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
         final DefaultActionGroup group = new DefaultActionGroup();
-        if (nodeDescriptor.getElement() instanceof JekaCommandNode) {
+        if (nodeDescriptor.getElement() instanceof JekaMethodNode) {
             group.add(JekaRunMethodAction.RUN_JEKA_INSTANCE);
             group.add(JekaRunMethodAction.DEBUG_JEKA_INSTANCE);
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
@@ -138,7 +136,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         } else if (nodeDescriptor.getElement() instanceof JekaFieldNode) {
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
-        } else if (nodeDescriptor.getElement() instanceof JekaCommandHolderNode) {
+        } else if (nodeDescriptor.getElement() instanceof JekaBeanNode) {
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
         } else if (nodeDescriptor.getElement() instanceof JekaFolderNode) {
@@ -147,6 +145,7 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 group.add(SyncImlAction.INSTANCE);
                 group.add(ShowRuntimeInformationAction.INSTANCE);
             }
+            group.add(ScaffoldAction.INSTANCE);
         }
         final ActionPopupMenu popupMenu = ActionManager.getInstance()
                 .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);
@@ -167,20 +166,16 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
             NodeDescriptor nodeDescriptor = (NodeDescriptor) node.getUserObject();
             Object element = nodeDescriptor.getElement();
-            if (element instanceof JekaCommandNode) {
-                JekaCommandNode command = (JekaCommandNode) element;
+            if (element instanceof JekaMethodNode) {
+                JekaMethodNode method = (JekaMethodNode) element;
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-                    return command.getPsiMethod();
+                    return method.getPsiMethod();
                 }
                 if (CommandInfo.KEY.is(dataId)) {
-                    JekaModelNode parent = command.getHolder();
-                    String pluginName = null;
-                    if (parent instanceof JekaPluginNode) {
-                        JekaPluginNode jekaPlugin = (JekaPluginNode) parent;
-                        pluginName = jekaPlugin.getPluginName();
-                    }
-                    return new CommandInfo(command.getHolder().getModule(),
-                            command.getHolder().getCommandClass(), pluginName, command.getPsiMethod().getName());
+                    JekaBeanNode parent = method.getHolder();
+                    String beanName = parent.getName();
+                    return new CommandInfo(method.getHolder().getModule(),
+                            method.getHolder().getKbeanPsiClass(), beanName, method.getPsiMethod().getName());
                 }
             }
             if (element instanceof JekaFieldNode) {
@@ -189,10 +184,10 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                     return jekaField.getField();
                 }
             }
-            if (element instanceof JekaCommandHolderNode) {
-                JekaCommandHolderNode holder = (JekaCommandHolderNode) element;
+            if (element instanceof JekaBeanNode) {
+                JekaBeanNode holder = (JekaBeanNode) element;
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-                    return holder.getContainingClass();
+                    return holder.getKbeanPsiClass();
                 }
             }
             if (element instanceof JekaFolderNode) {

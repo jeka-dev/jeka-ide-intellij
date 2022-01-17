@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileAttribute;
+
 import java.util.Comparator;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -25,7 +25,11 @@ public class FileHelper {
         try (ZipInputStream zipInputStream = new ZipInputStream(zipSource)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
-                final Path toPath = targetFolder.resolve(entry.getName());
+                String entryName = entry.getName();
+                if (entryName.startsWith("/")) {
+                    entryName = entryName.substring(1);
+                }
+                final Path toPath = targetFolder.resolve(entryName);
                 if (entry.isDirectory()) {
                     if (!Files.exists(toPath)) {
                         Files.createDirectory(toPath);

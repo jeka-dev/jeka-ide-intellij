@@ -45,29 +45,6 @@ class JkClassHelper {
     private static final String FACTORY_METHOD = "ofUninitialised";
 
     @SneakyThrows
-    public static State getState(Module module, PsiClass commandSetPsiClass) {
-        VirtualFile[] roots = ModuleRootManager.getInstance(module).orderEntries().getClassesRoots();
-        List<URL> urls = Arrays.stream(roots)
-                .map(virtualFile -> FileHelper.toUrl(virtualFile))
-                .collect(Collectors.toList());
-        UrlClassLoader classLoader = UrlClassLoader.build()
-                .urls(urls)
-                .get();
-        Object commandSet = instantiate(module, commandSetPsiClass, classLoader);
-        Class jkPluginClass = classLoader.loadClass(PsiClassHelper.JKPLUGIN_CLASS_NAME);
-        Map<String, String> publicClassFields = getPublicFields(commandSet, jkPluginClass);
-        Set<Object> plugins = getPlugins(commandSet, jkPluginClass);
-        Map<String, Map<String, String>> pluginFields = new LinkedHashMap<>();
-        for (Object plugin : plugins) {
-            String pluginName = MiscHelper.pluginName(plugin.getClass().getSimpleName());
-            Map<String, String> fields = getPublicFields(plugin, jkPluginClass);
-            pluginFields.put(pluginName, fields);
-        }
-        return new State(publicClassFields, pluginFields);
-
-    }
-
-    @SneakyThrows
     private static Object instantiate(Module module, PsiClass commandSetPsiClass, ClassLoader classLoader) {
         Class clazz = classLoader.loadClass(commandSetPsiClass.getQualifiedName());
         Method baseDirMethod = null; // = JkUtilsReflect.findMethodMethodDeclaration(clazz, BASE_DIR_METHOD, Path.class);

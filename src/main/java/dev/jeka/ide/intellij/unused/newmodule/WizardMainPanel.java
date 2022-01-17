@@ -26,7 +26,7 @@ public class WizardMainPanel extends JPanel {
         for (Module module : modules) {
             moduleNames.add(module.getName());
         }
-        namePanel = new NamePanel(moduleNames, parentPath);
+        namePanel = new NamePanel(parentPath);
         wrapper1.add(namePanel);
         scaffoldFormPanel = new ScaffoldFormPanel(modules);
         wrapper1.add(scaffoldFormPanel);
@@ -37,16 +37,13 @@ public class WizardMainPanel extends JPanel {
 
     static class NamePanel extends JPanel {
 
-        private final List<String> moduleName;
-
         private final String parentPath;
 
         private final JTextField moduleTextField;
 
         private final JLabel modulePathLabel;
 
-        public NamePanel(List<String> moduleName, String parentPath) {
-            this.moduleName = moduleName;
+        public NamePanel(String parentPath) {
             this.parentPath = parentPath;
             GridLayout layout = new GridLayout(2, 2);
             this.setLayout(layout);

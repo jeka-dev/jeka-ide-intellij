@@ -25,6 +25,9 @@ class EventFilter {
             return null;
         }
         PsiJavaFile psiFile = (PsiJavaFile) event.getElement();
+        if (psiFile == null) {
+            return null;
+        }
         VirtualFile virtualFile = psiFile.getVirtualFile();
         if (!virtualFile.getPath().contains(DEF_DIR)) {
             return null;

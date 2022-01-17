@@ -25,10 +25,7 @@ import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -38,22 +35,19 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.ide.intellij.common.*;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.JekaDistributions;
+import dev.jeka.ide.intellij.common.JekaIcons;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Jerome Angibaud
@@ -62,9 +56,7 @@ public class CmdJekaDoer {
 
     public static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
 
-    private static final String JEKA_JAR_NAME = "dev.jeka.jeka-core.jar";
-
-    private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin:+";
+    private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
 
     //private ConsoleView view = null;
     private Map<Project, ConsoleView> viewMap = new HashMap<>();
@@ -78,22 +70,13 @@ public class CmdJekaDoer {
         Path modulePath = Paths.get(moduleDir.getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-LB", "-LRI");
-        String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
-        if (jekaHomeVar != null) {
-            cmd.addParameters("-intellij#jekaHome=" + jekaHomeVar);
-        }
+        cmd.addParameters("intellij#iml", "-dci", "-lb", "-lri");
         cmd.setWorkDirectory(modulePath.toFile());
         if (qualifiedClassName != null) {
-            cmd.addParameter("-JKC=" + qualifiedClassName);
-        }
-        String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
-        if (jekaRedirect != null) {
-            cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlJekaExtraModules=" + jekaRedirect);
+            cmd.addParameter("-kb=" + qualifiedClassName);
         }
         Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
-        Runnable onError = () -> generaImlWithJkClass(project, moduleDir, existingModule, onFinish);
-        start(cmd, project, clearConsole, onSuccess,  onError );
+        start(cmd, project, clearConsole, onSuccess,  null );
     }
 
     public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStructure, boolean createWrapper,
@@ -116,22 +99,22 @@ public class CmdJekaDoer {
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(modulePath, false));
             setJekaJDKEnv(structureCmd, project, existingModule);
-            structureCmd.addParameters("-JKC=", "-LB");
             structureCmd.addParameters("scaffold#run");
             structureCmd.setWorkDirectory(new File(moduleDir.getPath()));
             if (nature != ScaffoldNature.SIMPLE) {
                 structureCmd.addParameters(natureParam(nature));
             }
+            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb");
             doCreateStructure = () -> start(structureCmd, project, true, afterScaffold, null);
         }
         if (createWrapper) {
             GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, true));
-            cmd.addParameters("-JKC=", "-LB");
-            cmd.addParameter("scaffold#wrap");
+            cmd.addParameter("scaffold#wrapper");
             if (wrapDelegate != null) {
-                cmd.addParameters("-scaffold#wrapDelegatePath=" + wrapDelegate);
+                cmd.addParameters("scaffold#wrapDelegatePath=" + wrapDelegate);
             }
             cmd.setWorkDirectory(new File(moduleDir.getPath()));
+            cmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb");
             start(cmd, project, true, doCreateStructure, null);
         } else {
             doCreateStructure.run();
@@ -142,46 +125,34 @@ public class CmdJekaDoer {
         Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
         setJekaJDKEnv(cmd, module.getProject(), module);
-        cmd.addParameters("-JKC=", "-LRI");
+        cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, module.getProject(), true, null, null);
     }
 
     private static String[] natureParam(ScaffoldNature nature) {
-        if (nature == ScaffoldNature.JAVA) {
-            return new String[] {"java#"};
+        if (nature == ScaffoldNature.PROJECT) {
+            return new String[] {"project#"};
         }
-        return new String[] {"@" + SPRINGBOOT_MODULE, "springboot#"};
+        if (nature == ScaffoldNature.SPRINGBOOT) {
+            return new String[] {"@" + SPRINGBOOT_MODULE, "springboot#"};
+        }
+        if (nature == ScaffoldNature.JEKA_PLUGIN) {
+            return new String[] {"project#scaffoldTemplate=PLUGIN"};
+        }
+        throw new IllegalStateException("No instruction found for nature " + nature);
     }
 
     private ConsoleView getView(Project project) {
         return viewMap.computeIfAbsent(project, key -> initConsoleView(key));
     }
 
-    private void generaImlWithJkClass(Project project, VirtualFile moduleDir, Module existingModule,
-                                      Runnable onFinish) {
-        Path modulePath = Paths.get(moduleDir.getPath());
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
-        setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-LB", "-LRI", "-JKC=");
-        String jekaRedirect = ModuleHelper.getJekaRedirectModule(moduleDir);
-        String jekaHomeVar = MiscHelper.getPathVariable(Constants.JEKA_HOME);
-        if (jekaHomeVar != null) {
-            cmd.addParameters("-intellij#jekaHome=" + jekaHomeVar);
-        }
-        if (jekaRedirect != null) {
-            cmd.addParameters("-intellij#imlSkipJeka", "-intellij#imlJekaExtraModules=" + jekaRedirect);
-        }
-        cmd.setWorkDirectory(modulePath.toFile());
-        start(cmd, project, false, () -> refreshAfterIml(project, existingModule, moduleDir, onFinish), null);
-    }
-
     private static void refreshAfterIml(Project project, Module existingModule, VirtualFile moduleDir, Runnable onFinish) {
         if (existingModule == null) {
             addModule(project, moduleDir);
         } else {
-            VirtualFile imlFile = existingModule.getModuleFile();
             VfsUtil.markDirtyAndRefresh(false, true, true, moduleDir);
+
         }
         if (onFinish != null) {
             onFinish.run();
@@ -211,7 +182,7 @@ public class CmdJekaDoer {
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
         OSProcessHandler handler;
-        createDistribIfNeeded();
+        JekaDistributions.getDefault();
         try {
             handler = new OSProcessHandler(cmd);
             handler.addProcessListener(new ProcessAdapter() {
@@ -295,53 +266,8 @@ public class CmdJekaDoer {
             return jekaScriptPath;
         }
         String scriptName = isWindows ? "jeka.bat" : "jeka";;
-        jekaScriptPath = createDistribIfNeeded().resolve(scriptName).toAbsolutePath().toString();
+        jekaScriptPath = JekaDistributions.getDefault().resolve(scriptName).toAbsolutePath().toString();
         return jekaScriptPath;
-    }
-
-    public Path createDistribIfNeeded() {
-        Path parent = embeddedDir();
-        Path file = parent.resolve(JEKA_JAR_NAME);
-        if (!Files.exists(file)) {
-            try {
-                Files.createDirectories(parent);
-                InputStream is = CmdJekaDoer.class.getClassLoader().getResourceAsStream("dev.jeka.jeka-core-distrib.zip");
-                FileHelper.unzip(is, parent);
-                addExecPerm(parent.resolve("jeka"));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-        return parent;
-    }
-
-    private static void addExecPerm(Path file) {
-        Set<PosixFilePermission> perms;
-        try {
-            perms = Files.getPosixFilePermissions(file);
-            perms.add(PosixFilePermission.OWNER_EXECUTE);
-            perms.add(PosixFilePermission.GROUP_EXECUTE);
-            perms.add(PosixFilePermission.OTHERS_EXECUTE);
-            Files.setPosixFilePermissions(file, perms);
-        } catch (UnsupportedOperationException e) {
-            // Windows system
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static Path embeddedDir() {
-        IdeaPluginDescriptor[] plugins  = PluginManager.getPlugins();
-        String version = null;
-        for (IdeaPluginDescriptor plugin : plugins) {
-            if (plugin.getPluginId().equals(PluginId.getId("dev.jeka.ide.intellij"))) {
-                version = plugin.getVersion();
-            }
-        }
-        String jekaUserHomeEnv = System.getenv("JEKA_USER_HOME");
-        Path userhome = jekaUserHomeEnv != null ? Paths.get(jekaUserHomeEnv) :
-                Paths.get(System.getProperty("user.home")).resolve(".jeka");
-        return userhome.resolve("intellij-plugin").resolve(version).resolve("distrib");
     }
 
     private static void setJekaJDKEnv(GeneralCommandLine cmd, Project project, Module module) {

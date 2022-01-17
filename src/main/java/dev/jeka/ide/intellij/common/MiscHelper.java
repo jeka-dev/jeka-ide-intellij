@@ -14,8 +14,10 @@ public class MiscHelper {
         pathMacros.setMacro(varName, value);
     }
 
-    public static String pluginName(String simpleClassName) {
-        String name = simpleClassName.substring("JkPlugin".length());
+    public static String kbeanName(String simpleClassName) {
+        String name = simpleClassName.endsWith("JkBean")
+                ? simpleClassName.substring(0, simpleClassName.indexOf("JkBean"))
+                : simpleClassName;
         return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 

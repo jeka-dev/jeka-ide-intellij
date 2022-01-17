@@ -38,9 +38,11 @@ public class ScaffoldFormPanel extends JPanel {
         this.add(natureLabel);
         natureCombeBox = new ComboBox<>();
         natureCombeBox.addItem(ScaffoldNature.SIMPLE);
-        natureCombeBox.addItem(ScaffoldNature.JAVA);
+        natureCombeBox.addItem(ScaffoldNature.PROJECT);
         natureCombeBox.addItem(ScaffoldNature.SPRINGBOOT);
-        natureCombeBox.setSelectedItem(ScaffoldNature.JAVA);
+        natureCombeBox.addItem(ScaffoldNature.JEKA_PLUGIN);
+        natureCombeBox.setSelectedItem(ScaffoldNature.PROJECT);
+
         this.add(natureCombeBox);
         createWrapperFilesCb.setState(true);
         this.add(new JLabel("Generate Jeka wrapper files"));
@@ -68,7 +70,7 @@ public class ScaffoldFormPanel extends JPanel {
                 continue;
             }
             Path path = Paths.get(ModuleHelper.getModuleDir(module).getPath());
-            Path wrapperProps = path.resolve("jeka/wrapper/jeka.properties");;
+            Path wrapperProps = path.resolve("jeka/wrapper/wrapper.properties");;
             if (Files.exists(wrapperProps) && !module.equals(currentModule)) {
                 moduleComboBox.addItem(module);
             }

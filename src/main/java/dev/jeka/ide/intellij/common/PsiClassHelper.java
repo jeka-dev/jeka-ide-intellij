@@ -10,15 +10,13 @@ import java.util.List;
 
 public class PsiClassHelper {
 
-    private static final String JKCLASS_NAME = "dev.jeka.core.tool.JkClass";
+    private static final String JKBEAN_CLASS_NAME = "dev.jeka.core.tool.JkBean";
 
-    public static final String JKPLUGIN_CLASS_NAME = "dev.jeka.core.tool.JkPlugin";
-
-    public static boolean isExtendingJkClass(PsiClass psiClass) {
+    public static boolean isExtendingJkBean(PsiClass psiClass) {
         if (psiClass == null) {
             return false;
         }
-        if (JKCLASS_NAME.equals(psiClass.getQualifiedName())) {
+        if (JKBEAN_CLASS_NAME.equals(psiClass.getQualifiedName())) {
             return true;
         }
         PsiClassType[] psiClassTypes = psiClass.getExtendsListTypes();
@@ -27,15 +25,11 @@ public class PsiClassHelper {
                 return false;
             }
             PsiClass currentPsiClass = psiClassType.resolve();
-            if (isExtendingJkClass(currentPsiClass)) {
+            if (isExtendingJkBean(currentPsiClass)) {
                 return true;
             }
         }
         return false;
-    }
-
-    public static boolean isExtendingJkPlugin(PsiClass psiClass) {
-        return isExtending(psiClass, JKPLUGIN_CLASS_NAME);
     }
 
     public static boolean isExtending(PsiClass psiClass, String superclassName) {
@@ -73,7 +67,7 @@ public class PsiClassHelper {
             if (psiFile instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 for (PsiClass psiClass : psiJavaFile.getClasses()) {
-                    if (PsiClassHelper.isExtendingJkClass(psiClass)) {
+                    if (PsiClassHelper.isExtendingJkBean(psiClass)) {
                         result.add(psiClass);
                     }
                 }

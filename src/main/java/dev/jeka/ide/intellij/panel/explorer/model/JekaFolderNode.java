@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -38,7 +37,7 @@ public class JekaFolderNode implements JekaModelNode {
         Icon icon = jekaModuleContainer == null ? AllIcons.Nodes.Folder : AllIcons.Nodes.ConfigFolder;
         List<JekaModelNode> children = new LinkedList<>();
         if (jekaModuleContainer != null) {
-            children.addAll(jekaModuleContainer.getCommandClasses());
+            children.addAll(jekaModuleContainer.getBeanNodes());
         }
         children.addAll(subFolders);
         return NodeInfo.simple(this, icon, this::getName, this::getParent, () -> children);

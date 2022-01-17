@@ -51,7 +51,7 @@ public class SyncImlAction extends AnAction {
         if (selectedFile.getName().equals("jeka")) {
             selectedFile = selectedFile.getParent();
         }
-        PsiClass commandClass = getPsiCommandClass(event);
+        PsiClass commandClass = getPsiJkBeanClass(event);
         String className = commandClass == null ? null : commandClass.getQualifiedName();
         if (className != null) {
             VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -63,7 +63,7 @@ public class SyncImlAction extends AnAction {
         if (commandClass != null) {
             existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
             moduleDir = ModuleHelper.getModuleDir(existingModule);
-        } else if (isJekaProperties(selectedFile)) {
+        } else if (isWrapperProperties(selectedFile)) {
             moduleDir = selectedFile.getParent().getParent().getParent();
             existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
         } else {
@@ -93,7 +93,7 @@ public class SyncImlAction extends AnAction {
             event.getPresentation().setVisible(false);
             return;
         }
-        PsiClass commandClass = getPsiCommandClass(event);
+        PsiClass commandClass = getPsiJkBeanClass(event);
         if (commandClass != null) {
             Module module = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
             if (module == null) {
@@ -105,7 +105,7 @@ public class SyncImlAction extends AnAction {
             return;
         }
         VirtualFile dir = selectedFile;
-        if (isJekaProperties(selectedFile)) {
+        if (isWrapperProperties(selectedFile)) {
             dir = selectedFile.getParent().getParent().getParent();
         } else if (!isJekaModuleDir(dir)) {
             event.getPresentation().setVisible(true);
@@ -118,18 +118,18 @@ public class SyncImlAction extends AnAction {
         }
     }
 
-    private static boolean isJekaProperties(VirtualFile virtualFile) {
+    private static boolean isWrapperProperties(VirtualFile virtualFile) {
         if (virtualFile.isDirectory()) {
             return false;
         }
-        return virtualFile.getName().equals("jeka.properties");
+        return virtualFile.getName().equals("wrapper.properties");
     }
 
     static boolean isJekaModuleDir(VirtualFile virtualFile) {
         return virtualFile.isDirectory() && FileHelper.containsJekaDir(virtualFile);
     }
 
-    private static PsiClass getPsiCommandClass(AnActionEvent event) {
+    private static PsiClass getPsiJkBeanClass(AnActionEvent event) {
         PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
         if (psiFile == null) {
             return null;
@@ -140,7 +140,7 @@ public class SyncImlAction extends AnAction {
                 return null;
             }
             PsiClass psiClass = psiJavaFile.getClasses()[0];
-            boolean isCommandsClass = PsiClassHelper.isExtendingJkClass(psiClass);
+            boolean isCommandsClass = PsiClassHelper.isExtendingJkBean(psiClass);
             if (isCommandsClass) {
                 return psiClass;
             }

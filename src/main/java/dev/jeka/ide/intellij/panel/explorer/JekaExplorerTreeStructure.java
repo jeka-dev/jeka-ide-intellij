@@ -34,7 +34,7 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
 
     @Override
     public boolean isAlwaysLeaf(@NotNull Object element) {
-        return element instanceof JekaCommandNode;
+        return element instanceof JekaMethodNode;
     }
 
     @Override

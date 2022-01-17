@@ -20,25 +20,25 @@ public class JekaModuleContainer {
 
     private final JekaFolderNode moduleFolder;
 
-    private List<JekaCommandClassNode> cachedCommandClasses;
+    private List<JekaBeanNode> cachedBeanNodes;
 
     private Collection<PsiClass> cachedPluginClasses;
 
     static JekaModuleContainer fromModule(JekaFolderNode moduleFolder, Module module) {
         JekaModuleContainer result = new JekaModuleContainer(module, moduleFolder);
-        result.getCommandClasses();
+        result.getBeanNodes();
         return  result;
     }
 
-    List<JekaCommandClassNode> getCommandClasses() {
-        if (cachedCommandClasses != null) {
-            return cachedCommandClasses;
+    List<JekaBeanNode> getBeanNodes() {
+        if (cachedBeanNodes != null) {
+            return cachedBeanNodes;
         }
         List<PsiClass> jekaPsilasses = PsiClassHelper.findJekaCommandClasses(module);
-        cachedCommandClasses = jekaPsilasses.stream()
-                .map(psiClass -> JekaCommandClassNode.fromPsiClass(moduleFolder, psiClass))
+        cachedBeanNodes = jekaPsilasses.stream()
+                .map(psiClass -> new JekaBeanNode(moduleFolder, psiClass))
                 .collect(Collectors.toList());
-        return cachedCommandClasses;
+        return cachedBeanNodes;
     }
 
     Collection<PsiClass> getAllPluginClasses() {
@@ -51,7 +51,7 @@ public class JekaModuleContainer {
 
     void refresh() {
         cachedPluginClasses = null;
-        cachedCommandClasses = null;
+        cachedBeanNodes = null;
     }
 
 }

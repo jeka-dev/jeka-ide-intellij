@@ -66,7 +66,7 @@ public class JekaRunMethodAction extends AnAction {
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(module);
-        configuration.setProgramParameters("-JKC=" + simpleClassName + " " + method);
+        configuration.setProgramParameters("-kb=" + simpleClassName + " " + methodName);
         configuration.setBeforeRunTasks(Collections.emptyList());
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());

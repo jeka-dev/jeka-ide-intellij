@@ -9,18 +9,12 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.bouncycastle.math.raw.Mod;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.filter.Filters;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-import org.jdom2.xpath.XPathExpression;
-import org.jdom2.xpath.XPathFactory;
+import dev.jeka.core.api.marshalling.JkDomDocument;
+import dev.jeka.core.api.marshalling.JkDomElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,33 +59,18 @@ public class ModuleHelper {
     }
 
     public static void addModule(Path projectDir, Path modulesXmlPath, Path moduleImlFile) {
-        SAXBuilder builder = new SAXBuilder();
-        org.jdom2.Document doc;
-        try {
-            doc = builder.build(modulesXmlPath.toFile());
-        } catch (JDOMException | IOException e) {
-            throw new RuntimeException(e);
-        }
         String modulesQuery = "/project/component[@name='ProjectModuleManager']/modules";
-        XPathFactory xpfac = XPathFactory.instance();
-        XPathExpression<Element> xp = xpfac.compile(modulesQuery, Filters.element());
-        List<Element> modulesEl = xp.evaluate(doc);
+        JkDomDocument doc = JkDomDocument.parse(modulesXmlPath);
+        List<JkDomElement> modulesEl = doc.root().xPath(modulesQuery);
         if (modulesEl.isEmpty()) {
             return;
         }
-        Element modules = modulesEl.get(0);
+        JkDomElement modules = modulesEl.get(0);
         String relativePath = projectDir.relativize(moduleImlFile).toString();
-        modules.addContent(new Element("module")
-                .setAttribute("fileurl", "file://$PROJECT_DIR$/" + relativePath)
-                .setAttribute("filepath", "$PROJECT_DIR$/" + relativePath)
-        );
-        XMLOutputter output = new XMLOutputter();
-        output.setFormat(Format.getPrettyFormat());
-        try (OutputStream os = Files.newOutputStream(modulesXmlPath)) {
-            output.output(doc, os);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        modules.add("module")
+                .attr("fileurl", "file://$PROJECT_DIR$/" + relativePath)
+                .attr("filepath", "$PROJECT_DIR$/" + relativePath);
+        doc.save(modulesXmlPath);
     }
 
     // has .iml file at its direct child so "is" or "can become" a module

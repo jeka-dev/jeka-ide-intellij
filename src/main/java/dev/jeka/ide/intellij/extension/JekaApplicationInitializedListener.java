@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.*;
 import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
 import dev.jeka.ide.intellij.action.ShowJekaClassAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
+import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.MiscHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
@@ -48,8 +49,7 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         }
         String jekaHome = System.getenv("JEKA_HOME");
         if (jekaHome == null) {
-            jekaHome = CmdJekaDoer.INSTANCE.createDistribIfNeeded()
-                    .normalize().toAbsolutePath().toString();
+            //jekaHome = JekaDistributions.getDefault().normalize().toAbsolutePath().toString();
         }
         if (MiscHelper.getPathVariable(JEKA_HOME) == null && jekaHome != null) {
             MiscHelper.setPathVariable(JEKA_HOME, jekaHome);

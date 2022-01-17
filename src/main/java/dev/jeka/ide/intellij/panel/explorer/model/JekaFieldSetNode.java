@@ -15,7 +15,7 @@ import java.util.List;
 public class JekaFieldSetNode implements JekaModelNode {
 
     @Getter
-    private final JekaCommandHolderNode parent;
+    private final JekaBeanNode parent;
 
     @Override
     public NodeInfo getNodeInfo() {
@@ -24,15 +24,8 @@ public class JekaFieldSetNode implements JekaModelNode {
     }
 
     protected List<JekaModelNode> getChildren() {
-        PsiClass containingClass = parent.getContainingClass();
+        PsiClass containingClass = parent.getKbeanPsiClass();
         List<JekaModelNode> result = new LinkedList<>();
-        final String pluginName;
-        if (parent instanceof JekaPluginNode) {
-            JekaPluginNode jekaPlugin = (JekaPluginNode) parent;
-            pluginName = jekaPlugin.getPluginName();
-        } else {
-            pluginName = null;
-        }
         for (PsiField psiField : containingClass.getAllFields()) {
             if (!psiField.hasModifier(JvmModifier.PUBLIC) && !PsiFieldHelper.hasSetter(psiField)) {
                 continue;

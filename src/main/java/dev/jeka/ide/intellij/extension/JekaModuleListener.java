@@ -16,11 +16,7 @@ public class JekaModuleListener implements ModuleListener {
     @SneakyThrows
     @Override
     public void moduleAdded(@NotNull Project project, @NotNull Module module) {
-        JekaRootManager jekaRootManager = project.getService(JekaRootManager.class);
-        if (!jekaRootManager.isInitialised()) {
-            return;
-        }
-        jekaRootManager.addModuleAndNotify(module);
+        notifyChange(project);
     }
 
     @Override
@@ -34,7 +30,6 @@ public class JekaModuleListener implements ModuleListener {
     }
 
     private void notifyChange(Project project) {
-        System.out.println("---------------------------------------- modules change");
         JekaRootManager jekaRootManager = project.getService(JekaRootManager.class);
         if (!jekaRootManager.isInitialised()) {
             return;

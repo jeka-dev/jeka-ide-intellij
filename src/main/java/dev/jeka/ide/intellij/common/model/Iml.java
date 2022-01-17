@@ -1,7 +1,7 @@
 package dev.jeka.ide.intellij.common.model;
 
-import com.github.djeang.vincerdom.VDocument;
-import com.github.djeang.vincerdom.VElement;
+import dev.jeka.core.api.marshalling.JkDomDocument;
+import dev.jeka.core.api.marshalling.JkDomElement;
 import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.MiscHelper;
 import lombok.Value;
@@ -27,16 +27,16 @@ public class Iml {
     }
 
     public static Iml of(InputStream is, Path moduleDir) {
-        VDocument vdoc = VDocument.parse(is);
-        List<VElement> orderEntries = vdoc.root().xpath("component/orderEntry");
+        JkDomDocument vdoc = JkDomDocument.parse(is);
+        List<JkDomElement> orderEntries = vdoc.root().xPath("component/orderEntry");
         List<LibraryOrderEntry> entries = new LinkedList<>();
-        for (VElement el : orderEntries) {
+        for (JkDomElement el : orderEntries) {
             boolean forJeka = el.getW3cElement().hasAttribute("forJeka");
             String type = el.getW3cElement().getAttribute("type");
             if ("module-library".equals(type)) {
-                List<VElement> roots = el.xpath("library/CLASSES/root");
+                List<JkDomElement> roots = el.xPath("library/CLASSES/root");
                 List<String> urls = new LinkedList<>();
-                for (VElement elem : roots) {
+                for (JkDomElement elem : roots) {
                     urls.add(elem.getW3cElement().getAttribute("url"));
                 }
                 entries.add(new LibraryOrderEntry(forJeka, urls, null));
@@ -75,7 +75,6 @@ public class Iml {
             result = result.substring(0, result.length()-2);
         }
         return result;
-
     }
 
 }

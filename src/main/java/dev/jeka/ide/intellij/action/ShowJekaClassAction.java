@@ -95,7 +95,7 @@ public class ShowJekaClassAction extends AnAction {
                         PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                         PsiClass[] psiClasses = psiJavaFile.getClasses();
                         for (PsiClass psiClass: psiClasses) {
-                            if (PsiClassHelper.isExtendingJkClass(psiClass)) {
+                            if (PsiClassHelper.isExtendingJkBean(psiClass)) {
                                 return file;
                             }
                         }

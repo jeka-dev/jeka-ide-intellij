@@ -25,7 +25,7 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
         }
         PsiMethod psiMethod = (PsiMethod) psiParentEl;
         PsiClass psiClass = psiMethod.getContainingClass();
-        if (!PsiClassHelper.isExtendingJkClass(psiClass)) {
+        if (!PsiClassHelper.isExtendingJkBean(psiClass)) {
             return null;
         }
         if (psiMethod.hasParameters() || psiMethod.isConstructor()

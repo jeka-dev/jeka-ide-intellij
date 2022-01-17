@@ -105,10 +105,6 @@ public final class JekaRootManager implements Disposable {
                 .forEach(folder -> folder.getJekaModuleContainer().refresh());
     }
 
-    public void refreshAllModules() {
-        init();
-    }
-
     public void init() {
         ProgressManager progressManager = ProgressManager.getInstance();
         progressManager.run(initTask());
@@ -196,11 +192,10 @@ public final class JekaRootManager implements Disposable {
         }
     }
 
-    Stream<JekaCommandClassNode> allClasses() {
+    Stream<JekaBeanNode> allClasses() {
         return jekaFolderRoot.stream()
                 .flatMap(folder -> folder.moduleStream())
-                .flatMap(jekaModule -> jekaModule.getCommandClasses().stream());
-
+                .flatMap(jekaModule -> jekaModule.getBeanNodes().stream());
     }
 
 
