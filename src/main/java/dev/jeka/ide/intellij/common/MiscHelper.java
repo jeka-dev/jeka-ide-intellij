@@ -21,5 +21,13 @@ public class MiscHelper {
         return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 
+    public static boolean isWindows() {
+        final String osName = System.getProperty("os.name");
+        if (osName == null) {
+            return false;
+        }
+        return osName.startsWith("Windows");
+    }
+
 
 }

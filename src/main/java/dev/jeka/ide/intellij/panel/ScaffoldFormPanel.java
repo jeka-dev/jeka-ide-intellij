@@ -29,7 +29,7 @@ public class ScaffoldFormPanel extends JPanel {
 
     private ComboBox<ScaffoldNature> natureCombeBox;
 
-    public ScaffoldFormPanel(Module[] allModules) {
+    public ScaffoldFormPanel(Module[] allModules, boolean checkGenaratedWrapper) {
         super(gridLayout());
         this.add(new JLabel("Generate structure and Build class"));
         generateStructureCb.setState(true);
@@ -44,9 +44,8 @@ public class ScaffoldFormPanel extends JPanel {
         natureCombeBox.setSelectedItem(ScaffoldNature.PROJECT);
 
         this.add(natureCombeBox);
-        createWrapperFilesCb.setState(true);
+        createWrapperFilesCb.setState(checkGenaratedWrapper);
         this.add(new JLabel("Generate Jeka wrapper files"));
-        createWrapperFilesCb.setState(true);
         createWrapperFilesCb.addItemListener(itemEvent -> update());
         this.add(createWrapperFilesCb);
         delegateLabel.setEnabled(true);
@@ -98,7 +97,7 @@ public class ScaffoldFormPanel extends JPanel {
         return (ScaffoldNature) natureCombeBox.getSelectedItem();
     }
 
-    public void update() {
+    private void update() {
         delegateLabel.setEnabled(isCreatingWrapperFiles());
         delegateCheckBox.setEnabled(isCreatingWrapperFiles());
         moduleComboBox.setEnabled(isCreatingWrapperFiles() && delegateCheckBox.getState());

@@ -30,7 +30,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import dev.jeka.ide.intellij.common.*;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
 /**
@@ -81,6 +83,9 @@ public class SyncImlAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (selectedFile == null) {
+            return;
+        }
         if ("EditorPopup".equals(event.getPlace())) {
             Module module = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
             event.getPresentation().setVisible(module != null && FileHelper.isProjectJekaFile(module, selectedFile));

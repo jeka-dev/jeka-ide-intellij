@@ -31,7 +31,7 @@
     <depends optional="true" config-file="withKotlin.xml">org.jetbrains.kotlin</depends>
     -->
 
-    <idea-version since-build="201"/>
+    <idea-version since-build="213"/>
 
     <extensions defaultExtensionNs="com.intellij">
 

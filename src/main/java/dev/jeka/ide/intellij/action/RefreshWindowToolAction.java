@@ -19,17 +19,9 @@ package dev.jeka.ide.intellij.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import dev.jeka.ide.intellij.common.FileHelper;
-import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.engine.CmdJekaDoer;
-import dev.jeka.ide.intellij.extension.JekaToolWindowFactory;
 import dev.jeka.ide.intellij.panel.explorer.JekaExplorerPanel;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
 
@@ -42,7 +34,7 @@ public class RefreshWindowToolAction extends AnAction {
     public static final RefreshWindowToolAction INSTANCE = new RefreshWindowToolAction();
 
     private RefreshWindowToolAction() {
-        super("Refresh view", "Synchronize all iml files in aka modules", AllIcons.Actions.SyncPanels);
+        super("Refresh view", "Refresh view", AllIcons.Actions.SwapPanels);
     }
 
     @Override

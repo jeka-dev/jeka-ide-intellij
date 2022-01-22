@@ -19,7 +19,7 @@ public class JekaFieldNode implements JekaModelNode {
 
     @Override
     public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, AllIcons.Nodes.C_plocal,
+        return NodeInfo.simple(this, AllIcons.Nodes.Parameter,
                 this::getName, this::getParent, () -> Collections.emptyList());
     }
 

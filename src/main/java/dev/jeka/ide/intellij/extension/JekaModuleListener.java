@@ -20,7 +20,9 @@ public class JekaModuleListener implements ModuleListener {
     }
 
     @Override
-    public void modulesRenamed(@NotNull Project project, @NotNull List<Module> modules, @NotNull Function<Module, String> oldNameProvider) {
+    public void modulesRenamed(@NotNull Project project,
+                               @NotNull List modules,
+                               @NotNull Function oldNameProvider) {
         notifyChange(project);
     }
 

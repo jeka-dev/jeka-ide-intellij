@@ -7,9 +7,11 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.JekaWrapperInfo;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.engine.ScaffoldNature;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
+import dev.jeka.ide.intellij.engine.ScaffoldNature;
 import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,23 +29,21 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Module exisitingModule;
 
-    public ScaffoldDialogWrapper(Project project) {
+    public ScaffoldDialogWrapper(Project project, VirtualFile moduleDir, Module existingModule) {
         super(project, true);
         this.project = project;
-        init();
-        setTitle("Create Jeka files");
-    }
-
-    public void setModuleDir(VirtualFile moduleDir, Module existingModule) {
         this.moduleDir = moduleDir;
         this.exisitingModule = existingModule;
+        init();
         this.formPanel.updateModules(project, existingModule);
+        setTitle("Create Jeka files");
     }
 
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        formPanel = new ScaffoldFormPanel(ModuleManager.getInstance(project).getModules());
+        boolean hasWrapperFiles = JekaWrapperInfo.hasWrapperShellFiles(moduleDir.toNioPath());
+        formPanel = new ScaffoldFormPanel(ModuleManager.getInstance(project).getModules(), !hasWrapperFiles);
         return formPanel;
     }
 

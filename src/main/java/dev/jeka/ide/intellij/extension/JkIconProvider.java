@@ -1,10 +1,13 @@
 package dev.jeka.ide.intellij.extension;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.IconProvider;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import dev.jeka.ide.intellij.common.JekaIcons;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
+import icons.JekaIcons;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +24,14 @@ public class JkIconProvider extends IconProvider {
             if (psiDirectory.getName().equals("jeka")) {
                 VirtualFile dir = psiDirectory.getVirtualFile();
                 if (ModuleHelper.isExistingModuleRoot(element.getProject(), dir.getParent())) {
-                    return JekaIcons.JEKA_GREYLIGHT_NAKED;
+                    return AllIcons.Nodes.ConfigFolder;
                 }
+            }
+        }
+        if (element instanceof PsiClass) {
+            PsiClass psiClass = (PsiClass) element;
+            if (PsiClassHelper.isExtendingJkBean(psiClass)) {
+                return JekaIcons.KBEAN;
             }
         }
         return null;

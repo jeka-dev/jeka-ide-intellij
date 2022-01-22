@@ -1,7 +1,6 @@
 package dev.jeka.ide.intellij.common;
 
 import com.intellij.lang.jvm.JvmModifier;
-import com.intellij.lang.jvm.JvmParameter;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;

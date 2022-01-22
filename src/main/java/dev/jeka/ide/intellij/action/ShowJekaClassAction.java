@@ -11,7 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.PsiNavigateUtil;
-import dev.jeka.ide.intellij.common.JekaIcons;
+import icons.JekaIcons;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public class ShowJekaClassAction extends AnAction {
     public static final ShowJekaClassAction INSTANCE = new ShowJekaClassAction();
 
     private ShowJekaClassAction() {
-        super("Goto Jeka CommandSet Source", "Goto Jeka CommandSet Source", JekaIcons.JEKA_RUN);
+        super("Goto Jeka CommandSet Source", "Goto Jeka CommandSet Source", JekaIcons.KBEAN);
     }
 
     @Override
@@ -47,6 +47,9 @@ public class ShowJekaClassAction extends AnAction {
     public void update(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (selectedFile == null) {
+            return;
+        }
         if (!selectedFile.isDirectory() && (!selectedFile.getName().equals("jeka")
                 && !SyncImlAction.isJekaModuleDir(selectedFile))) {
             event.getPresentation().setVisible(false);

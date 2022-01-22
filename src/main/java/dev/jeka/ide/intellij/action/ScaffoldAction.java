@@ -40,13 +40,9 @@ public class ScaffoldAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         VirtualFile selectedDir = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (selectedDir == null) {
-            return;
-        }
         Project project = event.getProject();
         Module module = ModuleHelper.getModuleHavingRootDir(project, selectedDir);
-        ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(project);
-        dialogWrapper.setModuleDir(selectedDir, module);
+        ScaffoldDialogWrapper dialogWrapper = new ScaffoldDialogWrapper(project, selectedDir, module);
         dialogWrapper.show();
     }
 

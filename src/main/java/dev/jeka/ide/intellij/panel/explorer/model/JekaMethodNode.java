@@ -1,7 +1,8 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiMethod;
-import dev.jeka.ide.intellij.common.JekaIcons;
+import icons.JekaIcons;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,7 +21,7 @@ public class JekaMethodNode implements JekaModelNode {
 
     @Override
     public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, JekaIcons.JEKA_RUN,
+        return NodeInfo.simple(this, JekaIcons.COMMAND,
                 this::getName, this::getHolder, () -> Collections.emptyList());
     }
 

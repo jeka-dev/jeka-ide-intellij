@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
+import icons.JekaIcons;
 import lombok.Getter;
 
 import java.util.*;
@@ -31,15 +32,18 @@ public class JekaBeanNode implements JekaModelNode {
 
     @Override
     public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, AllIcons.Nodes.Class,
+        return NodeInfo.simple(this, JekaIcons.KBEAN,
                 kbeanPsiClass::getName, this::getParent, this::getChildren);
     }
 
     public Module getModule() {
-        JekaFolderNode jekaFolder = (JekaFolderNode) this.getParent();
+        JekaModelNode parent = this.getParent();
+        while (!(parent instanceof JekaFolderNode)) {
+            parent = parent.getNodeInfo().getParent();
+        }
+        JekaFolderNode jekaFolder = (JekaFolderNode) parent;
         return jekaFolder.getModule();
     }
-
 
     private List<JekaModelNode> getChildren() {
         List<JekaModelNode> result = children();
@@ -56,7 +60,10 @@ public class JekaBeanNode implements JekaModelNode {
         }
         List<JekaModelNode> result = new LinkedList<>();
         result.addAll(kbeans());
-        result.add(new JekaFieldSetNode(this));
+        JekaFieldSetNode jekaFieldSetNode = new JekaFieldSetNode(this);
+        if (!jekaFieldSetNode.getChildren().isEmpty()) {
+            result.add(new JekaFieldSetNode(this));
+        }
         Set<String> methodNames = new HashSet<>();
         for (PsiMethod method : methods) {
             if (PsiMethodHelper.isInstancePublicVoidNoArgsNotFromObject(method)) {
@@ -75,13 +82,16 @@ public class JekaBeanNode implements JekaModelNode {
         PsiField[] psiFields = kbeanPsiClass.getAllFields();
         List<JekaBeanNode> result = new LinkedList<>();
         for (PsiField psiField : psiFields) {
+            if (psiField.getModifierList().hasExplicitModifier("private")) {
+                continue;
+            }
             PsiType psiType = psiField.getType();
             if (psiType instanceof PsiClassType) {
                 PsiClassType classType = (PsiClassType) psiType;
                 PsiClass psiClass = classType.resolve();
                 if (PsiClassHelper.isExtendingJkBean(psiClass)) {
-                    JekaBeanNode plugin = new JekaBeanNode(this, psiClass);
-                    result.add(plugin);
+                    JekaBeanNode kbean = new JekaBeanNode(this, psiClass);
+                    result.add(kbean);
                 }
             }
         }

@@ -19,8 +19,8 @@ public class JekaFieldSetNode implements JekaModelNode {
 
     @Override
     public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, AllIcons.Nodes.ConfigFolder,
-                () -> "Options", this::getParent, this::getChildren);
+        return NodeInfo.simple(this, AllIcons.Nodes.ClassInitializer,
+                () -> "Properties", this::getParent, this::getChildren);
     }
 
     protected List<JekaModelNode> getChildren() {

@@ -13,8 +13,6 @@ import dev.jeka.core.api.marshalling.JkDomDocument;
 import dev.jeka.core.api.marshalling.JkDomElement;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;

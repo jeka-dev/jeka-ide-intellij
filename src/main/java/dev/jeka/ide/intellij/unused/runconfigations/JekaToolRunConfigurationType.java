@@ -2,7 +2,7 @@ package dev.jeka.ide.intellij.unused.runconfigations;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
-import dev.jeka.ide.intellij.common.JekaIcons;
+import icons.JekaIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

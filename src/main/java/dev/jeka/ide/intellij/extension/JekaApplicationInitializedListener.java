@@ -2,17 +2,16 @@ package dev.jeka.ide.intellij.extension;
 
 import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.actionSystem.*;
+import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
 import dev.jeka.ide.intellij.action.ShowJekaClassAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.MiscHelper;
-import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
 import java.io.File;
 
-import static dev.jeka.ide.intellij.common.Constants.JEKA_HOME;
-import static dev.jeka.ide.intellij.common.Constants.JEKA_USER_HOME;
+import static dev.jeka.ide.intellij.common.Constants.*;
 
 public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
 
@@ -44,24 +43,17 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
 
         // Add classpath variable
         if (MiscHelper.getPathVariable(JEKA_USER_HOME) == null) {
-            String value = getJekaUserHomeDir();
+            String value = JkLocator.getJekaUserHomeDir().toString();
             MiscHelper.setPathVariable(JEKA_USER_HOME, value);
         }
-        String jekaHome = System.getenv("JEKA_HOME");
-        if (jekaHome == null) {
-            //jekaHome = JekaDistributions.getDefault().normalize().toAbsolutePath().toString();
+        if (MiscHelper.getPathVariable(JEKA_HOME) == null) {
+            MiscHelper.setPathVariable(JEKA_HOME, JekaDistributions.getDefault()
+                    .normalize().toAbsolutePath().toString());
         }
-        if (MiscHelper.getPathVariable(JEKA_HOME) == null && jekaHome != null) {
-            MiscHelper.setPathVariable(JEKA_HOME, jekaHome);
+        if (MiscHelper.getPathVariable(JEKA_CACHE_DIR) == null) {
+            MiscHelper.setPathVariable(JEKA_CACHE_DIR, JkLocator.getCacheDir().toString());
         }
 
     }
 
-    private static String getJekaUserHomeDir() {
-        final String env = System.getenv(JK_USER_HOME_ENV_NAME);
-        if (env != null && env.trim().length() > 0) {
-            return env;
-        }
-        return System.getProperty("user.home") + File.separator + ".jeka";
-    }
 }

@@ -28,7 +28,7 @@ public class WizardMainPanel extends JPanel {
         }
         namePanel = new NamePanel(parentPath);
         wrapper1.add(namePanel);
-        scaffoldFormPanel = new ScaffoldFormPanel(modules);
+        scaffoldFormPanel = new ScaffoldFormPanel(modules, true);
         wrapper1.add(scaffoldFormPanel);
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();

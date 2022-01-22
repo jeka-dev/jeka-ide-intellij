@@ -1,42 +1,17 @@
 package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.JdkUtils;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.search.SearchScope;
-import com.intellij.psi.search.searches.AllClassesSearch;
-import com.intellij.util.lang.UrlClassLoader;
-/*
-import dev.jeka.core.api.utils.JkUtilsReflect;
-import dev.jeka.ide.intellij.common.FileHelper;
-import dev.jeka.ide.intellij.common.MiscHelper;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.PsiClassHelper;
-
-import dev.jeka.core.api.utils.JkUtilsReflect;
-import dev.jeka.ide.intellij.common.FileHelper;
-import dev.jeka.ide.intellij.common.MiscHelper;
-import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.PsiClassHelper;
- */
-
-import dev.jeka.ide.intellij.common.FileHelper;
-import dev.jeka.ide.intellij.common.MiscHelper;
-import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.PsiClassHelper;
 import lombok.SneakyThrows;
 import lombok.Value;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 class JkClassHelper {
 

@@ -4,6 +4,8 @@ public class Constants {
 
     public static final String JEKA_USER_HOME = "JEKA_USER_HOME";
 
+    public static final String JEKA_CACHE_DIR = "JEKA_CACHE_DIR";
+
     public static final String JEKA_HOME = "JEKA_HOME";
 
     public static final String JEKA_DIR_NAME = "jeka";

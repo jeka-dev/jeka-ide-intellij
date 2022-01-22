@@ -1,10 +1,9 @@
 package dev.jeka.ide.intellij.unused.newmodule;
 
-import com.intellij.ide.projectWizard.NewProjectWizard;
 import com.intellij.ide.util.projectWizard.*;
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
-import dev.jeka.ide.intellij.common.JekaIcons;
+import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,18 +23,23 @@ public class JekaModuleBuilder extends EmptyModuleBuilder {
     @Nullable
     @Override
     public ModuleWizardStep modifySettingsStep(@NotNull SettingsStep settingsStep) {
-        int stepIndex = settingsStep.getContext().getWizard().getCurrentStep();
+       /* int stepIndex = settingsStep.getContext().getWizard().getCurrentStep();
         System.out.println("** ----------------------------------" + stepIndex);
         System.out.println("** ++++++++++" + settingsStep.getContext().getWizard().getStepCount());
+        */
+
         return super.modifySettingsStep(settingsStep);
     }
 
     @Nullable
     @Override
     public ModuleWizardStep modifyProjectTypeStep(@NotNull SettingsStep settingsStep) {
+        /*
         NewProjectWizard wizard = (NewProjectWizard) settingsStep.getContext().getWizard();
         System.out.println("AA ----------------------------------" + wizard.getSequence());
         System.out.println("AA ++++++++++" + settingsStep.getContext().getWizard().getStepCount());
+
+         */
         return super.modifyProjectTypeStep(settingsStep);
     }
 
