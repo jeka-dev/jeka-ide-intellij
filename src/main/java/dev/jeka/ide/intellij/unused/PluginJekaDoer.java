@@ -18,8 +18,7 @@ package dev.jeka.ide.intellij.unused;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.Constants;
-import dev.jeka.ide.intellij.common.MiscHelper;
+import dev.jeka.ide.intellij.common.JekaDistributions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,7 +27,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,7 +99,7 @@ public class PluginJekaDoer {
     }
 
     private Class getJekaMainClass() {
-        Path jar = Paths.get(MiscHelper.getPathVariable(Constants.JEKA_HOME)).resolve("dev.jeka.jeka-core.jar");
+        Path jar = JekaDistributions.getDefault().resolve("dev.jeka.jeka-core.jar");
         if (!Files.exists(jar)) {
             throw new IllegalStateException("Cannot  find " + jar);
         }

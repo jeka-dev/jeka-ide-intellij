@@ -1,24 +1,18 @@
 package dev.jeka.ide.intellij.extension;
 
-import com.intellij.ide.ApplicationInitializedListener;
+import com.intellij.ide.AppLifecycleListener;
 import com.intellij.openapi.actionSystem.*;
-import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
 import dev.jeka.ide.intellij.action.ShowJekaClassAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
-import dev.jeka.ide.intellij.common.JekaDistributions;
-import dev.jeka.ide.intellij.common.MiscHelper;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import java.util.List;
 
-import static dev.jeka.ide.intellij.common.Constants.*;
-
-public class JekaApplicationInitializedListener implements ApplicationInitializedListener {
-
-    private final static String JK_USER_HOME_ENV_NAME = "JEKA_USER_HOME";
+public class JekaApplicationInitializedListener implements AppLifecycleListener {
 
     @Override
-    public void componentsInitialized() {
+    public void  appFrameCreated(@NotNull List<String> commandLineArgs) {
 
         // Instantiate jeka group action
         DefaultActionGroup jekaGroup = new ProjectPopupJekaActionGroup();
@@ -41,19 +35,8 @@ public class JekaApplicationInitializedListener implements ApplicationInitialize
         Constraints actionLocation = new Constraints(Anchor.FIRST, null);
         popupGroup.addAction(SyncImlAction.INSTANCE, actionLocation);
 
-        // Add classpath variable
-        if (MiscHelper.getPathVariable(JEKA_USER_HOME) == null) {
-            String value = JkLocator.getJekaUserHomeDir().toString();
-            MiscHelper.setPathVariable(JEKA_USER_HOME, value);
-        }
-        if (MiscHelper.getPathVariable(JEKA_HOME) == null) {
-            MiscHelper.setPathVariable(JEKA_HOME, JekaDistributions.getDefault()
-                    .normalize().toAbsolutePath().toString());
-        }
-        if (MiscHelper.getPathVariable(JEKA_CACHE_DIR) == null) {
-            MiscHelper.setPathVariable(JEKA_CACHE_DIR, JkLocator.getCacheDir().toString());
-        }
-
     }
+
+
 
 }

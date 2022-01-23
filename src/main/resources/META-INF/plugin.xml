@@ -37,7 +37,11 @@
 
         <iconProvider implementation="dev.jeka.ide.intellij.extension.JkIconProvider" order="first"/>
 
+        <pathMacroContributor implementation="dev.jeka.ide.intellij.extension.JekaPathMacroContributor"/>
+
+        <!--
         <applicationInitializedListener implementation="dev.jeka.ide.intellij.extension.JekaApplicationInitializedListener"/>
+        -->
 
         <runLineMarkerContributor language="JAVA"
                                   id="jeka"
@@ -64,6 +68,11 @@
 
        -->
     </extensions>
+
+    <applicationListeners>
+        <listener class="dev.jeka.ide.intellij.extension.JekaApplicationInitializedListener"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
     
     <projectListeners>
         <listener class="dev.jeka.ide.intellij.extension.JekaToolWindowManagerListener"

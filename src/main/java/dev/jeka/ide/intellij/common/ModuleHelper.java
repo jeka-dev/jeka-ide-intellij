@@ -9,6 +9,8 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.workspaceModel.ide.VirtualFileUrlManagerUtil;
 import dev.jeka.core.api.marshalling.JkDomDocument;
 import dev.jeka.core.api.marshalling.JkDomElement;
 
@@ -31,29 +33,14 @@ public class ModuleHelper {
     }
 
     public static VirtualFile getModuleDir(Module module) {
-        VirtualFile imlFile = module.getModuleFile();
-        if (imlFile == null) {
-            return null;
-        }
-        VirtualFile candidate = imlFile.getParent();
-        if (candidate.getName().equals(".idea")) {
-            return candidate.getParent();
-        }
-        return candidate;
+        Path path = getModuleDirPath(module);
+        return VirtualFileManager.getInstance().findFileByNioPath(path);
     }
 
-    // Sometime, when modules are newly created, module#getModuleFile returns null while module#getModuleFilePath not.
+    // Sometime, when modules are newly created, module#getModuleFile returns null
+    // while module#getModuleFilePath not.
     public static Path getModuleDirPath(Module module) {
-        String imlFile = module.getModuleFilePath();
-        if (imlFile == null) {
-            return null;
-        }
-        Path imlFilePath = Paths.get(imlFile);
-        Path candidate = imlFilePath.getParent();
-        if (candidate.getFileName().equals(".idea")) {
-            return candidate.getParent();
-        }
-        return candidate;
+        return Paths.get(ModuleUtil.getModuleDirPath(module));
     }
 
     public static void addModule(Path projectDir, Path modulesXmlPath, Path moduleImlFile) {
@@ -100,44 +87,6 @@ public class ModuleHelper {
         for (VirtualFile root : roots) {
             if (root.equals(directory) && directory.getName().equals(module.getName())) {
                 return module;
-            }
-        }
-        return null;
-    }
-
-    public static String getJekaRedirectModule(VirtualFile moduleRoot) {
-        Path root = Paths.get(moduleRoot.getPath()).normalize();
-        Path jekawBat = root.resolve("jekaw.bat");
-        Path jekaw = root.resolve("jekaw");
-        if (Files.exists(jekawBat)) {
-            String result = extract(jekawBat, "%*");
-            if (result != null) {
-                return result;
-            }
-        }
-        if (Files.exists(jekaw)) {
-            return extract(jekaw, "$@");
-        }
-        return null;
-    }
-
-    private static String extract(Path jekawFile, String joker) {
-        List<String> lines;
-        try {
-            lines = Files.readAllLines(jekawFile, Charset.forName("utf-8")).stream()
-                    .filter(line -> !line.trim().isEmpty())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (lines.size() > 10) {
-            return null;  // Not a wrapper
-        }
-        for (String line : lines) {
-            String[] items = line.trim().split(" ");
-            if (items.length > 1 && items[1].trim().equals(joker)) {
-                String command = items[0].trim().replace('\\', '/');
-                return Paths.get(command).getParent().getFileName().toString();
             }
         }
         return null;

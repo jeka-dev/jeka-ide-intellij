@@ -35,6 +35,7 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.ide.intellij.common.*;
 import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
@@ -237,7 +238,7 @@ public class CmdJekaDoer {
     }
 
     private String jekaCmd(Path moduleDir, boolean forceJeka) {
-        if (MiscHelper.isWindows()) {
+        if (JkUtilsSystem.IS_WINDOWS) {
             if (forceJeka) {
                 return jekaScriptPath(true);
             }

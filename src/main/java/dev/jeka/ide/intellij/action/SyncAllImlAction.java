@@ -48,11 +48,6 @@ public class SyncAllImlAction extends AnAction {
         CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         for (int i = modules.length-1; i >=0; i--) {
             Module module = modules[i];
-
-            // module.getModuleFile().getParent() can be null if module has been deleted previously
-            if (module == null || module.getModuleFile() == null || module.getModuleFile().getParent() == null) {
-                continue;
-            }
             VirtualFile moduleDir = ModuleHelper.getModuleDir(module);
             if (!FileHelper.containsJekaDir(moduleDir)) {
                 continue;

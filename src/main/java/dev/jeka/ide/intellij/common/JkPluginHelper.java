@@ -2,6 +2,7 @@ package dev.jeka.ide.intellij.common;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.impl.ModuleImpl;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -24,7 +25,8 @@ public class JkPluginHelper {
                                                         Map<String, Collection<PsiClass>> context) {
         Iml iml;
         Path moduleDir = Paths.get(ModuleHelper.getModuleDir(module).getPath());
-        try (InputStream is = module.getModuleFile().getInputStream()) {
+        ModuleImpl moduleImpl = (ModuleImpl) module;  // avoid call internal api Module#getModuleFile()
+        try (InputStream is = moduleImpl.getModuleFile().getInputStream()) {
             iml = Iml.of(is, moduleDir);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

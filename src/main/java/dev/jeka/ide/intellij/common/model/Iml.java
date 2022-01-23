@@ -2,8 +2,9 @@ package dev.jeka.ide.intellij.common.model;
 
 import dev.jeka.core.api.marshalling.JkDomDocument;
 import dev.jeka.core.api.marshalling.JkDomElement;
+import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.ide.intellij.common.Constants;
-import dev.jeka.ide.intellij.common.MiscHelper;
+import dev.jeka.ide.intellij.common.JekaDistributions;
 import lombok.Value;
 
 import java.io.InputStream;
@@ -67,8 +68,9 @@ public class Iml {
 
     private String resolve(String url) {
         String result = url
-                .replace("$" + Constants.JEKA_USER_HOME + "$", MiscHelper.getPathVariable(Constants.JEKA_USER_HOME))
-                .replace("$" + Constants.JEKA_HOME + "$", MiscHelper.getPathVariable(Constants.JEKA_HOME))
+                .replace("$" + Constants.JEKA_CACHE_DIR + "$", JkLocator.getCacheDir().toString())
+                .replace("$" + Constants.JEKA_USER_HOME + "$", JkLocator.getJekaUserHomeDir().toString())
+                .replace("$" + Constants.JEKA_HOME + "$", JekaDistributions.getDefault().toString())
                 .replace("$MODULE_DIR$", moduleDir.toString());
         if (result.startsWith("jar:")) {
             result = result.replace("jar:", "file:");

@@ -1,8 +1,8 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
+import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import icons.JekaIcons;
@@ -33,7 +33,7 @@ public class JekaBeanNode implements JekaModelNode {
     @Override
     public NodeInfo getNodeInfo() {
         return NodeInfo.simple(this, JekaIcons.KBEAN,
-                kbeanPsiClass::getName, this::getParent, this::getChildren);
+                () -> JkExternalToolApi.getBeanName(kbeanPsiClass.getName()), this::getParent, this::getChildren);
     }
 
     public Module getModule() {
