@@ -39,9 +39,14 @@
 
         <pathMacroContributor implementation="dev.jeka.ide.intellij.extension.JekaPathMacroContributor"/>
 
-        <!--
-        <applicationInitializedListener implementation="dev.jeka.ide.intellij.extension.JekaApplicationInitializedListener"/>
-        -->
+        <applicationService
+                serviceImplementation="dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable$State"/>
+
+        <applicationConfigurable
+            parentId="build.tools"
+            instance="dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable"
+            id="dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable"
+            displayName="Jeka"/>
 
         <runLineMarkerContributor language="JAVA"
                                   id="jeka"
@@ -81,9 +86,5 @@
                   topic="com.intellij.openapi.project.ModuleListener"/>
     </projectListeners>
     
-
-
-
-
 
 </idea-plugin>

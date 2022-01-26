@@ -73,7 +73,10 @@ public class JekaRunMethodAction extends AnAction {
         CompileStepBeforeRunNoErrorCheck check = new CompileStepBeforeRunNoErrorCheck(project);
         CompileStepBeforeRunNoErrorCheck.MakeBeforeRunTaskNoErrorCheck task =
                 check.createTask(runnerAndConfigurationSettings.getConfiguration());
+
+        // TODO performance can be improved by removing the build pre-task and removing /.idea/test from classpath
         runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.singletonList(task));
+        //runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.emptyList());
 
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();

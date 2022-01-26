@@ -20,28 +20,6 @@ import java.util.zip.ZipInputStream;
 
 public class FileHelper {
 
-    public static void unzip(final InputStream zipSource, final Path targetFolder) {
-        try (ZipInputStream zipInputStream = new ZipInputStream(zipSource)) {
-            ZipEntry entry;
-            while ((entry = zipInputStream.getNextEntry()) != null) {
-                String entryName = entry.getName();
-                if (entryName.startsWith("/")) {
-                    entryName = entryName.substring(1);
-                }
-                final Path toPath = targetFolder.resolve(entryName);
-                if (entry.isDirectory()) {
-                    if (!Files.exists(toPath)) {
-                        Files.createDirectory(toPath);
-                    }
-                } else {
-                    Files.copy(zipInputStream, toPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public static void deleteDir(Path dir) {
         if (!Files.exists(dir)) {
             return;
@@ -80,11 +58,6 @@ public class FileHelper {
             return false;
         }
         return virtualFile.getPath().startsWith(jekaDir.getPath());
-    }
-
-    @SneakyThrows
-    public static URL toUrl(VirtualFile file) {
-        return Paths.get(file.getPresentableUrl()).toUri().toURL();
     }
 
     public static String toUnixPath(String path) {

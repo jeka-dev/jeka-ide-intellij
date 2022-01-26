@@ -10,6 +10,7 @@ import dev.jeka.core.wrapper.Booter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +27,27 @@ public class JekaDistributions {
         return result;
     }
 
+    public static Path getDistributionsDir() {
+        return JkLocator.getCacheDir().resolve("distributions");
+    }
+
+    public static List<String> searchVersionsSortedByDesc() {
+        JkDependencyResolver resolver = JkDependencyResolver.of().addRepos(JkRepo.ofMavenCentral());
+        List<String> allVersions = resolver.searchVersions(JkModuleId.of("dev.jeka", "jeka-core"));
+        return allVersions.stream()
+                .map(JkVersion::of)
+                .filter(version -> version.isGreaterThan(LOWEST_VERSION) || version.equals(LOWEST_VERSION))
+                .sorted(Comparator.reverseOrder())
+                .map(JkVersion::toString)
+                .collect(Collectors.toList());
+    }
+
+    public static Path install(String version) {
+        return Booter.install(version);
+    }
+
     private static Path getLatestInstalled() {
-        Path wrapperCacheDir = JkLocator.getCacheDir().resolve("wrapper");
+        Path wrapperCacheDir = getDistributionsDir();
         if (!Files.exists(wrapperCacheDir)) {
             return null;
         }
@@ -41,10 +61,10 @@ public class JekaDistributions {
         return distribRoots.get(distribRoots.size() -1);
     }
 
+
+
     private static String getLatestPublishedVersion() {
-        List<String> versions = JkDependencyResolver.of().addRepos(JkRepo.ofMavenCentral())
-                .searchVersions(JkModuleId.of("dev.jeka", "jeka-core"));
-        return versions.get(versions.size() -1);
+        return searchVersionsSortedByDesc().get(0);
     }
 
 }

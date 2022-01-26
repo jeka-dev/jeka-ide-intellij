@@ -40,7 +40,11 @@ public class ModuleHelper {
     // Sometime, when modules are newly created, module#getModuleFile returns null
     // while module#getModuleFilePath not.
     public static Path getModuleDirPath(Module module) {
-        return Paths.get(ModuleUtil.getModuleDirPath(module));
+        Path candidate = Paths.get(ModuleUtil.getModuleDirPath(module));
+        if (candidate.getFileName().toString().equals(".idea")) {
+            return candidate.getParent();
+        }
+        return candidate;
     }
 
     public static void addModule(Path projectDir, Path modulesXmlPath, Path moduleImlFile) {

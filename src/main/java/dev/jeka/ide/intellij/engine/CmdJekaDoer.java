@@ -35,8 +35,10 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.ide.intellij.common.*;
+import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,8 +63,6 @@ public class CmdJekaDoer {
     private Map<Project, ConsoleView> viewMap = new HashMap<>();
 
     private Map<Project, ToolWindow> toolWindowMap = new HashMap<>();
-
-    private String jekaScriptPath;
 
     public void generateIml(Project project, VirtualFile moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
@@ -103,7 +103,7 @@ public class CmdJekaDoer {
             if (nature != ScaffoldNature.SIMPLE) {
                 structureCmd.addParameters(natureParam(nature));
             }
-            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb");
+            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb", "-wc", "-kb=scaffold");
             doCreateStructure = () -> start(structureCmd, project, true, afterScaffold, null);
         }
         if (createWrapper) {
@@ -189,7 +189,7 @@ public class CmdJekaDoer {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
                     if (event.getExitCode() != 0 && onFailure != null) {
-                        getView(project).print("\nSync has failed !!! Let's try to sync with standard class JkClass\n",
+                        getView(project).print("\nSync has failed.\n",
                                 ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {
@@ -199,10 +199,8 @@ public class CmdJekaDoer {
 
             });
         } catch (ExecutionException e) {
-            this.jekaScriptPath = null;
             throw new RuntimeException(e);
         } catch (RuntimeException e) {
-            this.jekaScriptPath = null;
             throw e;
         }
         attachView(project, handler, clear);
@@ -253,12 +251,15 @@ public class CmdJekaDoer {
     }
 
     private String jekaScriptPath(boolean isWindows) {
-        if (jekaScriptPath != null) {
-            return jekaScriptPath;
+        String scriptName = isWindows ? "jeka.bat" : "jeka";
+        String settingDistrib = JekaApplicationSettingsConfigurable.State.getInstance().distributionDirPath;
+        final Path distributionPath;
+        if (JkUtilsString.isBlank(settingDistrib)) {
+            distributionPath = JekaDistributions.getDefault();
+        } else {
+            distributionPath = Paths.get(settingDistrib);
         }
-        String scriptName = isWindows ? "jeka.bat" : "jeka";;
-        jekaScriptPath = JekaDistributions.getDefault().resolve(scriptName).toAbsolutePath().toString();
-        return jekaScriptPath;
+        return distributionPath.resolve(scriptName).toAbsolutePath().toString();
     }
 
     private static void setJekaJDKEnv(GeneralCommandLine cmd, Project project, Module module) {

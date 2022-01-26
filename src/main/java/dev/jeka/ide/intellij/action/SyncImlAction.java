@@ -53,8 +53,8 @@ public class SyncImlAction extends AnAction {
         if (selectedFile.getName().equals("jeka")) {
             selectedFile = selectedFile.getParent();
         }
-        PsiClass commandClass = getPsiJkBeanClass(event);
-        String className = commandClass == null ? null : commandClass.getQualifiedName();
+        PsiClass beanClass = getPsiJkBeanClass(event);
+        String className = beanClass == null ? null : beanClass.getQualifiedName();
         if (className != null) {
             VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
             Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
@@ -62,12 +62,15 @@ public class SyncImlAction extends AnAction {
         }
         final Module existingModule;
         final VirtualFile moduleDir;
-        if (commandClass != null) {
+        if (beanClass != null) {
             existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
             moduleDir = ModuleHelper.getModuleDir(existingModule);
         } else if (isWrapperProperties(selectedFile)) {
             moduleDir = selectedFile.getParent().getParent().getParent();
             existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
+        } else if ("EditorPopup".equals(event.getPlace())) {
+            existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
+            moduleDir = ModuleHelper.getModuleDir(existingModule);
         } else {
             moduleDir = selectedFile;
             existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);

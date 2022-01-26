@@ -23,7 +23,7 @@ public class JekaApplicationInitializedListener implements AppLifecycleListener 
 
         // Add Jeka group to Project context popup menu
         DefaultActionGroup projectPopupGroup = (DefaultActionGroup) actionManager.getAction("ProjectViewPopupMenu");
-        Constraints menuLocation = new Constraints(Anchor.BEFORE, "Maven.GlobalProjectMenu");
+        Constraints menuLocation = new Constraints(Anchor.LAST, null);
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
         Constraints firstLocation = new Constraints(Anchor.FIRST, null);
