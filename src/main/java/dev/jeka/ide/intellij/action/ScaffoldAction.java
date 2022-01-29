@@ -16,7 +16,7 @@
 
 package dev.jeka.ide.intellij.action;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -31,10 +31,10 @@ import dev.jeka.ide.intellij.dialog.ScaffoldDialogWrapper;
  */
 public class ScaffoldAction extends AnAction {
 
-    public static final ScaffoldAction INSTANCE = new ScaffoldAction();
+    public static final String ID = "JEKA_SCAFFOLD";
 
-    private ScaffoldAction() {
-        super("Generate Jeka files and folders ...", "Generate Jeka files and folders", AllIcons.Actions.Expandall);
+    public static AnAction get() {
+        return ActionManager.getInstance().getAction(ID);
     }
 
     @Override

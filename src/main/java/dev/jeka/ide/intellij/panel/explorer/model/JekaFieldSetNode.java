@@ -1,17 +1,10 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.lang.jvm.JvmModifier;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiType;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
-import dev.jeka.ide.intellij.common.PsiFieldHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 @RequiredArgsConstructor

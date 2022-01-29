@@ -10,17 +10,12 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.workspaceModel.ide.VirtualFileUrlManagerUtil;
 import dev.jeka.core.api.marshalling.JkDomDocument;
 import dev.jeka.core.api.marshalling.JkDomElement;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ModuleHelper {
 

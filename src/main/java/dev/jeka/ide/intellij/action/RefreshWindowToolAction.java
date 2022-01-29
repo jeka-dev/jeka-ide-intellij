@@ -21,8 +21,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import dev.jeka.ide.intellij.panel.explorer.JekaExplorerPanel;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
 
 

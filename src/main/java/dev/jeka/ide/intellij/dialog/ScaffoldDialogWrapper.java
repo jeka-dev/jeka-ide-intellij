@@ -7,7 +7,6 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.JekaWrapperInfo;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;

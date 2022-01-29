@@ -4,8 +4,8 @@ import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.psi.*;
 import dev.jeka.ide.intellij.action.JekaRunMethodAction;
-import icons.JekaIcons;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
+import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,4 +43,5 @@ public class JekaRunLineMarkerContributor extends RunLineMarkerContributor {
     protected boolean isIdentifier(PsiElement e) {
         return e instanceof PsiIdentifier;
     }
+
 }

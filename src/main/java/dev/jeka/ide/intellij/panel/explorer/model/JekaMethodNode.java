@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiMethod;
 import icons.JekaIcons;
 import lombok.AllArgsConstructor;

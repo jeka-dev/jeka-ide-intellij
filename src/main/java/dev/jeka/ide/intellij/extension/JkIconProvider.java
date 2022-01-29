@@ -6,9 +6,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import icons.JekaIcons;
-import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

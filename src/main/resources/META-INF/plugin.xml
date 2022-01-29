@@ -33,6 +33,31 @@
 
     <idea-version since-build="213"/>
 
+    <actions>
+        <action
+                id="JEKA_SYNC_IML"
+                text="Jeka Synchronize iml File"
+                icon="AllIcons.Actions.Refresh"
+                class="dev.jeka.ide.intellij.action.SyncImlAction">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
+        <action
+                text="Go to KBean source"
+                icon="JekaIcons.KBEAN"
+                class="dev.jeka.ide.intellij.action.GotoJkBeanAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
+        <action
+                id="JEKA_SCAFFOLD"
+                text="Scaffold ..."
+                icon="JekaIcons.JEKA_GROUP_ACTION"
+                class="dev.jeka.ide.intellij.action.ScaffoldAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+
+    </actions>
+
     <extensions defaultExtensionNs="com.intellij">
 
         <iconProvider implementation="dev.jeka.ide.intellij.extension.JkIconProvider" order="first"/>
@@ -46,6 +71,7 @@
             parentId="build.tools"
             instance="dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable"
             id="dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable"
+
             displayName="Jeka"/>
 
         <runLineMarkerContributor language="JAVA"
@@ -55,6 +81,7 @@
         <toolWindow id="Jeka"
                     icon="/icons/knight-grey-naked.svg"
                     anchor="right"
+                    conditionClass=""
                     factoryClass="dev.jeka.ide.intellij.extension.JekaToolWindowFactory"/>
 
         <!--
@@ -72,11 +99,6 @@
 
        -->
     </extensions>
-
-    <applicationListeners>
-        <listener class="dev.jeka.ide.intellij.extension.JekaApplicationInitializedListener"
-                  topic="com.intellij.ide.AppLifecycleListener"/>
-    </applicationListeners>
     
     <projectListeners>
 

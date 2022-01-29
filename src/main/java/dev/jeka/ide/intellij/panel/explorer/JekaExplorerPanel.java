@@ -142,10 +142,10 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         } else if (nodeDescriptor.getElement() instanceof JekaFolderNode) {
             JekaFolderNode jekaFolder = (JekaFolderNode) nodeDescriptor.getElement();
             if (jekaFolder.getJekaModuleContainer() != null) {
-                group.add(SyncImlAction.INSTANCE);
+                group.add(SyncImlAction.get());
                 group.add(ShowRuntimeInformationAction.INSTANCE);
             }
-            group.add(ScaffoldAction.INSTANCE);
+            group.add(ScaffoldAction.get());
         }
         final ActionPopupMenu popupMenu = ActionManager.getInstance()
                 .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);

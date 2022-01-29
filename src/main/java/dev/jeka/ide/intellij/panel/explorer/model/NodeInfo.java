@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.util.CompositeAppearance;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.util.ui.UIUtil;
 import lombok.RequiredArgsConstructor;
 

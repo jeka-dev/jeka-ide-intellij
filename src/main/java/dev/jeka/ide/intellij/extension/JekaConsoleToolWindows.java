@@ -28,7 +28,6 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import dev.jeka.core.api.utils.JkUtilsAssert;
 import icons.JekaIcons;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,9 +39,9 @@ import javax.swing.*;
  */
 public class JekaConsoleToolWindows {
 
-    public static final String ID = "Jeka console";
+    private static final String ID = "Jeka console";
 
-    public static final Icon ICON = JekaIcons.JEKA_GREY_NAKED_13;
+    private static final Icon ICON = JekaIcons.JEKA_GREY_NAKED_13;
 
     private static ConsoleView createConsoleView(Project project) {
         TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
@@ -52,15 +51,15 @@ public class JekaConsoleToolWindows {
 
     public static void registerToolWindow(Project project) {
         ToolWindowManager manager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
-        toolWindow.setIcon(JekaIcons.JEKA_GREY_NAKED_13);
+        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.closable(ID,
+                ICON, ToolWindowAnchor.BOTTOM);
+        ToolWindow toolWindow = manager.registerToolWindow(registerToolWindowTask);
         final ContentManager contentManager = toolWindow.getContentManager();
         Content content = contentManager
                 .getFactory()
                 .createContent(getConsoleView(project).getComponent(), "", false);
         contentManager.addContent(content);
     }
-
 
     public static ConsoleView getConsoleView(Project project) {
         ConsoleView consoleView = project.getService(JekaConsoleViewService.class).getConsoleView();

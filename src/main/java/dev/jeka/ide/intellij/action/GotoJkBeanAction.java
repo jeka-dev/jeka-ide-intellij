@@ -11,19 +11,13 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.PsiNavigateUtil;
-import icons.JekaIcons;
+import dev.jeka.core.tool.JkConstants;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import org.jetbrains.annotations.NotNull;
 
 // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360004184479-How-to-open-editor-tab-with-code-
 public class GotoJkBeanAction extends AnAction {
-
-    public static final GotoJkBeanAction INSTANCE = new GotoJkBeanAction();
-
-    private GotoJkBeanAction() {
-        super("Goto Jeka CommandSet Source", "Goto Jeka CommandSet Source", JekaIcons.KBEAN);
-    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -45,14 +39,13 @@ public class GotoJkBeanAction extends AnAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        Project project = event.getProject();
+        event.getPresentation().setVisible(false);
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
         if (selectedFile == null) {
             return;
         }
         if (!selectedFile.isDirectory() && (!selectedFile.getName().equals("jeka")
                 && !SyncImlAction.isJekaModuleDir(selectedFile))) {
-            event.getPresentation().setVisible(false);
             return;
         }
         Module module = ModuleHelper.getModule(event);
@@ -63,15 +56,11 @@ public class GotoJkBeanAction extends AnAction {
         if (moduleDir == null) {
             return;
         }
-
-        PsiManager psiManager = PsiManager.getInstance(project);
-        VirtualFile jekaClass = findJekaClass(psiManager, moduleDir);
-        if (jekaClass == null) {
-            event.getPresentation().setVisible(false);
-        } else {
-            event.getPresentation().setText("Goto '" + jekaClass.getName() + "'");
+        VirtualFile defDir = moduleDir.findFileByRelativePath(JkConstants.DEF_DIR);
+        if (defDir == null || defDir.getChildren().length == 0) {
+            return;
         }
-
+        event.getPresentation().setVisible(true);
     }
 
     private VirtualFile findJekaClass(PsiManager psiManager, VirtualFile moduleRoot) {

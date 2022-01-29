@@ -16,7 +16,7 @@
 
 package dev.jeka.ide.intellij.action;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -40,10 +40,10 @@ import dev.jeka.ide.intellij.engine.CmdJekaDoer;
  */
 public class SyncImlAction extends AnAction {
 
-    public static final SyncImlAction INSTANCE = new SyncImlAction();
+    public static final String ID = "JEKA_SYNC_IML";
 
-    private SyncImlAction() {
-        super("Jeka Synchronize iml File", "Jeka Synchronize Module", AllIcons.Actions.Refresh);
+    public static AnAction get() {
+        return ActionManager.getInstance().getAction(ID);
     }
 
     @Override

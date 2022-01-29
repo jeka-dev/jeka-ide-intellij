@@ -18,8 +18,6 @@ package dev.jeka.ide.intellij.engine;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
@@ -30,17 +28,13 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentManager;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
-import dev.jeka.ide.intellij.common.*;
+import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.JekaDistributions;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
-import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,8 +42,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Jerome Angibaud
