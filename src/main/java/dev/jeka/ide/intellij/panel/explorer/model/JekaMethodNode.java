@@ -25,6 +25,7 @@ public class JekaMethodNode implements JekaModelNode {
                 this::getName, this::getHolder, () -> Collections.emptyList());
     }
 
+
     private String getName() {
         if (psiMethod.getContainingClass().equals(holder.getKbeanPsiClass())) {
             return name;

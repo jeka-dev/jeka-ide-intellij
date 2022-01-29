@@ -3,7 +3,7 @@ package dev.jeka.ide.intellij.extension;
 import com.intellij.ide.AppLifecycleListener;
 import com.intellij.openapi.actionSystem.*;
 import dev.jeka.ide.intellij.action.ProjectPopupJekaActionGroup;
-import dev.jeka.ide.intellij.action.ShowJekaClassAction;
+import dev.jeka.ide.intellij.action.GotoJkBeanAction;
 import dev.jeka.ide.intellij.action.SyncImlAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,13 +27,15 @@ public class JekaApplicationInitializedListener implements AppLifecycleListener 
         projectPopupGroup.addAction(jekaGroup, menuLocation);
         projectPopupGroup.addAction(Separator.getInstance(), menuLocation);
         Constraints firstLocation = new Constraints(Anchor.FIRST, null);
-        projectPopupGroup.addAction(ShowJekaClassAction.INSTANCE, firstLocation);
+        projectPopupGroup.addAction(GotoJkBeanAction.INSTANCE, firstLocation);
         projectPopupGroup.addAction(SyncImlAction.INSTANCE, firstLocation);
 
         // Add Sync Iml to editor context popup
         DefaultActionGroup popupGroup = (DefaultActionGroup) actionManager.getAction("EditorPopupMenu");
         Constraints actionLocation = new Constraints(Anchor.FIRST, null);
         popupGroup.addAction(SyncImlAction.INSTANCE, actionLocation);
+
+
 
     }
 

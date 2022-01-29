@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
@@ -72,7 +73,7 @@ public class NodeInfo {
 
         @Override
         public boolean update() {
-            if (Comparing.equal(textSupplier.get(), myName)) {
+            if (Objects.equals(textSupplier.get(), myName)) {
               return false;
             }
             myName = textSupplier.get();
@@ -82,7 +83,6 @@ public class NodeInfo {
             myHighlightedText.getEnding().addText(myName, nameAttributes);
             return true;
         }
-
 
     }
 }

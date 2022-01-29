@@ -40,13 +40,4 @@ public class ShowRuntimeInformationAction extends AnAction {
         CmdJekaDoer.INSTANCE.showRuntimeInformation(module);
     }
 
-    /*
-    @Override
-    public void update(AnActionEvent event) {
-        RootAndJekaFolder rootAndJekaFolder = event.getData(RootAndJekaFolder.DATA_KEY);
-        Module module = rootAndJekaFolder.getJekaFolder().getJekaModuleContainer().getModule();
-        event.getPresentation().setVisible(module != null);
-    }
-    */
-
 }

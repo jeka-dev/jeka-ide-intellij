@@ -49,8 +49,4 @@ public class RefreshWindowToolAction extends AnAction {
         }
     }
 
-    private JekaExplorerPanel jekaExplorerPanel(ToolWindow toolWindow) {
-        return (JekaExplorerPanel) toolWindow.getContentManager().getContent(0).getComponent();
-    }
-
 }

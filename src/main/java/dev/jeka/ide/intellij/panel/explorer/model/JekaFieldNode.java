@@ -5,6 +5,7 @@ import com.intellij.lang.jvm.JvmModifier;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.SmartPsiElementPointer;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import dev.jeka.ide.intellij.common.PsiFieldHelper;
 import lombok.Getter;
@@ -22,6 +23,8 @@ public class JekaFieldNode implements JekaModelNode {
 
     @Getter
     private final PsiField field;
+
+    private SmartPsiElementPointer<PsiField> fieldPointer;
 
 
     @Override

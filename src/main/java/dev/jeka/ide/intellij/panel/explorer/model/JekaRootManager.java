@@ -42,20 +42,17 @@ public final class JekaRootManager implements Disposable {
 
     private EventFilter eventFilter;
 
-    @Getter
-    private boolean modulesDirty;
-
     public JekaRootManager(Project project) {
         this.project = project;
         this.psiAdapter = new PsiAdapter();
         this.eventFilter = new EventFilter(project);
-        PsiManager.getInstance(project).addPsiTreeChangeListener(psiAdapter);
+        PsiManager.getInstance(project).addPsiTreeChangeListener(psiAdapter, this);
         listeningPsi = true;
     }
 
     public void listenPsi(boolean listen) {
         if (!listeningPsi && listen) {
-            PsiManager.getInstance(project).addPsiTreeChangeListener(psiAdapter);
+            PsiManager.getInstance(project).addPsiTreeChangeListener(psiAdapter, this);
             listeningPsi = true;
             return;
         }

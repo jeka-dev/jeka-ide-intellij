@@ -57,7 +57,6 @@
                     anchor="right"
                     factoryClass="dev.jeka.ide.intellij.extension.JekaToolWindowFactory"/>
 
-
         <!--
 
       <moduleBuilder builderClass="dev.jeka.ide.intellij.unused.newmodule.JekaModuleBuilder"/>
@@ -80,8 +79,10 @@
     </applicationListeners>
     
     <projectListeners>
+
         <listener class="dev.jeka.ide.intellij.extension.JekaToolWindowManagerListener"
                   topic="com.intellij.openapi.wm.ex.ToolWindowManagerListener"/>
+
         <listener class="dev.jeka.ide.intellij.extension.JekaModuleListener"
                   topic="com.intellij.openapi.project.ModuleListener"/>
     </projectListeners>

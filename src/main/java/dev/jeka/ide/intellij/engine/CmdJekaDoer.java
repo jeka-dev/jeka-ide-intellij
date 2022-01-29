@@ -39,6 +39,7 @@ import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.ide.intellij.common.*;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
+import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
 import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +60,6 @@ public class CmdJekaDoer {
 
     private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
 
-    //private ConsoleView view = null;
-    private Map<Project, ConsoleView> viewMap = new HashMap<>();
-
-    private Map<Project, ToolWindow> toolWindowMap = new HashMap<>();
-
     public void generateIml(Project project, VirtualFile moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
         Path modulePath = Paths.get(moduleDir.getPath());
@@ -80,7 +76,6 @@ public class CmdJekaDoer {
 
     public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStructure, boolean createWrapper,
                                Path wrapDelegate, Module existingModule, ScaffoldNature nature) {
-        initConsoleView(project);
         Path modulePath = Paths.get(moduleDir.getPath());
         Runnable afterScaffold = () -> {
             Runnable afterGenerateIml = () -> refreshAfterIml(project, existingModule, moduleDir, null);
@@ -143,7 +138,7 @@ public class CmdJekaDoer {
     }
 
     private ConsoleView getView(Project project) {
-        return viewMap.computeIfAbsent(project, key -> initConsoleView(key));
+        return JekaConsoleToolWindows.getConsoleView(project);
     }
 
     private static void refreshAfterIml(Project project, Module existingModule, VirtualFile moduleDir, Runnable onFinish) {
@@ -205,15 +200,8 @@ public class CmdJekaDoer {
         }
         attachView(project, handler, clear);
         if (ApplicationManager.getApplication().isDispatchThread()) {
-            toolWindowMap.get(project).show(() -> {
-            });
+            JekaConsoleToolWindows.getToolWindow(project).show();
         }
-    }
-
-    private static ConsoleView initConsoleView(Project project) {
-        TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
-        TextConsoleBuilder builder = factory.createBuilder(project);
-        return builder.getConsole();
     }
 
     private void attachView(Project project, OSProcessHandler handler, boolean clear) {
@@ -222,16 +210,8 @@ public class CmdJekaDoer {
             getView(project).clear();
         }
         handler.startNotify();
-        if (toolWindowMap.get(project) == null) {
-            ToolWindowManager manager = ToolWindowManager.getInstance(project);
-            ToolWindow toolWindow = manager.registerToolWindow("Jeka console", true, ToolWindowAnchor.BOTTOM);
-            toolWindow.setIcon(JekaIcons.JEKA_GREY_NAKED_13);
-            final ContentManager contentManager = toolWindow.getContentManager();
-            Content content = contentManager
-                    .getFactory()
-                    .createContent(getView(project).getComponent(), "", false);
-            contentManager.addContent(content);
-            toolWindowMap.put(project, toolWindow);
+        if (JekaConsoleToolWindows.getToolWindow(project) == null) {
+            JekaConsoleToolWindows.registerToolWindow(project);
         }
     }
 

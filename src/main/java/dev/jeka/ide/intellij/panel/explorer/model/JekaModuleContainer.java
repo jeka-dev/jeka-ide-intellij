@@ -2,13 +2,10 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
-import dev.jeka.ide.intellij.common.JkPluginHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +18,6 @@ public class JekaModuleContainer {
     private final JekaFolderNode moduleFolder;
 
     private List<JekaBeanNode> cachedBeanNodes;
-
-    private Collection<PsiClass> cachedPluginClasses;
 
     static JekaModuleContainer fromModule(JekaFolderNode moduleFolder, Module module) {
         JekaModuleContainer result = new JekaModuleContainer(module, moduleFolder);
@@ -41,16 +36,7 @@ public class JekaModuleContainer {
         return cachedBeanNodes;
     }
 
-    Collection<PsiClass> getAllPluginClasses() {
-        if (cachedPluginClasses != null) {
-            return cachedPluginClasses;
-        }
-        cachedPluginClasses = JkPluginHelper.getPluginClasses(module, new HashMap<>());
-        return cachedPluginClasses;
-    }
-
     void refresh() {
-        cachedPluginClasses = null;
         cachedBeanNodes = null;
     }
 

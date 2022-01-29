@@ -17,11 +17,11 @@ import dev.jeka.ide.intellij.common.PsiClassHelper;
 import org.jetbrains.annotations.NotNull;
 
 // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360004184479-How-to-open-editor-tab-with-code-
-public class ShowJekaClassAction extends AnAction {
+public class GotoJkBeanAction extends AnAction {
 
-    public static final ShowJekaClassAction INSTANCE = new ShowJekaClassAction();
+    public static final GotoJkBeanAction INSTANCE = new GotoJkBeanAction();
 
-    private ShowJekaClassAction() {
+    private GotoJkBeanAction() {
         super("Goto Jeka CommandSet Source", "Goto Jeka CommandSet Source", JekaIcons.KBEAN);
     }
 
@@ -55,7 +55,6 @@ public class ShowJekaClassAction extends AnAction {
             event.getPresentation().setVisible(false);
             return;
         }
-        PsiManager psiManager = PsiManager.getInstance(project);
         Module module = ModuleHelper.getModule(event);
         if (module == null) {
             return;
@@ -64,12 +63,15 @@ public class ShowJekaClassAction extends AnAction {
         if (moduleDir == null) {
             return;
         }
+
+        PsiManager psiManager = PsiManager.getInstance(project);
         VirtualFile jekaClass = findJekaClass(psiManager, moduleDir);
         if (jekaClass == null) {
             event.getPresentation().setVisible(false);
         } else {
             event.getPresentation().setText("Goto '" + jekaClass.getName() + "'");
         }
+
     }
 
     private VirtualFile findJekaClass(PsiManager psiManager, VirtualFile moduleRoot) {
