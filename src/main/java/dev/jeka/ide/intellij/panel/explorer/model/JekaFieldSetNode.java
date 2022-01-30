@@ -1,26 +1,27 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.psi.PsiClass;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-public class JekaFieldSetNode implements JekaModelNode {
 
-    @Getter
-    private final JekaBeanNode parent;
+public class JekaFieldSetNode extends JekaAbstractModelNode {
 
-    @Override
-    public NodeInfo getNodeInfo() {
-        return NodeInfo.simple(this, AllIcons.Nodes.ClassInitializer,
-                () -> "Properties", this::getParent, this::getChildren);
+    public JekaFieldSetNode(JekaBeanNode parent) {
+        super(parent);
     }
 
-    protected List<JekaModelNode> getChildren() {
-        PsiClass containingClass = parent.getKbeanPsiClass();
+    @Override
+    public NodeDescriptor<? extends JekaAbstractModelNode> makeNodeDescriptor() {
+        return basicNodeDescriptor(AllIcons.Nodes.ClassInitializer, "Properties");
+    }
+
+    @Override
+    public List<JekaAbstractModelNode> getChildren() {
+        JekaBeanNode beanNode = (JekaBeanNode) getParent();
+        PsiClass containingClass = beanNode.getKbeanPsiClass();
         return JekaFieldNode.getFieldNodes(this, containingClass);
     }
 

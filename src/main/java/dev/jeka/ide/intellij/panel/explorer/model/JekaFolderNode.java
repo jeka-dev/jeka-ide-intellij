@@ -1,8 +1,11 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import dev.jeka.ide.intellij.common.ModuleHelper;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,33 +17,44 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-@RequiredArgsConstructor
-@Getter
-public class JekaFolderNode implements JekaModelNode {
 
-    private final JekaFolderNode parent;
+public class JekaFolderNode extends JekaAbstractModelNode {
 
+    @Getter
     private final Path folderPath;
 
     private final List<JekaFolderNode> subFolders = new LinkedList<>();
 
-    private Module module;
+    @Getter(AccessLevel.PACKAGE)
+    private Module module;  // null if it is not a module
 
+    @Getter(AccessLevel.PUBLIC)
     private JekaModuleContainer jekaModuleContainer; // null if it is not a module
 
-    static JekaFolderNode ofSimpleDir(JekaFolderNode parent, Path folderPath) {
-        return new JekaFolderNode(parent, folderPath);
+    JekaFolderNode(Project project, Path folderPath) {
+        super(project);
+        this.folderPath = folderPath;
+    }
+
+    private JekaFolderNode(JekaFolderNode parent, Path folderPath) {
+        super(parent);
+        this.folderPath = folderPath;
     }
 
     @Override
-    public NodeInfo getNodeInfo() {
+    protected NodeDescriptor<? extends JekaAbstractModelNode> makeNodeDescriptor() {
         Icon icon = jekaModuleContainer == null ? AllIcons.Nodes.Folder : AllIcons.Nodes.ConfigFolder;
-        List<JekaModelNode> children = new LinkedList<>();
+        return basicNodeDescriptor(icon, getName());
+    }
+
+    @Override
+    public List<JekaAbstractModelNode> getChildren() {
+        List<JekaAbstractModelNode> children = new LinkedList<>();
         if (jekaModuleContainer != null) {
             children.addAll(jekaModuleContainer.getBeanNodes());
         }
         children.addAll(subFolders);
-        return NodeInfo.simple(this, icon, this::getName, this::getParent, () -> children);
+        return children;
     }
 
     private String getName() {
@@ -61,18 +75,17 @@ public class JekaFolderNode implements JekaModelNode {
         Path nextPath = relativePath.getName(0);
         Path childPath = this.folderPath.resolve(nextPath);
         for (JekaFolderNode subFolder : subFolders) {
-            if (subFolder.getFolderPath().equals(childPath)) {
+            if (subFolder.folderPath.equals(childPath)) {
                 subFolder.createJekaFolderAsDescendant(module);
                 return;
             }
         }
-        JekaFolderNode newChild = JekaFolderNode.ofSimpleDir(this, childPath);
+        JekaFolderNode newChild = new JekaFolderNode(this, childPath);
         newChild.createJekaFolderAsDescendant(module);
         this.subFolders.add(newChild);
         if (subFolders.size() > 2) {
             Collections.sort(this.subFolders, Comparator.comparing(JekaFolderNode::getName));
         }
-
     }
 
     Stream<JekaModuleContainer> moduleStream() {
@@ -90,4 +103,6 @@ public class JekaFolderNode implements JekaModelNode {
         result.addAll(subFolders);
         return result;
     }
+
+
 }

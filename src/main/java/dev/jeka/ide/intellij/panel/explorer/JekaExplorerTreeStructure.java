@@ -10,7 +10,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.ui.JBColor;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaFolderNode;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaMethodNode;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaModelNode;
+import dev.jeka.ide.intellij.panel.explorer.model.JekaAbstractModelNode;
 import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
 import lombok.Getter;
 import org.jetbrains.annotations.Nls;
@@ -50,8 +50,8 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
         if (element instanceof String) {
             return new TextInfoNodeDescriptor(project, parentDescriptor, (String) element);
         }
-        if (element instanceof JekaModelNode) {
-            return ((JekaModelNode) element).getNodeInfo().getNodeDescriptor(project, parentDescriptor);
+        if (element instanceof JekaAbstractModelNode) {
+            return ((JekaAbstractModelNode) element).getNodeDescriptor();
         }
         LOG.error("Unknown element for this tree structure " + element);
         return null;
@@ -66,8 +66,8 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
             }
             return jekaRootManager.getJekaFolderRoot().toArray(new JekaFolderNode[0]);
         }
-        if (element instanceof JekaModelNode) {
-            return ((JekaModelNode) element).getNodeInfo().getChildren().toArray(new Object[0]);
+        if (element instanceof JekaAbstractModelNode) {
+            return ((JekaAbstractModelNode) element).getChildren().toArray(new Object[0]);
         }
         return new Object[0];
     }
@@ -75,8 +75,8 @@ final class JekaExplorerTreeStructure extends AbstractTreeStructure {
     @Override
     @Nullable
     public Object getParentElement(@NotNull Object element) {
-        if (element instanceof JekaModelNode) {
-            return ((JekaModelNode) element).getNodeInfo().getParent();
+        if (element instanceof JekaAbstractModelNode) {
+            return ((JekaAbstractModelNode) element).getParent();
         }
         return null;
     }

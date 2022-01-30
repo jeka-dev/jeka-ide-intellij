@@ -172,10 +172,10 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                     return method.getPsiMethod();
                 }
                 if (CommandInfo.KEY.is(dataId)) {
-                    JekaBeanNode parent = method.getHolder();
+                    JekaBeanNode parent = (JekaBeanNode) method.getParent();
                     String beanName = parent.getName();
-                    return new CommandInfo(method.getHolder().getModule(),
-                            method.getHolder().getKbeanPsiClass(), beanName, method.getPsiMethod().getName());
+                    return new CommandInfo(parent.getModule(),
+                            parent.getKbeanPsiClass(), beanName, method.getPsiMethod().getName());
                 }
             }
             if (element instanceof JekaFieldNode) {

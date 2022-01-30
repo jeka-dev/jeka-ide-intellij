@@ -136,7 +136,7 @@ public final class JekaRootManager implements Disposable {
             sortedModulesMap.put(ModuleHelper.getModuleDirPath(module).toString(), module);
         }
         Path projectRoot = Paths.get(project.getBasePath());
-        JekaFolderNode root = JekaFolderNode.ofSimpleDir(null, projectRoot);
+        JekaFolderNode root = new JekaFolderNode(project, projectRoot);
         for(Map.Entry<String, Module> moduleEntry : sortedModulesMap.entrySet()) {
             Module module = moduleEntry.getValue();
             root.createJekaFolderAsDescendant(module);
