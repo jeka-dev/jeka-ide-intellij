@@ -1,6 +1,7 @@
 package dev.jeka.ide.intellij.panel;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Condition;
@@ -15,11 +16,13 @@ import dev.jeka.ide.intellij.common.JekaDistributions;
 import lombok.Getter;
 
 import javax.swing.*;
+import java.lang.ref.Reference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AppSettingsComponent {
 
@@ -91,8 +94,17 @@ public class AppSettingsComponent {
         JButton button = new JButton();
         button.setText("Install");
         button.addActionListener(event -> {
-            Path result = JekaDistributions.install(combo.getItem());
-            distributionPathText.setText(result.toString());
+            AtomicReference<Path> resultPath = new AtomicReference<>();
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                    () -> {
+                        Path result = JekaDistributions.install(combo.getItem());
+                        resultPath.set(result);
+                    },
+                    "Install Jeka Distribution",
+                    true,
+                    null
+            );
+            distributionPathText.setText(resultPath.get().toString());
             distributionPathText.grabFocus();
         });
         return button;
