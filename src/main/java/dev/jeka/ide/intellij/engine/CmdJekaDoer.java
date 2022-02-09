@@ -117,7 +117,7 @@ public class CmdJekaDoer {
     }
 
     private static String[] natureParam(ScaffoldNature nature) {
-        if (nature == ScaffoldNature.PROJECT) {
+        if (nature == ScaffoldNature.JAVA_PROJECT) {
             return new String[] {"project#"};
         }
         if (nature == ScaffoldNature.SPRINGBOOT) {

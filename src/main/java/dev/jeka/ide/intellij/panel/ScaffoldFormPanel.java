@@ -38,10 +38,10 @@ public class ScaffoldFormPanel extends JPanel {
         this.add(natureLabel);
         natureCombeBox = new ComboBox<>();
         natureCombeBox.addItem(ScaffoldNature.SIMPLE);
-        natureCombeBox.addItem(ScaffoldNature.PROJECT);
+        natureCombeBox.addItem(ScaffoldNature.JAVA_PROJECT);
         natureCombeBox.addItem(ScaffoldNature.SPRINGBOOT);
         natureCombeBox.addItem(ScaffoldNature.JEKA_PLUGIN);
-        natureCombeBox.setSelectedItem(ScaffoldNature.PROJECT);
+        natureCombeBox.setSelectedItem(ScaffoldNature.JAVA_PROJECT);
 
         this.add(natureCombeBox);
         createWrapperFilesCb.setState(checkGenaratedWrapper);

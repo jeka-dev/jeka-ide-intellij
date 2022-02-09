@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.ui.FormBuilder;
 import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.core.api.utils.JkUtilsPath;
@@ -30,7 +31,7 @@ public class AppSettingsComponent {
     private final JPanel mainPanel;
 
     @Getter
-    private JBTextField distributionPathText = new JBTextField();
+    private JBTextField distributionPathText = new ExtendableTextField();
 
     public AppSettingsComponent() {
         TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton(distributionPathText);
