@@ -1,8 +1,8 @@
 package dev.jeka.ide.intellij.action;
 
-import com.intellij.compiler.options.CompileStepBeforeRunNoErrorCheck;
 import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationConfiguration;
+import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.icons.AllIcons;
@@ -10,14 +10,18 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class JekaRunMethodAction extends AnAction {
@@ -35,6 +39,10 @@ public class JekaRunMethodAction extends AnAction {
         this.debug = debug;
     }
 
+    private static String configurationName(Module module, String simpleClassName, String methodName) {
+        return module.getName() + " [jeka " + simpleClassName + "#" + methodName + "]";
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
@@ -43,13 +51,11 @@ public class JekaRunMethodAction extends AnAction {
         final String methodName;
         final String simpleClassName;
         final Module module;
-        final String pluginName;
         if (location != null) {
             PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
             methodName = psiMethod.getName();
             simpleClassName = psiMethod.getContainingClass().getName();
             module = ModuleHelper.getModule(event);
-            pluginName = null;
         } else {
             CommandInfo commandInfo = CommandInfo.KEY.getData(dataContext);
             if (commandInfo == null) {
@@ -57,26 +63,23 @@ public class JekaRunMethodAction extends AnAction {
             }
             methodName = commandInfo.getMethodName();
             simpleClassName = commandInfo.getCommandClass().getName();
-            module = commandInfo.getModule();
-            pluginName = commandInfo.getPluginName();
+            module = commandInfo.getModule();;
         }
-        String method = pluginName == null ? methodName : pluginName + "#" + methodName;
-        String name = module.getName() + " [jeka " + method + "]";
+        String name = configurationName(module, simpleClassName, methodName);
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(module);
         configuration.setProgramParameters(simpleClassName + "#" + methodName);
         configuration.setBeforeRunTasks(Collections.emptyList());
+
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                 RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
-        CompileStepBeforeRunNoErrorCheck check = new CompileStepBeforeRunNoErrorCheck(project);
-        CompileStepBeforeRunNoErrorCheck.MakeBeforeRunTaskNoErrorCheck task =
-                check.createTask(runnerAndConfigurationSettings.getConfiguration());
+        ApplicationConfiguration applicationRunConfiguration =
+                (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
 
-        // TODO performance can be improved by removing the build pre-task and removing /.idea/test from classpath
-        runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.singletonList(task));
-        //runnerAndConfigurationSettings.getConfiguration().setBeforeRunTasks(Collections.emptyList());
+        applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
+        applyClasspathModification(applicationRunConfiguration, module);
 
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
@@ -85,4 +88,23 @@ public class JekaRunMethodAction extends AnAction {
         ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
     }
 
+    private static void applyClasspathModification(ApplicationConfiguration applicationConfiguration, Module module) {
+        LinkedHashSet<ModuleBasedConfigurationOptions.ClasspathModification> excludes = new LinkedHashSet<>();
+        excludes.addAll(findExclusion(module));
+        ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
+        List<Module> depModules = ModuleHelper.getModuleDependencies(moduleManager, module);
+        depModules.forEach(mod -> excludes.addAll(findExclusion(mod)));
+        applicationConfiguration.setClasspathModifications(new LinkedList<>(excludes));
+    }
+
+    private static List<ModuleBasedConfigurationOptions.ClasspathModification> findExclusion(Module module) {
+        VirtualFile[] roots = ModuleRootManager.getInstance(module).orderEntries().classes().getRoots();
+        return Arrays.stream(roots)
+                .filter(virtualFile -> "file".equals(virtualFile.getFileSystem().getProtocol()))
+                .peek(virtualFile -> System.out.println(virtualFile.getPath()))
+                .map(VirtualFile::toNioPath)
+                .map(path ->
+                        new ModuleBasedConfigurationOptions.ClasspathModification(path.toString(), true))
+                .collect(Collectors.toList());
+    }
 }

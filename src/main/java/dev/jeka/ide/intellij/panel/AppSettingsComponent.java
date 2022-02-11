@@ -17,7 +17,6 @@ import dev.jeka.ide.intellij.common.JekaDistributions;
 import lombok.Getter;
 
 import javax.swing.*;
-import java.lang.ref.Reference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,13 +36,13 @@ public class AppSettingsComponent {
         TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton(distributionPathText);
         textFieldWithBrowseButton.addBrowseFolderListener(
                 "Choose Jeka Distribution",
-                "Select a Jeka Distribution",
+                "Select a Jeka Distribution from Maven Central",
                 null,
                 fileChooserDescriptor()
                 );
         mainPanel = FormBuilder.createFormBuilder()
-                .addLabeledComponent(new JBLabel("Jeka distribution path: "), textFieldWithBrowseButton)
-                .addLabeledComponent(new JBLabel("Install a Jeka distribution"), comboAndButton())
+                .addLabeledComponent(new JBLabel("Jeka distribution path"), textFieldWithBrowseButton)
+                .addLabeledComponent(new JBLabel("Install from Maven Central"), comboAndButton())
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }

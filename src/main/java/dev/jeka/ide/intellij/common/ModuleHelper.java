@@ -3,6 +3,7 @@ package dev.jeka.ide.intellij.common;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -15,7 +16,11 @@ import dev.jeka.core.api.marshalling.JkDomElement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ModuleHelper {
 
@@ -105,6 +110,18 @@ public class ModuleHelper {
         ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
         Sdk sdk = projectRootManager.getProjectSdk();
         return sdk.getHomeDirectory();
+    }
+
+    public static List<Module> getModuleDependencies(ModuleManager moduleManager, Module module) {
+        List<Module> deps = Arrays.stream(moduleManager.getModules())
+                .filter(mod -> moduleManager.isModuleDependent(module, mod))
+                .collect(Collectors.toList());
+        LinkedHashSet<Module> result = new LinkedHashSet<>();
+        result.addAll(deps);
+        deps.forEach(dep -> result.addAll(getModuleDependencies(moduleManager, dep)));
+        return new LinkedList<>(result);
+
+
     }
 
 }
