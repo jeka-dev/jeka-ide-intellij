@@ -16,24 +16,44 @@
 
 package dev.jeka.ide.intellij.extension;
 
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.*;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.panel.explorer.JekaExplorerPanel;
+import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 /**
  * @author Jerome Angibaud
  */
-public class JekaToolWindowFactory implements ToolWindowFactory {
+public class JekaToolWindows {
 
     static final String ID = "Jeka";
 
-    @Override
-    public void createToolWindowContent(@NotNull Project project,
-                                        @NotNull ToolWindow toolWindow) {
+    private static boolean isApplicable(@NotNull Project project) {
+        ModuleManager moduleManager = ModuleManager.getInstance(project);
+        return Arrays.stream(moduleManager.getModules())
+                .anyMatch(ModuleHelper::isJekaModule);
+    }
+
+    public static void registerIfNeeded(Project project, boolean checkIfApplicable) {
+        if (ToolWindowManager.getInstance(project).getToolWindow(ID) == null) {
+            if (!checkIfApplicable || isApplicable(project)) {
+                registerToolWindow(project);
+            }
+        }
+    }
+
+    private static void registerToolWindow(Project project) {
+        ToolWindowManager manager = ToolWindowManager.getInstance(project);
+        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.closable(ID,
+                JekaIcons.JEKA_GREY_NAKED, ToolWindowAnchor.RIGHT);
+        ToolWindow toolWindow = manager.registerToolWindow(registerToolWindowTask);
         JekaExplorerPanel panel = new JekaExplorerPanel(project);
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(panel, "", false);

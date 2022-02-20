@@ -35,6 +35,7 @@ import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
+import dev.jeka.ide.intellij.extension.JekaToolWindows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,16 +55,8 @@ public class CmdJekaDoer {
 
     public void generateIml(Project project, VirtualFile moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
-        Path modulePath = Paths.get(moduleDir.getPath());
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
-        setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-dci", "-lb", "-lri");
-        cmd.setWorkDirectory(modulePath.toFile());
-        if (qualifiedClassName != null) {
-            cmd.addParameter("-kb=" + qualifiedClassName);
-        }
-        Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
-        start(cmd, project, clearConsole, onSuccess,  null );
+        doGenerateIml(project, moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish);
+        JekaToolWindows.registerIfNeeded(project, false);
     }
 
     public void scaffoldModule(Project project, VirtualFile moduleDir, boolean createStructure, boolean createWrapper,
@@ -71,7 +64,7 @@ public class CmdJekaDoer {
         Path modulePath = Paths.get(moduleDir.getPath());
         Runnable afterScaffold = () -> {
             Runnable afterGenerateIml = () -> refreshAfterIml(project, existingModule, moduleDir, null);
-            generateIml(project, moduleDir, null, false, existingModule, afterGenerateIml);
+            doGenerateIml(project, moduleDir, null, false, existingModule, afterGenerateIml);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(modulePath.resolve("jeka/wrapper"));
             }
@@ -105,6 +98,7 @@ public class CmdJekaDoer {
         } else {
             doCreateStructure.run();
         }
+        JekaToolWindows.registerIfNeeded(project, false);
     }
 
     public void showRuntimeInformation(Module module) {
@@ -114,6 +108,20 @@ public class CmdJekaDoer {
         cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, module.getProject(), true, null, null);
+    }
+
+    private void doGenerateIml(Project project, VirtualFile moduleDir, String qualifiedClassName, boolean clearConsole,
+                               @Nullable  Module existingModule, Runnable onFinish) {
+        Path modulePath = Paths.get(moduleDir.getPath());
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+        setJekaJDKEnv(cmd, project, existingModule);
+        cmd.addParameters("intellij#iml", "-dci", "-lb", "-lri");
+        cmd.setWorkDirectory(modulePath.toFile());
+        if (qualifiedClassName != null) {
+            cmd.addParameter("-kb=" + qualifiedClassName);
+        }
+        Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
+        start(cmd, project, clearConsole, onSuccess,  null );
     }
 
     private static String[] natureParam(ScaffoldNature nature) {

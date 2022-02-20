@@ -45,6 +45,9 @@ public class JekaFieldNode extends JekaAbstractModelNode {
 
     static List<JekaAbstractModelNode> getFieldNodes(JekaAbstractModelNode parent, PsiClass containingClass) {
         List<JekaAbstractModelNode> result = new LinkedList<>();
+        if (!containingClass.isValid()) {
+            return Collections.emptyList();
+        }
         for (PsiField psiField : containingClass.getAllFields()) {
             if (!psiField.hasModifier(JvmModifier.PUBLIC) && !PsiFieldHelper.hasSetter(psiField)) {
                 continue;

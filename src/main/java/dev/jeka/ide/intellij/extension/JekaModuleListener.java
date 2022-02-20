@@ -17,6 +17,7 @@ public class JekaModuleListener implements ModuleListener {
     @Override
     public void moduleAdded(@NotNull Project project, @NotNull Module module) {
         notifyChange(project);
+        JekaToolWindows.registerIfNeeded(project, true);
     }
 
     @Override
@@ -40,4 +41,5 @@ public class JekaModuleListener implements ModuleListener {
             DumbService.getInstance(project).smartInvokeLater(jekaRootManager::init);
         }
     }
+
 }

@@ -78,10 +78,6 @@
                                   id="jeka"
                                   implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributor"/>
 
-        <toolWindow id="Jeka"
-                    icon="/icons/knight-grey-naked.svg"
-                    anchor="right"
-                    factoryClass="dev.jeka.ide.intellij.extension.JekaToolWindowFactory"/>
 
         <!--
 

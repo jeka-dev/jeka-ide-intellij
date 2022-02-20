@@ -3,6 +3,8 @@ package dev.jeka.ide.intellij.panel.explorer.model;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
+import dev.jeka.core.tool.JkDoc;
+import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import icons.JekaIcons;
@@ -24,11 +26,19 @@ public class JekaBeanNode extends JekaAbstractModelNode {
 
     @Override
     protected NodeDescriptor<? extends JekaAbstractModelNode> makeNodeDescriptor() {
-        return basicNodeDescriptor(JekaIcons.KBEAN, getName());
+        NodeDescriptor<? extends JekaAbstractModelNode> result = basicNodeDescriptor(JekaIcons.KBEAN, getName());
+        String doc = getDoc();
+        if (doc != null) {
+
+        }
+        return result;
     }
 
     @Override
     public List<JekaAbstractModelNode> getChildren() {
+        if (!kbeanPsiClass.isValid()) {
+            return Collections.emptyList();
+        }
         PsiMethod[] methods;
         try {
             methods = kbeanPsiClass.getAllMethods();
@@ -54,7 +64,22 @@ public class JekaBeanNode extends JekaAbstractModelNode {
     }
 
     public String getName() {
-        return kbeanPsiClass.getName();
+        return JkExternalToolApi.getBeanName(kbeanPsiClass.getQualifiedName());
+    }
+
+    private String getDoc() {
+        PsiModifierList psiModifierList = kbeanPsiClass.getModifierList();
+        if (psiModifierList == null) {
+            return null;
+        }
+        PsiAnnotation[] annotations = psiModifierList.getAnnotations();
+        PsiAnnotation jkDoc = Arrays.stream(annotations)
+                .filter(annotation ->annotation.hasQualifiedName(JkDoc.class.getName()))
+                .findFirst().orElse(null);
+        if (jkDoc != null) {
+            return jkDoc.getText();
+        }
+        return null;
     }
 
     public Module getModule() {

@@ -61,7 +61,9 @@ public class SyncAllImlAction extends AnAction {
         }
         final Runnable runnable = nextStep;
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            runnable.run();
+            if (runnable != null) {
+                runnable.run();
+            }
         });
     }
 

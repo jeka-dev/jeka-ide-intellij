@@ -18,11 +18,13 @@ public class JekaDistributions {
 
     private static final JkVersion LOWEST_VERSION = JkVersion.of("0.9.20.RC13");
 
+    private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
+
     public static Path getDefault() {
         Path result = getLatestInstalled();
         if (result == null) {
             String version = getLatestPublishedVersion();
-            result = Booter.install(version);
+            result = Booter.install(MAVEN_CENTRAL_URL, version);
         }
         return result;
     }
@@ -43,7 +45,7 @@ public class JekaDistributions {
     }
 
     public static Path install(String version) {
-        return Booter.install(version);
+        return Booter.install(MAVEN_CENTRAL_URL, version);
     }
 
     private static Path getLatestInstalled() {
