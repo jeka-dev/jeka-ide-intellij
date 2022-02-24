@@ -2,6 +2,7 @@ package dev.jeka.ide.intellij.common;
 
 import dev.jeka.core.api.depmanagement.JkModuleId;
 import dev.jeka.core.api.depmanagement.JkRepo;
+import dev.jeka.core.api.depmanagement.JkRepoFromProperties;
 import dev.jeka.core.api.depmanagement.JkVersion;
 import dev.jeka.core.api.depmanagement.resolution.JkDependencyResolver;
 import dev.jeka.core.api.system.JkLocator;
@@ -34,7 +35,7 @@ public class JekaDistributions {
     }
 
     public static List<String> searchVersionsSortedByDesc() {
-        JkDependencyResolver resolver = JkDependencyResolver.of().addRepos(JkRepo.ofMavenCentral());
+        JkDependencyResolver resolver = JkDependencyResolver.of().addRepos(JkRepoFromProperties.getDownloadRepos());
         List<String> allVersions = resolver.searchVersions(JkModuleId.of("dev.jeka", "jeka-core"));
         return allVersions.stream()
                 .map(JkVersion::of)

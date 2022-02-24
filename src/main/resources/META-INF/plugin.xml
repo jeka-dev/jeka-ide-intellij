@@ -78,11 +78,11 @@
                                   id="jeka"
                                   implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributor"/>
 
+        <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder"/>
 
         <!--
 
-      <moduleBuilder builderClass="dev.jeka.ide.intellij.unused.newmodule.JekaModuleBuilder"/>
-
+         <projectStructureDetector implementation="dev.jeka.ide.intellij.extension.JekaProjectStructureDetector"/>
 
       <configurationType implementation="dev.jeka.ide.intellij.unused.runconfigations.JekaToolRunConfigurationType"/>
 

@@ -47,7 +47,6 @@ public class JekaBeanNode extends JekaAbstractModelNode {
             return Collections.emptyList();
         }
         List<JekaAbstractModelNode> result = new LinkedList<>();
-        result.addAll(kbeans());
         JekaFieldSetNode jekaFieldSetNode = new JekaFieldSetNode(this);
         if (!jekaFieldSetNode.getChildren().isEmpty()) {
             result.add(new JekaFieldSetNode(this));
@@ -60,6 +59,7 @@ public class JekaBeanNode extends JekaAbstractModelNode {
                 methodNames.add(methodName);
             }
         }
+        result.addAll(kbeans());
         return result;
     }
 

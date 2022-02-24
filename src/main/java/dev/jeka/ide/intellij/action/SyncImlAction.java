@@ -79,7 +79,7 @@ public class SyncImlAction extends AnAction {
         Project project = event.getProject();
         ApplicationManager.getApplication().invokeAndWait(() -> {
             FileDocumentManager.getInstance().saveAllDocuments();
-            jekaDoer.generateIml(project, moduleDir, className, true, existingModule, null);
+            jekaDoer.generateIml(project, moduleDir.toNioPath(), className, true, existingModule, null);
         });
     }
 

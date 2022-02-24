@@ -3,7 +3,6 @@ package dev.jeka.ide.intellij.dialog;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -24,7 +23,7 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Project project;
 
-    private ScaffoldFormPanel formPanel;
+    private ScaffoldFormPanel scaffoldFormPanel;
 
     private Module exisitingModule;
 
@@ -33,8 +32,7 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
         this.project = project;
         this.moduleDir = moduleDir;
         this.exisitingModule = existingModule;
-        init();
-        this.formPanel.updateModules(project, existingModule);
+        this.init();
         setTitle("Create Jeka files");
     }
 
@@ -42,8 +40,8 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         boolean hasWrapperFiles = JekaWrapperInfo.hasWrapperShellFiles(moduleDir.toNioPath());
-        formPanel = new ScaffoldFormPanel(ModuleManager.getInstance(project).getModules(), !hasWrapperFiles);
-        return formPanel;
+        scaffoldFormPanel = ScaffoldFormPanel.of(project, exisitingModule, !hasWrapperFiles, true);
+        return scaffoldFormPanel.getPanel();
     }
 
     private Path getDelegateModulePath(Module delegate) {
@@ -55,15 +53,23 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
     @Override
     protected void doOKAction() {
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            Module delegate = formPanel.isDelegatingJekaWrapper() ?
-                    formPanel.getSelectedDelegateWrapperModule():
+            Module delegate = scaffoldFormPanel.isDelegatingJekaWrapper() ?
+                    scaffoldFormPanel.getSelectedDelegateWrapperModule():
                     null;
             Path delegatePath = delegate == null ? null : getDelegateModulePath(delegate);
             FileDocumentManager.getInstance().saveAllDocuments();
             CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
-            ScaffoldNature nature = formPanel.getScaffoldNature();
-            jekaDoer.scaffoldModule(project, moduleDir, formPanel.isGeneratingStructure(),
-                    formPanel.isCreatingWrapperFiles(), delegatePath, exisitingModule, nature);
+            ScaffoldNature nature = scaffoldFormPanel.getScaffoldNature();
+            jekaDoer.scaffoldModule
+                    (project,
+                    moduleDir.toNioPath(),
+                    scaffoldFormPanel.isGeneratingStructure(),
+                    scaffoldFormPanel.isCreatingWrapperFiles(),
+                    delegatePath,
+                    scaffoldFormPanel.getSelectedJekaVersion(),
+                    exisitingModule,
+                    nature,
+                    true);
             ScaffoldDialogWrapper.this.close(0);
         });
     }

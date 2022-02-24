@@ -55,7 +55,7 @@ public class SyncAllImlAction extends AnAction {
             final Runnable next = nextStep;
             final boolean clear = i == 0;
             Runnable step = () ->
-                    jekaDoer.generateIml(project, moduleDir, null,
+                    jekaDoer.generateIml(project, moduleDir.toNioPath(), null,
                             clear, module, next);
             nextStep = step;
         }
