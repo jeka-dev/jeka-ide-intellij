@@ -4,7 +4,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.UI;
+import dev.jeka.core.api.utils.JkUtilsIO;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ScaffoldNature;
@@ -13,6 +16,8 @@ import lombok.Getter;
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ScaffoldFormPanel {
+
+    private static final String WRAPPER_DOC_URL = "https://jeka-dev.github.io/jeka/reference-guide/execution-engine-files/#jeka-wrapper";
 
     // All modules available in project
     private final Module[] modules;
@@ -71,10 +78,11 @@ public class ScaffoldFormPanel {
         natureComboBox.addItem(ScaffoldNature.JEKA_PLUGIN);
         natureComboBox.setSelectedItem(ScaffoldNature.JAVA_PROJECT);
         formBuilder.addLabeledComponent("Build class:", natureComboBox);
+        formBuilder.addVerticalGap(15);
 
         List<Module> modules = effectiveModules();
         wrapperPanel = new WrapperPanel(modules, wrapperSelected);
-        formBuilder.addLabeledComponent("Generate Jeka wrapper files:", wrapperPanel.getPanel());
+        formBuilder.addComponent(wrapperPanel.getPanel());
         formBuilder.addComponentFillVertically(new JPanel(), 0);
         update();
         return formBuilder.getPanel();
@@ -121,19 +129,18 @@ public class ScaffoldFormPanel {
         this.natureComboBox.setEnabled(this.generateStructureCheckBox.isSelected());
     }
 
-    private static class WrapperPanel {
+    static class WrapperPanel {
 
         private final List<Module> modules;
 
         private final boolean initialValue;
 
-        private JLabel delegateToLabel = new JLabel("  Delegate to:  ");
+        private JPanel modulePanel;
 
         private JCheckBox createWrapperFilesCb;
 
-        private ComboBox<Object> moduleComboBox ;
-
-        private JLabel versionLabel = new JLabel("  Jeka version:  ");
+        @Getter
+        private ComboBox<Object> moduleComboBox;
 
         private ComboBox<String> versionsComboBox;
 
@@ -150,6 +157,13 @@ public class ScaffoldFormPanel {
             createWrapperFilesCb  = new JCheckBox();
             createWrapperFilesCb.setSelected(initialValue);
             createWrapperFilesCb.addItemListener(e -> update());
+            JPanel createWrapperPanel =  UI.PanelFactory.panel(createWrapperFilesCb)
+                    .withTooltip("<b>Jeka Wrapper</b><br/>Generate jekaw.bat and jekaw shell scripts in the project dir.<br/>" +
+                            "These scripts download and install a specified version of Jeka, instead of using the default one.<br/>" +
+                            "Using wrapper ensures that Jeka runs the same version on any machine, making it portable.<br/>" +
+                            "This is the recommended way of using Jeka.")
+                    .withTooltipLink("See official documentation", () -> browseTo(WRAPPER_DOC_URL))
+                    .createPanel();
 
             moduleComboBox = new ComboBox();
             moduleComboBox.addItem("Do not delegate");
@@ -159,32 +173,41 @@ public class ScaffoldFormPanel {
             }
             moduleComboBox.setEnabled(true);
             moduleComboBox.addItemListener(e -> update());
+            modulePanel = UI.PanelFactory.panel(moduleComboBox)
+                    .withLabel("Delegate to:")
+                    .withTooltip("<b>Wrapper Delegation</b><br/>Use the wrapper installed on another module instead of installing one, specifically for this module.<br/>" +
+                            "When using multi-module projects, this is the recommended way of using wrapper as the Jeka version " +
+                            "is defined in a single place for all modules.")
+                    .createPanel();
 
-            versionsComboBox = versionsCombo();
+            versionsComboBox = new ComboBox<>();
 
-            FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(FlowLayout.LEFT);
-            flowLayout.setVgap(0);
-            flowLayout.setHgap(0);
-            flowLayout.setAlignOnBaseline(true);
+            JPanel subPanel = FormBuilder.createFormBuilder()
+                    .addComponent(modulePanel)
+                    .addLabeledComponent("Jeka version:", versionsComboBox)
+                    .getPanel();
 
-            panel = new JPanel();
-            panel.setLayout(flowLayout);
-            panel.add(this.createWrapperFilesCb);
-            panel.add(delegateToLabel);
-            panel.add(moduleComboBox);
-            panel.add(versionLabel);
-            panel.add(versionsComboBox);
+            panel = FormBuilder.createFormBuilder()
+                        .addLabeledComponent("Create wrapper files:", createWrapperPanel)
+                        .addLabeledComponent("", subPanel)
+                        .getPanel();
 
+            // Only use it when > 3 elements : https://jetbrains.design/intellij/controls/group_header/
+            //panel.setBorder(IdeBorderFactory.createTitledBorder("Jeka Wrapper"));
+            panel.setAlignmentX(0);
             update();
         }
 
         private void update() {
-            boolean enabled = !modules.isEmpty() && createWrapperFilesCb.isSelected();
-            delegateToLabel.setEnabled(enabled);
-            moduleComboBox.setEnabled(enabled);
-            boolean versionEnabled = moduleComboBox.isEnabled() && getDelegateModule() == null;
-            versionLabel.setEnabled(versionEnabled);
+            boolean modulesBoxEnabled = !modules.isEmpty() && createWrapperFilesCb.isSelected();
+            moduleComboBox.setEnabled(modulesBoxEnabled);
+            boolean versionEnabled = getDelegateModule() == null && createWrapperFilesCb.isSelected();
+            if (versionEnabled) {
+                versionsComboBox.removeAllItems();
+                fillVersions();
+            } else if (!versionEnabled && versionsComboBox.isEnabled()) {
+                versionsComboBox.removeAllItems();
+            }
             versionsComboBox.setEnabled(versionEnabled);
         }
 
@@ -203,15 +226,21 @@ public class ScaffoldFormPanel {
             return this.versionsComboBox.getItem();
         }
 
-        private ComboBox<String> versionsCombo() {
-            ComboBox<String> comboBox = new ComboBox<>();
+        private void fillVersions() {
             List<String> versions = JekaDistributions.searchVersionsSortedByDesc();
             for (String version : versions) {
-                comboBox.addItem(version);
+                versionsComboBox.addItem(version);
             }
-            return comboBox;
         }
 
+    }
+
+    private static void browseTo(String url) {
+        try {
+            Desktop.getDesktop().browse(JkUtilsIO.toUri(url));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }

@@ -51,6 +51,7 @@ public class JekaFolderNode extends JekaAbstractModelNode {
     public List<JekaAbstractModelNode> getChildren() {
         List<JekaAbstractModelNode> children = new LinkedList<>();
         if (jekaModuleContainer != null) {
+            children.addAll(JekaCmdNode.children(this, folderPath));
             children.addAll(jekaModuleContainer.getBeanNodes());
         }
         children.addAll(subFolders);

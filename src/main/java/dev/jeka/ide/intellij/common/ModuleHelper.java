@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import dev.jeka.core.api.marshalling.JkDomDocument;
 import dev.jeka.core.api.marshalling.JkDomElement;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -98,6 +99,9 @@ public class ModuleHelper {
 
     public static boolean isJekaModule(Module module) {
         Path moduleRoot = getModuleDirPath(module);
+        if (!Files.exists(moduleRoot)) {
+            return false;
+        }
         return FileHelper.containsJekaDir(moduleRoot);
     }
 
@@ -109,6 +113,9 @@ public class ModuleHelper {
         }
         ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
         Sdk sdk = projectRootManager.getProjectSdk();
+        if (sdk == null) {
+            return null;
+        }
         return sdk.getHomeDirectory();
     }
 

@@ -80,6 +80,8 @@
 
         <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder"/>
 
+        <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder2"/>
+
         <!--
 
          <projectStructureDetector implementation="dev.jeka.ide.intellij.extension.JekaProjectStructureDetector"/>

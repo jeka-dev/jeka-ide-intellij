@@ -9,32 +9,35 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.data.CommandInfo;
+import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class JekaRunMethodAction extends AnAction {
+public class JekaRunCmdAction extends AnAction {
 
-    public static final JekaRunMethodAction RUN_JEKA_INSTANCE = new JekaRunMethodAction(false);
+    public static final JekaRunCmdAction RUN_JEKA_INSTANCE = new JekaRunCmdAction(false);
 
-    public static final JekaRunMethodAction DEBUG_JEKA_INSTANCE = new JekaRunMethodAction(true);
+    public static final JekaRunCmdAction DEBUG_JEKA_INSTANCE = new JekaRunCmdAction(true);
 
     private final boolean debug;
 
-    private JekaRunMethodAction(boolean debug) {
-        super((debug ? "Debug" : "Run") +   " method",
-                (debug ? "Debug" : "Run") +   " method",
+    private JekaRunCmdAction(boolean debug) {
+        super((debug ? "Debug" : "Run") +   " Command",
+                (debug ? "Debug" : "Run") +   " Command",
                 debug ? AllIcons.Actions.StartDebugger : AllIcons.RunConfigurations.TestState.Run);
         this.debug = debug;
     }
@@ -47,30 +50,13 @@ public class JekaRunMethodAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         DataContext dataContext = event.getDataContext();
-        PsiLocation<PsiIdentifier> location = (PsiLocation<PsiIdentifier>) dataContext.getData(Location.DATA_KEY);
-        final String methodName;
-        final String simpleClassName;
-        final Module module;
-        if (location != null) {
-            PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
-            methodName = psiMethod.getName();
-            simpleClassName = psiMethod.getContainingClass().getName();
-            module = ModuleHelper.getModule(event);
-        } else {
-            CommandInfo commandInfo = CommandInfo.KEY.getData(dataContext);
-            if (commandInfo == null) {
-                throw new IllegalStateException("Can not find reference to Psi method");
-            }
-            methodName = commandInfo.getMethodName();
-            simpleClassName = commandInfo.getCommandClass().getName();
-            module = commandInfo.getModule();;
-        }
-        String name = configurationName(module, simpleClassName, methodName);
+        Data data = dataContext.getData(Data.DATA_KEY);
+        String name = configurationName(data.module, "", data.name);
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
-        configuration.setModule(module);
-        configuration.setProgramParameters(simpleClassName + "#" + methodName);
+        configuration.setModule(data.module);
+        configuration.setProgramParameters("$" + data.value);
         configuration.setBeforeRunTasks(Collections.emptyList());
 
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
@@ -79,7 +65,7 @@ public class JekaRunMethodAction extends AnAction {
                 (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
 
         applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
-        applyClasspathModification(applicationRunConfiguration, module);
+        applyClasspathModification(applicationRunConfiguration, data.module);
 
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
@@ -108,4 +94,11 @@ public class JekaRunMethodAction extends AnAction {
                 .collect(Collectors.toList());
     }
 
+    @Value
+    public static class Data {
+        public static final DataKey<Data> DATA_KEY = DataKey.create(Data.class.getName());
+        String name;
+        String value;
+        Module module;
+    }
 }

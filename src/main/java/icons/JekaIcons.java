@@ -23,4 +23,6 @@ public interface JekaIcons {
 
     Icon COMMAND = IconLoader.getIcon("/icons/method.svg", JekaIcons.class);
 
+    Icon CMD = IconLoader.getIcon("/icons/cmd.svg", JekaIcons.class);
+
 }

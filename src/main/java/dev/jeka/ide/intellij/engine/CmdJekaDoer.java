@@ -24,11 +24,14 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.SlowOperations;
+import com.intellij.util.ThrowableRunnable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkExternalToolApi;
@@ -113,6 +116,7 @@ public class CmdJekaDoer {
         JekaToolWindows.registerIfNeeded(project, false);
     }
 
+
     public void showRuntimeInformation(Module module) {
         Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
@@ -153,12 +157,14 @@ public class CmdJekaDoer {
     }
 
     private static void refreshAfterIml(Project project, Module existingModule, Path moduleDir, Runnable onFinish) {
-        if (existingModule == null) {
-            addModule(project, moduleDir);
-        } else {
-            VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
-            VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
 
+        if (existingModule == null) {
+            //addModule(project, moduleDir);
+        } else {
+            SlowOperations.allowSlowOperations(() -> {
+                VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
+                VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
+            });
         }
         if (onFinish != null) {
             onFinish.run();
@@ -166,14 +172,14 @@ public class CmdJekaDoer {
     }
 
     private static void addModule(Project project, Path moduleDir) {
-        Path iml = JkExternalToolApi.getImlFile(moduleDir);
-        Path projectDir = Paths.get(project.getBasePath());
-        Path modulesXml = projectDir.resolve(".idea/modules.xml");
-        ModuleHelper.addModule(projectDir, modulesXml, iml);
-        VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
+        SlowOperations.allowSlowOperations(() -> {
+            Path iml = JkExternalToolApi.getImlFile(moduleDir);
+            Path projectDir = Paths.get(project.getBasePath());
+            Path modulesXml = projectDir.resolve(".idea/modules.xml");
+            ModuleHelper.addModule(projectDir, modulesXml, iml);
+            VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
+        });
     }
-
-
 
     private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
         OSProcessHandler handler;

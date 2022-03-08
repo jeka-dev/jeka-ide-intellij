@@ -11,6 +11,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.UI;
 import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.core.api.utils.JkUtilsPath;
 import dev.jeka.ide.intellij.common.JekaDistributions;
@@ -34,15 +35,23 @@ public class AppSettingsComponent {
 
     public AppSettingsComponent() {
         TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton(distributionPathText);
+        JPanel distributionPanel = UI.PanelFactory.panel(textFieldWithBrowseButton)
+                .withLabel("Jeka distribution:")
+                .withComment("The location of the distribution for running Jeka.<br/>This distribution is also used to generate Jeka modules from scratch.")
+                .createPanel();
         textFieldWithBrowseButton.addBrowseFolderListener(
                 "Choose Jeka Distribution",
-                "Select a Jeka Distribution from Maven Central",
+                "Jeka version picked from Maven central repository.",
                 null,
                 fileChooserDescriptor()
                 );
+        JPanel installPanel = UI.PanelFactory.panel(comboAndButton())
+                .withLabel("Install distribution:")
+                .withComment("Install a Jeka distribution from Maven central repository.")
+                .createPanel();
         mainPanel = FormBuilder.createFormBuilder()
-                .addLabeledComponent(new JBLabel("Jeka distribution path"), textFieldWithBrowseButton)
-                .addLabeledComponent(new JBLabel("Install from Maven Central"), comboAndButton())
+                .addComponent(distributionPanel)
+                .addComponent(installPanel)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }
