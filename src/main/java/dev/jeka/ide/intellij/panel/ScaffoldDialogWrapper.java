@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.dialog;
+package dev.jeka.ide.intellij.panel;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -9,8 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import dev.jeka.ide.intellij.common.JekaWrapperInfo;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
-import dev.jeka.ide.intellij.engine.ScaffoldNature;
-import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
+import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -58,18 +57,16 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
                     null;
             Path delegatePath = delegate == null ? null : getDelegateModulePath(delegate);
             FileDocumentManager.getInstance().saveAllDocuments();
-            CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
-            ScaffoldNature nature = scaffoldFormPanel.getScaffoldNature();
-            jekaDoer.scaffoldModule
-                    (project,
+            CmdJekaDoer jekaDoer = CmdJekaDoer.getInstance(project);
+            JekaTemplate template = scaffoldFormPanel.getTemplate();
+            jekaDoer.scaffoldModule(
                     moduleDir.toNioPath(),
                     scaffoldFormPanel.isGeneratingStructure(),
                     scaffoldFormPanel.isCreatingWrapperFiles(),
                     delegatePath,
                     scaffoldFormPanel.getSelectedJekaVersion(),
                     exisitingModule,
-                    nature,
-                    true);
+                    template.getCommandArgs());
             ScaffoldDialogWrapper.this.close(0);
         });
     }

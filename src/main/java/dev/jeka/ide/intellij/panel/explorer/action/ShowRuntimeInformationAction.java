@@ -37,7 +37,7 @@ public class ShowRuntimeInformationAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         RootAndJekaFolder rootAndJekaFolder = event.getData(RootAndJekaFolder.DATA_KEY);
         Module module = rootAndJekaFolder.getJekaFolder().getJekaModuleContainer().getModule();
-        CmdJekaDoer.INSTANCE.showRuntimeInformation(module);
+        CmdJekaDoer.getInstance(event.getProject()).showRuntimeInformation(module);
     }
 
 }

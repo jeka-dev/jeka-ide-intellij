@@ -3,13 +3,18 @@ package dev.jeka.ide.intellij.extension.projectwizard;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.projectRoots.*;
+import com.intellij.openapi.projectRoots.impl.JavaSdkImpl;
 import dev.jeka.core.tool.JkExternalToolApi;
 
 import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 class JekaWizardStep extends ModuleWizardStep implements Disposable {
 
@@ -21,6 +26,7 @@ class JekaWizardStep extends ModuleWizardStep implements Disposable {
         this.wizardPanel = wizardMainPanel;
         this.moduleBuilder = moduleBuilder;
     }
+
 
     static JekaWizardStep of(WizardContext wizardContext, JekaModuleBuilder moduleBuilder) {
         JekaWizardPanel wizardMainPanel = new JekaWizardPanel(wizardContext);
@@ -39,10 +45,14 @@ class JekaWizardStep extends ModuleWizardStep implements Disposable {
         moduleBuilder.setModuleFilePath(JkExternalToolApi.getImlFile(Paths.get(wizardPanel.getLocation())).toString());
         JekaModuleBuilder.ModuleData moduleData = moduleBuilder.moduleData;
         moduleData.setModuleDir(this.wizardPanel.getLocation());
-        moduleData.setScaffoldNature(wizardPanel.getScaffoldPanel().getScaffoldNature());
+        moduleData.setTemplate(wizardPanel.getScaffoldPanel().getTemplate());
         moduleData.setWrapperDelegate(wizardPanel.getScaffoldPanel().getSelectedDelegateWrapperModule());
         moduleData.setWrapperVersion(wizardPanel.getScaffoldPanel().getSelectedJekaVersion());
         if (wizardPanel.getWizardContext().getProject() == null) {
+            List<Sdk> sdks = ProjectJdkTable.getInstance().getSdksOfType(SdkType.findInstance(JavaSdkImpl.class));
+            if (!sdks.isEmpty()) {
+                this.wizardPanel.getWizardContext().setProjectJdk(sdks.get(0));
+            }
             wizardPanel.getWizardContext().setProjectFileDirectory(Paths.get(wizardPanel.getLocation()), true);
         } else {
             wizardPanel.getWizardContext().setProjectFileDirectory(wizardPanel.getWizardContext().getProject().getBasePath());
@@ -55,6 +65,10 @@ class JekaWizardStep extends ModuleWizardStep implements Disposable {
         if (validation != null) {
             throw new ConfigurationException(validation);
         }
+        if (wizardPanel.getWizardContext().getProject() == null
+                && ProjectJdkTable.getInstance().getSdksOfType(SdkType.findInstance(JavaSdkImpl.class)).isEmpty()) {
+            throw new ConfigurationException("No Java Sdk found on this instance of Intellij.");
+        }
         return true;
     }
 
@@ -63,4 +77,5 @@ class JekaWizardStep extends ModuleWizardStep implements Disposable {
         this.wizardPanel = null;
         this.moduleBuilder = null;
     }
+
 }

@@ -28,6 +28,8 @@ import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
+import java.nio.file.Path;
+
 
 /**
  * @author Jerome Angibaud
@@ -45,7 +47,7 @@ public class SyncAllImlAction extends AnAction {
         Project project = event.getProject();
         Module[] modules = ModuleManager.getInstance(project).getSortedModules();
         Runnable nextStep = null;
-        CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
+        CmdJekaDoer jekaDoer = CmdJekaDoer.getInstance(project);
         for (int i = modules.length-1; i >=0; i--) {
             Module module = modules[i];
             VirtualFile moduleDir = ModuleHelper.getModuleDir(module);
@@ -54,9 +56,8 @@ public class SyncAllImlAction extends AnAction {
             }
             final Runnable next = nextStep;
             final boolean clear = i == 0;
-            Runnable step = () ->
-                    jekaDoer.generateIml(project, moduleDir.toNioPath(), null,
-                            clear, module, next);
+            Path modulePath = moduleDir.toNioPath();
+            Runnable step = () -> jekaDoer.generateIml(modulePath, null, clear, module, next);
             nextStep = step;
         }
         final Runnable runnable = nextStep;

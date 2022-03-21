@@ -12,12 +12,15 @@ import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.NlsContexts;
+import dev.jeka.core.api.file.JkPathFile;
+import dev.jeka.core.api.utils.JkUtilsIO;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsPath;
+import dev.jeka.core.tool.JkConstants;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.engine.CmdJekaDoer2;
-import dev.jeka.ide.intellij.engine.ScaffoldNature;
+import dev.jeka.ide.intellij.common.model.JekaTemplate;
+import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 import icons.JekaIcons;
 import lombok.Data;
 import org.jetbrains.annotations.NonNls;
@@ -26,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -34,6 +38,10 @@ import java.util.List;
 public class JekaModuleBuilder extends ModuleBuilder {
 
     final ModuleData moduleData = new ModuleData();
+
+    JekaModuleBuilder() {
+        this.addListener(this::moduleCreated);
+    }
 
     @Override
     public @Nullable ModuleWizardStep getCustomOptionsStep(WizardContext context, Disposable parentDisposable) {
@@ -44,13 +52,12 @@ public class JekaModuleBuilder extends ModuleBuilder {
 
     @Override
     public @NotNull List<Class<? extends ModuleWizardStep>> getIgnoredSteps() {
-       // return super.getIgnoredSteps();
        return JkUtilsIterable.listOf(ProjectSettingsStep.class);
     }
 
     @Override
     public ModuleType<?> getModuleType() {
-        return JavaModuleType.getModuleType();
+        return null;
     }
 
     @Override
@@ -95,24 +102,33 @@ public class JekaModuleBuilder extends ModuleBuilder {
 
     @Override
     public Module createModule(ModifiableModuleModel model) throws ConfigurationException, IOException {
+        Path moduleDir = Paths.get(moduleData.moduleDir);
+        Path imlFile = JkExternalToolApi.getImlFile(moduleDir);
+
+        // Create a naked Jeka module. def dir is to make the module recognized as 'Jeka' module by ToolWindox
+        JkUtilsPath.createDirectories(moduleDir.resolve(JkConstants.DEF_DIR));
+        String imlContent = JkUtilsIO.read(JekaModuleBuilder.class.getResource("naked-java.iml"));
+        JkPathFile.of(imlFile).createIfNotExist().write(imlContent.getBytes(StandardCharsets.UTF_8));
+
+        Module module = model.loadModule(imlFile);
+        setupModule(module);
+        return module;
+    }
+
+    private void moduleCreated(@NotNull Module module) {
         Path wrapperDelegateModulePath = moduleData.getWrapperDelegate() == null ? null
                 : ModuleHelper.getModuleDir(moduleData.getWrapperDelegate()).toNioPath();
         Path moduleDir = Paths.get(moduleData.moduleDir);
         JkUtilsPath.createDirectories(moduleDir);
-        CmdJekaDoer2.INSTANCE.scaffoldModule(
-                model.getProject(),
+        CmdJekaDoer.getInstance(module.getProject()).scaffoldModule(
                 moduleDir,
                 true,
                 moduleData.getWrapperDelegate() != null || moduleData.getWrapperVersion() != null,
                 wrapperDelegateModulePath,
                 moduleData.getWrapperVersion(),
                 null,
-                moduleData.getScaffoldNature(),
-                false);
-        Path imlFile = JkExternalToolApi.getImlFile(moduleDir);
-        Module module = model.loadModule(imlFile);
-        setupModule(module);
-        return module;
+                moduleData.getTemplate().getCommandArgs()
+        );
     }
 
     @Data
@@ -123,7 +139,7 @@ public class JekaModuleBuilder extends ModuleBuilder {
 
         private String moduleDir;
 
-        private ScaffoldNature scaffoldNature;
+        private JekaTemplate template;
 
         private Module wrapperDelegate;
 

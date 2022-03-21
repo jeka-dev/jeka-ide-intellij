@@ -75,11 +75,11 @@ public class SyncImlAction extends AnAction {
             moduleDir = selectedFile;
             existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
         }
-        CmdJekaDoer jekaDoer = CmdJekaDoer.INSTANCE;
         Project project = event.getProject();
+        CmdJekaDoer jekaDoer = CmdJekaDoer.getInstance(project);
         ApplicationManager.getApplication().invokeAndWait(() -> {
             FileDocumentManager.getInstance().saveAllDocuments();
-            jekaDoer.generateIml(project, moduleDir.toNioPath(), className, true, existingModule, null);
+            jekaDoer.generateIml(moduleDir.toNioPath(), className, true, existingModule, null);
         });
     }
 

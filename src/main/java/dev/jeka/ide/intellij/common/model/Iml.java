@@ -1,7 +1,7 @@
 package dev.jeka.ide.intellij.common.model;
 
-import dev.jeka.core.api.marshalling.JkDomDocument;
-import dev.jeka.core.api.marshalling.JkDomElement;
+import dev.jeka.core.api.marshalling.xml.JkDomDocument;
+import dev.jeka.core.api.marshalling.xml.JkDomElement;
 import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.ide.intellij.common.Constants;
 import dev.jeka.ide.intellij.common.JekaDistributions;

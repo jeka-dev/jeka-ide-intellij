@@ -4,13 +4,15 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.utils.JkUtilsIO;
+import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.engine.ScaffoldNature;
+import dev.jeka.ide.intellij.common.model.JekaTemplate;
+import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -20,7 +22,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,9 +40,12 @@ public class ScaffoldFormPanel {
 
     private JCheckBox generateStructureCheckBox;
 
-    private ComboBox<ScaffoldNature> natureComboBox;
-
     private WrapperPanel wrapperPanel;
+
+    private JBList<JekaTemplate> templateJBList;
+
+    private TemplatePersistentStateComponent persistedTemplatesComponent =
+            TemplatePersistentStateComponent.getInstance();
 
     @Getter
     private JPanel panel;
@@ -63,27 +67,22 @@ public class ScaffoldFormPanel {
 
     private JPanel panel() {
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
-
-        generateStructureCheckBox = new JCheckBox();
-        generateStructureCheckBox.setSelected(true);
-        if (showCreateStructure) {
-            generateStructureCheckBox.addItemListener(item -> update());
-            formBuilder.addLabeledComponent("Generate structure and Build class", generateStructureCheckBox);
-        }
-
-        natureComboBox = new ComboBox<>();
-        natureComboBox.addItem(ScaffoldNature.SIMPLE);
-        natureComboBox.addItem(ScaffoldNature.JAVA_PROJECT);
-        natureComboBox.addItem(ScaffoldNature.SPRINGBOOT);
-        natureComboBox.addItem(ScaffoldNature.JEKA_PLUGIN);
-        natureComboBox.setSelectedItem(ScaffoldNature.JAVA_PROJECT);
-        formBuilder.addLabeledComponent("Build class:", natureComboBox);
-        formBuilder.addVerticalGap(15);
-
         List<Module> modules = effectiveModules();
         wrapperPanel = new WrapperPanel(modules, wrapperSelected);
         formBuilder.addComponent(wrapperPanel.getPanel());
-        formBuilder.addComponentFillVertically(new JPanel(), 0);
+        formBuilder.addVerticalGap(15);
+        generateStructureCheckBox = new JCheckBox();
+        generateStructureCheckBox.setSelected(true);
+        TemplatesPanel templatesPanel = new TemplatesPanel(this.persistedTemplatesComponent.getTemplates());
+        if (showCreateStructure) {
+            generateStructureCheckBox.addItemListener(item -> update());
+            formBuilder.addLabeledComponent("Generate structure and Build class", generateStructureCheckBox);
+            formBuilder.addComponentFillVertically( templatesPanel.component(), 5);
+        } else {
+            formBuilder.addLabeledComponentFillVertically("Template", templatesPanel.component());
+        }
+
+        //formBuilder.addComponentFillVertically(new JPanel(), 0);
         update();
         return formBuilder.getPanel();
     }
@@ -91,9 +90,11 @@ public class ScaffoldFormPanel {
     private java.util.List<Module> effectiveModules() {
         List result = new LinkedList<>();
         for (Module module : modules) {
-            Path path = Paths.get(ModuleHelper.getModuleDir(module).getPath());
-            Path wrapperProps = path.resolve("jeka/wrapper/wrapper.properties");;
-            if (Files.exists(wrapperProps) && !module.equals(currentModule)) {
+            Path path = ModuleHelper.getModuleDirPath(module);
+            Path wrapperProps = path.resolve("jeka/wrapper/wrapper.properties");
+
+            Path jekaw = JkUtilsSystem.IS_WINDOWS ? path.resolve("jekaw.bat") : path.resolve("jekaw");
+            if (Files.exists(wrapperProps) && !module.equals(currentModule) && Files.exists(jekaw)) {
                 result.add(module);
             }
         }
@@ -121,12 +122,12 @@ public class ScaffoldFormPanel {
         return this.wrapperPanel.getJekaVersion();
     }
 
-    public ScaffoldNature getScaffoldNature() {
-        return (ScaffoldNature) natureComboBox.getSelectedItem();
+    public JekaTemplate getTemplate() {
+        return templateJBList.getSelectedValue();
     }
 
     private void update() {
-        this.natureComboBox.setEnabled(this.generateStructureCheckBox.isSelected());
+        //this.templateJBList.setEnabled(this.generateStructureCheckBox.isSelected());
     }
 
     static class WrapperPanel {
@@ -242,5 +243,7 @@ public class ScaffoldFormPanel {
             throw new UncheckedIOException(e);
         }
     }
+
+
 
 }

@@ -24,7 +24,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.dialog.ScaffoldDialogWrapper;
+import dev.jeka.ide.intellij.panel.ScaffoldDialogWrapper;
 
 /**
  * @author Jerome Angibaud

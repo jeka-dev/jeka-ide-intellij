@@ -43,6 +43,8 @@ class JekaWizardPanel {
     }
 
     private JPanel panel() {
+        JBTextField nameLabel = new JBTextField();
+        nameLabel.setEditable(false);
         JBTextField locationPathText = new ExtendableTextField();
         locationTextField = new TextFieldWithBrowseButton(locationPathText);
         if (wizardContext.getProject() != null) {
@@ -58,6 +60,13 @@ class JekaWizardPanel {
                 wizardContext.getProject(),
                 fileChooserDescriptor()
         );
+        locationPathText.getDocument().addDocumentListener(new DocumentAdapter() {
+               @Override
+               protected void textChanged(@NotNull DocumentEvent e) {
+                   nameLabel.setText(getName());
+               }
+        });
+        nameLabel.setText(getName());
         ComponentValidator componentValidator = new ComponentValidator(locationTextField).withValidator(this::validateLocation)
                 .installOn(locationTextField);
         componentValidator.enableValidation();
@@ -70,9 +79,9 @@ class JekaWizardPanel {
         this.scaffoldPanel = ScaffoldFormPanel.of(wizardContext.getProject(), null, true, false);
 
         return FormBuilder.createFormBuilder()
+                .addLabeledComponent(new JBLabel("Name:"), nameLabel)
                 .addLabeledComponent(new JBLabel("Location:"), locationTextField)
-                .addComponent(this.scaffoldPanel.getPanel(), 20)
-                .addComponentFillVertically(new JPanel(), 0)  // to make component have their preffered size.
+                .addComponentFillVertically(this.scaffoldPanel.getPanel(), 20)
                 .getPanel();
     }
 

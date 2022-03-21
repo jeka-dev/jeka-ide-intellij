@@ -51,7 +51,7 @@ public class JekaToolWindows {
 
     private static void registerToolWindow(Project project) {
         ToolWindowManager manager = ToolWindowManager.getInstance(project);
-        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.closable(ID,
+        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.notClosable(ID,
                 JekaIcons.JEKA_GREY_NAKED, ToolWindowAnchor.RIGHT);
         ToolWindow toolWindow = manager.registerToolWindow(registerToolWindowTask);
         JekaExplorerPanel panel = new JekaExplorerPanel(project);

@@ -24,14 +24,13 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.SlowOperations;
-import com.intellij.util.ThrowableRunnable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkExternalToolApi;
@@ -41,10 +40,10 @@ import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
 import dev.jeka.ide.intellij.extension.JekaToolWindows;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,32 +51,34 @@ import java.nio.file.Paths;
 /**
  * @author Jerome Angibaud
  */
-public class CmdJekaDoer {
-
-    public static final CmdJekaDoer INSTANCE = new CmdJekaDoer();
+@Service
+@RequiredArgsConstructor
+public final class CmdJekaDoer {
 
     private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
 
-    public void generateIml(Project project, Path moduleDir, String qualifiedClassName, boolean clearConsole,
+    private final Project project;
+
+    public static CmdJekaDoer getInstance(Project project) {
+        return project.getService(CmdJekaDoer.class);
+    }
+
+    public void generateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
-        doGenerateIml(project, moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish);
+        doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish);
         JekaToolWindows.registerIfNeeded(project, false);
     }
 
-    public void scaffoldModule(Project project,
-                               Path moduleDir,
+    public void scaffoldModule(Path moduleDir,
                                boolean createStructure,
                                boolean createWrapper,
                                Path wrapDelegate,
                                String jekaVersion,
                                Module existingModule,
-                               ScaffoldNature nature,
-                               boolean refreshAfter) {
+                               String extraArgs) {
         Runnable afterScaffold = () -> {
-            Runnable afterGenerateIml = refreshAfter
-                    ? () -> refreshAfterIml(project, existingModule, moduleDir, null)
-                    : null;
-            doGenerateIml(project, moduleDir, null, false, existingModule, afterGenerateIml);
+            Runnable afterGenerateIml = () -> refreshAfterIml(existingModule, moduleDir, null);
+            doGenerateIml(moduleDir, null, false, existingModule, afterGenerateIml);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(moduleDir.resolve("jeka/wrapper"));
             }
@@ -93,11 +94,9 @@ public class CmdJekaDoer {
             setJekaJDKEnv(structureCmd, project, existingModule);
             structureCmd.addParameters("scaffold#run");
             structureCmd.setWorkDirectory(moduleDir.toFile());
-            if (nature != ScaffoldNature.SIMPLE) {
-                structureCmd.addParameters(natureParam(nature));
-            }
+            structureCmd.addParameters(JkUtilsString.translateCommandline(extraArgs));
             structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb", "-wc", "-kb=scaffold");
-            doCreateStructure = () -> start(structureCmd, project, true, afterScaffold, null);
+            doCreateStructure = () -> start(structureCmd, !createWrapper, afterScaffold, null);
         }
         if (createWrapper) {
             GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
@@ -109,7 +108,7 @@ public class CmdJekaDoer {
             }
             cmd.setWorkDirectory(moduleDir.toFile());
             cmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb");
-            start(cmd, project, true, doCreateStructure, null);
+            start(cmd, true, doCreateStructure, null);
         } else {
             doCreateStructure.run();
         }
@@ -123,10 +122,10 @@ public class CmdJekaDoer {
         setJekaJDKEnv(cmd, module.getProject(), module);
         cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
-        start(cmd, module.getProject(), true, null, null);
+        start(cmd, true, null, null);
     }
 
-    private void doGenerateIml(Project project, Path moduleDir, String qualifiedClassName, boolean clearConsole,
+    private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                                @Nullable  Module existingModule, Runnable onFinish) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         setJekaJDKEnv(cmd, project, existingModule);
@@ -135,31 +134,17 @@ public class CmdJekaDoer {
         if (qualifiedClassName != null) {
             cmd.addParameter("-kb=" + qualifiedClassName);
         }
-        Runnable onSuccess = () -> refreshAfterIml(project, existingModule, moduleDir, onFinish);
-        start(cmd, project, clearConsole, onSuccess,  null );
+        Runnable onSuccess = () -> refreshAfterIml(existingModule, moduleDir, onFinish);
+        start(cmd, clearConsole, onSuccess,  null );
     }
 
-    private static String[] natureParam(ScaffoldNature nature) {
-        if (nature == ScaffoldNature.JAVA_PROJECT) {
-            return new String[] {"project#"};
-        }
-        if (nature == ScaffoldNature.SPRINGBOOT) {
-            return new String[] {"@" + SPRINGBOOT_MODULE, "springboot#"};
-        }
-        if (nature == ScaffoldNature.JEKA_PLUGIN) {
-            return new String[] {"project#scaffoldTemplate=PLUGIN"};
-        }
-        throw new IllegalStateException("No instruction found for nature " + nature);
-    }
-
-    private ConsoleView getView(Project project) {
+    private ConsoleView getView() {
         return JekaConsoleToolWindows.getConsoleView(project);
     }
 
-    private static void refreshAfterIml(Project project, Module existingModule, Path moduleDir, Runnable onFinish) {
-
+    private void refreshAfterIml(Module existingModule, Path moduleDir, Runnable onFinish) {
         if (existingModule == null) {
-            //addModule(project, moduleDir);
+            addModule(moduleDir);
         } else {
             SlowOperations.allowSlowOperations(() -> {
                 VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
@@ -171,17 +156,17 @@ public class CmdJekaDoer {
         }
     }
 
-    private static void addModule(Project project, Path moduleDir) {
+    private void addModule(Path moduleDir) {
         SlowOperations.allowSlowOperations(() -> {
             Path iml = JkExternalToolApi.getImlFile(moduleDir);
             Path projectDir = Paths.get(project.getBasePath());
             Path modulesXml = projectDir.resolve(".idea/modules.xml");
-            ModuleHelper.addModule(projectDir, modulesXml, iml);
+            ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
             VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
         });
     }
 
-    private void start(GeneralCommandLine cmd, Project project, boolean clear, Runnable onSuccess, Runnable onFailure) {
+    private void start(GeneralCommandLine cmd, boolean clear, Runnable onSuccess, Runnable onFailure) {
         OSProcessHandler handler;
         JekaDistributions.getDefault();
         try {
@@ -191,7 +176,7 @@ public class CmdJekaDoer {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
                     if (event.getExitCode() != 0 && onFailure != null) {
-                        getView(project).print("\nSync has failed.\n",
+                        getView().print("\nSync has failed.\n",
                                 ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {
@@ -205,16 +190,16 @@ public class CmdJekaDoer {
         } catch (RuntimeException e) {
             throw e;
         }
-        attachView(project, handler, clear);
+        attachView(handler, clear);
         if (ApplicationManager.getApplication().isDispatchThread()) {
             JekaConsoleToolWindows.getToolWindow(project).show();
         }
     }
 
-    private void attachView(Project project, OSProcessHandler handler, boolean clear) {
-        getView(project).attachToProcess(handler);
+    private void attachView(OSProcessHandler handler, boolean clear) {
+        getView().attachToProcess(handler);
         if (clear) {
-            getView(project).clear();
+            getView().clear();
         }
         handler.startNotify();
         if (JekaConsoleToolWindows.getToolWindow(project) == null) {

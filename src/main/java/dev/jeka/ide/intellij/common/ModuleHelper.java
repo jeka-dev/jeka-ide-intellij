@@ -6,13 +6,14 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import dev.jeka.core.api.marshalling.JkDomDocument;
-import dev.jeka.core.api.marshalling.JkDomElement;
+import dev.jeka.core.api.marshalling.xml.JkDomDocument;
+import dev.jeka.core.api.marshalling.xml.JkDomElement;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,7 +49,8 @@ public class ModuleHelper {
         return candidate;
     }
 
-    public static void addModule(Path projectDir, Path modulesXmlPath, Path moduleImlFile) {
+
+    public static void addModuleInModulesXml(Path projectDir, Path modulesXmlPath, Path moduleImlFile) {
         String modulesQuery = "/project/component[@name='ProjectModuleManager']/modules";
         JkDomDocument doc = JkDomDocument.parse(modulesXmlPath);
         List<JkDomElement> modulesEl = doc.root().xPath(modulesQuery);
@@ -56,10 +58,17 @@ public class ModuleHelper {
             return;
         }
         JkDomElement modules = modulesEl.get(0);
-        String relativePath = projectDir.relativize(moduleImlFile).toString();
+        String relativePath = projectDir.relativize(moduleImlFile).toString().replace('\\', '/');
+        String filepath = "$PROJECT_DIR$/" + relativePath;
+        String fileurl = "file://" + filepath;
+        boolean alreadyExist = modules.children("module").stream()
+                .anyMatch(el -> filepath.equals(el.attr("filepath")));
+        if (alreadyExist) {
+            return;
+        }
         modules.add("module")
-                .attr("fileurl", "file://$PROJECT_DIR$/" + relativePath)
-                .attr("filepath", "$PROJECT_DIR$/" + relativePath);
+                .attr("fileurl", fileurl)
+                .attr("filepath", filepath);
         doc.save(modulesXmlPath);
     }
 
@@ -109,7 +118,9 @@ public class ModuleHelper {
         if (module != null) {
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
             Sdk sdk = moduleRootManager.getSdk();
-            return sdk.getHomeDirectory();
+            if (sdk != null) {
+                return sdk.getHomeDirectory();
+            }
         }
         ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
         Sdk sdk = projectRootManager.getProjectSdk();

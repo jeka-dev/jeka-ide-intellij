@@ -37,7 +37,8 @@ public class AppSettingsComponent {
         TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton(distributionPathText);
         JPanel distributionPanel = UI.PanelFactory.panel(textFieldWithBrowseButton)
                 .withLabel("Jeka distribution:")
-                .withComment("The location of the distribution for running Jeka.<br/>This distribution is also used to generate Jeka modules from scratch.")
+                .withComment("The location of the distribution for running Jeka when no wrapper is used." +
+                        "<br/>This distribution is also used to generate Jeka modules from scratch.")
                 .createPanel();
         textFieldWithBrowseButton.addBrowseFolderListener(
                 "Choose Jeka Distribution",

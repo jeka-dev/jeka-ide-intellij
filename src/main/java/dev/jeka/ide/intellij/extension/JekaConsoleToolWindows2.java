@@ -16,12 +16,16 @@
 
 package dev.jeka.ide.intellij.extension;
 
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.RegisterToolWindowTask;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -37,11 +41,42 @@ import javax.swing.*;
 /**
  * @author Jerome Angibaud
  */
-public class JekaConsoleToolWindows {
+@Service
+public final class JekaConsoleToolWindows2 {
 
-    private static final String ID = "Jeka console";
+    private static final String ID = "Jeka console2";
 
     private static final Icon ICON = JekaIcons.JEKA_GREY_NAKED_13;
+
+    private final Project project;
+
+    private final ConsoleView consoleView;
+
+    private final ToolWindow toolWindow;
+
+    public JekaConsoleToolWindows2(Project project) {
+        this.project = project;
+        consoleView = createConsoleView(project);
+        Disposer.register(project, consoleView);
+        toolWindow = registerToolWindow(project, consoleView);
+    }
+
+    public static JekaConsoleToolWindows2 getInstance(Project project) {
+        return project.getService(JekaConsoleToolWindows2.class);
+    }
+
+    public void launch(GeneralCommandLine commandLine) {
+        OSProcessHandler osProcessHandler;
+        try {
+            System.out.println("__________________-launch jeka " + commandLine.getCommandLineString());
+            osProcessHandler = new OSProcessHandler(commandLine);
+            osProcessHandler.startNotify();
+            consoleView.attachToProcess(osProcessHandler);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Jeka command line '" + commandLine.getCommandLineString() + "' failed");
+        }
+
+    }
 
     private static ConsoleView createConsoleView(Project project) {
         TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
@@ -49,42 +84,16 @@ public class JekaConsoleToolWindows {
         return builder.getConsole();
     }
 
-    @Deprecated
-    public static void registerToolWindow(Project project) {
+    private static ToolWindow registerToolWindow(Project project, ConsoleView consoleView) {
         ToolWindowManager manager = ToolWindowManager.getInstance(project);
-        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.notClosable(ID,
+        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.closable(ID,
                 ICON, ToolWindowAnchor.BOTTOM);
         ToolWindow toolWindow = manager.registerToolWindow(registerToolWindowTask);
         final ContentManager contentManager = toolWindow.getContentManager();
-        Content content = contentManager
-                .getFactory()
-                .createContent(getConsoleView(project).getComponent(), "", false);
+        Content content = contentManager.getFactory()
+                .createContent(consoleView.getComponent(), "", false);
         contentManager.addContent(content);
+        return toolWindow;
     }
 
-    public static ConsoleView getConsoleView(Project project) {
-        ConsoleView consoleView = project.getService(JekaConsoleViewService.class).getConsoleView();
-        if (consoleView == null) {
-            consoleView = createConsoleView(project);
-            project.getService(JekaConsoleViewService.class).setConsoleView(consoleView);
-        }
-        return consoleView;
-    }
-
-    public static ToolWindow getToolWindow(Project project) {
-        return ToolWindowManager.getInstance(project).getToolWindow(ID);
-    }
-
-    @Service
-    private static final class JekaConsoleViewService implements Disposable {
-
-        @Getter
-        @Setter
-        private ConsoleView consoleView;
-
-        @Override
-        public void dispose() {
-            consoleView = null;
-        }
-    }
 }
