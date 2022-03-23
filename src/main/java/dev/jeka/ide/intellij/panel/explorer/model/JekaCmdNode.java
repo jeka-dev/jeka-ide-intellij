@@ -1,16 +1,15 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.psi.PsiMethod;
-import dev.jeka.core.api.utils.JkUtilsIterable;
-import dev.jeka.core.tool.JkConstants;
 import dev.jeka.core.tool.JkExternalToolApi;
 import icons.JekaIcons;
 import lombok.Getter;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JekaCmdNode extends JekaAbstractModelNode {

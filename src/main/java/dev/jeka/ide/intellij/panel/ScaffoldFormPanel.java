@@ -4,7 +4,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.utils.JkUtilsIO;
@@ -42,7 +41,7 @@ public class ScaffoldFormPanel {
 
     private WrapperPanel wrapperPanel;
 
-    private JBList<JekaTemplate> templateJBList;
+    private TemplatesPanel templatesPanel;
 
     private TemplatePersistentStateComponent persistedTemplatesComponent =
             TemplatePersistentStateComponent.getInstance();
@@ -71,19 +70,20 @@ public class ScaffoldFormPanel {
         wrapperPanel = new WrapperPanel(modules, wrapperSelected);
         formBuilder.addComponent(wrapperPanel.getPanel());
         formBuilder.addVerticalGap(15);
-        generateStructureCheckBox = new JCheckBox();
-        generateStructureCheckBox.setSelected(true);
-        TemplatesPanel templatesPanel = new TemplatesPanel(this.persistedTemplatesComponent.getTemplates());
+        templatesPanel = new TemplatesPanel(this.persistedTemplatesComponent.getTemplates(),
+                templates -> this.persistedTemplatesComponent.setTemplates(templates));
         if (showCreateStructure) {
-            generateStructureCheckBox.addItemListener(item -> update());
+            generateStructureCheckBox = new JCheckBox();
+            generateStructureCheckBox.addItemListener(item ->
+                    templatesPanel.setEnabled(generateStructureCheckBox.isSelected()));
+            generateStructureCheckBox.setSelected(true);
             formBuilder.addLabeledComponent("Generate structure and Build class", generateStructureCheckBox);
-            formBuilder.addComponentFillVertically( templatesPanel.component(), 5);
+            formBuilder.addComponentFillVertically( templatesPanel.getComponent(), 5);
         } else {
-            formBuilder.addLabeledComponentFillVertically("Template", templatesPanel.component());
+            formBuilder.addLabeledComponentFillVertically("Template", templatesPanel.getComponent());
         }
 
         //formBuilder.addComponentFillVertically(new JPanel(), 0);
-        update();
         return formBuilder.getPanel();
     }
 
@@ -106,6 +106,9 @@ public class ScaffoldFormPanel {
     }
 
     public boolean isGeneratingStructure() {
+        if (generateStructureCheckBox == null) {
+            return true;
+        }
         return generateStructureCheckBox.isSelected();
     }
 
@@ -123,11 +126,7 @@ public class ScaffoldFormPanel {
     }
 
     public JekaTemplate getTemplate() {
-        return templateJBList.getSelectedValue();
-    }
-
-    private void update() {
-        //this.templateJBList.setEnabled(this.generateStructureCheckBox.isSelected());
+        return templatesPanel.getSelectedTemplate();
     }
 
     static class WrapperPanel {

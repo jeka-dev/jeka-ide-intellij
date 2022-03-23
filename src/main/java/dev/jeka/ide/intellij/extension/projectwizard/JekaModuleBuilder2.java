@@ -1,7 +1,6 @@
 package dev.jeka.ide.intellij.extension.projectwizard;
 
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
-import com.intellij.ide.util.projectWizard.ModuleBuilderListener;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.SettingsStep;
 import com.intellij.openapi.module.JavaModuleType;

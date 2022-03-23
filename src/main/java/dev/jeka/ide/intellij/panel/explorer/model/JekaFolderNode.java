@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import java.nio.file.Path;

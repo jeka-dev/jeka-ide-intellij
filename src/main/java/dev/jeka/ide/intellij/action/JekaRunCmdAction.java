@@ -1,6 +1,9 @@
 package dev.jeka.ide.intellij.action;
 
-import com.intellij.execution.*;
+import com.intellij.execution.Executor;
+import com.intellij.execution.ProgramRunnerUtil;
+import com.intellij.execution.RunManager;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
 import com.intellij.execution.executors.DefaultDebugExecutor;
@@ -14,12 +17,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiIdentifier;
-import com.intellij.psi.PsiMethod;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.data.CommandInfo;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 

@@ -28,7 +28,7 @@ public final class TemplatePersistentStateComponent implements PersistentStateCo
 
     public List<JekaTemplate> getTemplates() {
         if (templates.isEmpty()) {
-            templates.addAll(JekaTemplate.BUILT_IN);
+            templates.addAll(JekaTemplate.builtins());
         }
         return templates;
     }

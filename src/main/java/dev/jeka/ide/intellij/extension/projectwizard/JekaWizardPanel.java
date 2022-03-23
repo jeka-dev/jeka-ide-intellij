@@ -135,6 +135,7 @@ class JekaWizardPanel {
         if (wizardContext.getProject() != null) {
             return validateModuleName();
         }
+
         return null;
     }
 
