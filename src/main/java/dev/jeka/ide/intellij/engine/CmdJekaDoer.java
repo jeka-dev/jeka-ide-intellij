@@ -77,7 +77,8 @@ public final class CmdJekaDoer {
                                Module existingModule,
                                String extraArgs) {
         Runnable afterScaffold = () -> {
-            Runnable afterGenerateIml = () -> refreshAfterIml(existingModule, moduleDir, null);
+            //Runnable afterGenerateIml = () -> refreshAfterIml(existingModule, moduleDir, null);
+            Runnable afterGenerateIml = () -> {};
             doGenerateIml(moduleDir, null, false, existingModule, afterGenerateIml);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(moduleDir.resolve("jeka/wrapper"));
@@ -95,7 +96,7 @@ public final class CmdJekaDoer {
             structureCmd.addParameters("scaffold#run");
             structureCmd.setWorkDirectory(moduleDir.toFile());
             structureCmd.addParameters(JkUtilsString.translateCommandline(extraArgs));
-            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb", "-wc", "-kb=scaffold");
+            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld", "-wc", "-kb=scaffold");
             doCreateStructure = () -> start(structureCmd, !createWrapper, afterScaffold, null);
         }
         if (createWrapper) {
@@ -107,7 +108,7 @@ public final class CmdJekaDoer {
                 cmd.addParameter("scaffold#wrapperJekaVersion=" + jekaVersion);
             }
             cmd.setWorkDirectory(moduleDir.toFile());
-            cmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-lb");
+            cmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld");
             start(cmd, true, doCreateStructure, null);
         } else {
             doCreateStructure.run();
@@ -129,7 +130,7 @@ public final class CmdJekaDoer {
                                @Nullable  Module existingModule, Runnable onFinish) {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-dci", "-lb", "-lri");
+        cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld");
         cmd.setWorkDirectory(moduleDir.toFile());
         if (qualifiedClassName != null) {
             cmd.addParameter("-kb=" + qualifiedClassName);

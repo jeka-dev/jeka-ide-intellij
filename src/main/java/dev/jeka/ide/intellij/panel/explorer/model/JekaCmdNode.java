@@ -75,7 +75,7 @@ public class JekaCmdNode extends JekaAbstractModelNode {
 
     static List<JekaCmdNode> children(JekaAbstractModelNode parent, Module module, VirtualFile moduleDir) {
         VirtualFile cmdFile = moduleDir.findChild(JkConstants.JEKA_DIR).findChild(JkConstants.CMD_PROPERTIES);
-        if (!cmdFile.exists()) {
+        if (cmdFile == null) {
             return Collections.emptyList();
         }
         Document document = FileDocumentManager.getInstance().getDocument(cmdFile);
