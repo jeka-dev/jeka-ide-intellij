@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
@@ -20,7 +21,6 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 import dev.jeka.ide.intellij.action.*;
-import dev.jeka.ide.intellij.common.data.CommandInfo;
 import dev.jeka.ide.intellij.panel.explorer.action.RootAndJekaFolder;
 import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
 import dev.jeka.ide.intellij.panel.explorer.model.*;
@@ -44,8 +44,11 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
 
     private final Tree tree;
 
+    private final Project project;
+
     public JekaExplorerPanel(Project project) {
         super(true, true);
+        this.project = project;
         this.jekaRootManager = project.getService(JekaRootManager.class);
         Disposer.register(this, jekaRootManager);
         JekaExplorerTreeStructure treeStructure = new JekaExplorerTreeStructure(this.jekaRootManager);
@@ -116,6 +119,11 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                     ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
             JekaRunMethodAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
         }
+        if (nodeDescriptor.getElement() instanceof JekaCmdNode) {
+            AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
+                    ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
+            JekaRunCmdAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
+        }
     }
 
     private static void popupInvoked(Tree tree, final Component comp, final int x, final int y) {
@@ -132,6 +140,11 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         if (nodeDescriptor.getElement() instanceof JekaMethodNode) {
             group.add(JekaRunMethodAction.RUN_JEKA_INSTANCE);
             group.add(JekaRunMethodAction.DEBUG_JEKA_INSTANCE);
+            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
+
+        } else if (nodeDescriptor.getElement() instanceof JekaCmdNode) {
+            group.add(JekaRunCmdAction.RUN_JEKA_INSTANCE);
+            group.add(JekaRunCmdAction.DEBUG_JEKA_INSTANCE);
             group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
 
         } else if (nodeDescriptor.getElement() instanceof JekaFieldNode) {
@@ -157,7 +170,8 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     @Override
     public Object getData(@NotNull String dataId) {
         if (CommonDataKeys.NAVIGATABLE.is(dataId)
-                || CommandInfo.KEY.is(dataId)
+                || JekaRunCmdAction.CmdInfo.KEY.is(dataId)
+                || JekaRunMethodAction.MethodInfo.KEY.is(dataId)
                 || CommonDataKeys.VIRTUAL_FILE.is(dataId)
                 || RootAndJekaFolder.DATA_KEY.is(dataId)) {
             TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
@@ -172,11 +186,20 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
                 if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
                     return method.getPsiMethod();
                 }
-                if (CommandInfo.KEY.is(dataId)) {
+                if (JekaRunMethodAction.MethodInfo.KEY.is(dataId)) {
                     JekaBeanNode parent = (JekaBeanNode) method.getParent();
                     String beanName = parent.getName();
-                    return new CommandInfo(parent.getModule(),
+                    return new JekaRunMethodAction.MethodInfo(parent.getModule(),
                             parent.getKbeanPsiClass(), beanName, method.getPsiMethod().getName());
+                }
+            }
+            if (element instanceof JekaCmdNode) {
+                JekaCmdNode cmdNode = (JekaCmdNode) element;
+                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
+                    return PsiManager.getInstance(project).findFile(cmdNode.getFile());
+                }
+                if (JekaRunCmdAction.CmdInfo.KEY.is(dataId)) {
+                    return new JekaRunCmdAction.CmdInfo(cmdNode.getCmdName(), cmdNode.getModule());
                 }
             }
             if (element instanceof JekaFieldNode) {

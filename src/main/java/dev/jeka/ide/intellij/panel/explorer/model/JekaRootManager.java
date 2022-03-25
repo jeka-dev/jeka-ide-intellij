@@ -79,36 +79,9 @@ public final class JekaRootManager implements Disposable {
         changeListeners.forEach(Runnable::run);
     }
 
-    public void addModuleAndNotify(Module module) {
-        jekaFolderRoot.get(0).createJekaFolderAsDescendant(module);
-        notifyChange();
-    }
-
-    public void refreshModule(Module module) {
-        JekaFolderNode jekaFolder = jekaFolderRoot.stream()
-                .filter(jekaFolderNode -> module.equals(jekaFolderNode.getModule()))
-                .findFirst().orElse(null);
-        if (jekaFolder == null) {
-            return;
-        }
-        _refreshModule(jekaFolder);
-        notifyChange(null);
-    }
-
-    private void _refreshModule(JekaFolderNode jekaFolder) {
-        jekaFoldersRecursive()
-                .filter(folder -> folder.equals(jekaFolder))
-                .forEach(folder -> folder.getJekaModuleContainer().refresh());
-    }
-
     public void init() {
         ProgressManager progressManager = ProgressManager.getInstance();
         progressManager.run(initTask());
-    }
-
-    private Stream<JekaFolderNode> jekaFoldersRecursive() {
-        return jekaFolderRoot.stream()
-                .flatMap(jekaFolderNode -> jekaFolderNode.recursiveFolders().stream());
     }
 
     private Task initTask() {
@@ -182,12 +155,7 @@ public final class JekaRootManager implements Disposable {
         public void childReplaced(@NotNull PsiTreeChangeEvent event) {
             JekaRootManager.this.notifyChange(event);
         }
-    }
 
-    Stream<JekaBeanNode> allClasses() {
-        return jekaFolderRoot.stream()
-                .flatMap(folder -> folder.moduleStream())
-                .flatMap(jekaModule -> jekaModule.getBeanNodes().stream());
     }
 
 

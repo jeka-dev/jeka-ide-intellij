@@ -41,21 +41,21 @@ public class JekaRunCmdAction extends AnAction {
         this.debug = debug;
     }
 
-    private static String configurationName(Module module, String simpleClassName, String methodName) {
-        return module.getName() + " [jeka " + simpleClassName + "#" + methodName + "]";
+    private static String configurationName(Module module, String cmdName) {
+        return module.getName() + " [jeka $" + cmdName + "]";
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         DataContext dataContext = event.getDataContext();
-        Data data = dataContext.getData(Data.DATA_KEY);
-        String name = configurationName(data.module, "", data.name);
+        CmdInfo data = CmdInfo.KEY.getData(dataContext);
+        String name = configurationName(data.module,  data.cmdName);
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
         configuration.setModule(data.module);
-        configuration.setProgramParameters("$" + data.value);
+        configuration.setProgramParameters("$" + data.cmdName);
         configuration.setBeforeRunTasks(Collections.emptyList());
 
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
@@ -94,10 +94,13 @@ public class JekaRunCmdAction extends AnAction {
     }
 
     @Value
-    public static class Data {
-        public static final DataKey<Data> DATA_KEY = DataKey.create(Data.class.getName());
-        String name;
-        String value;
+    public static class CmdInfo {
+
+        public static final DataKey<CmdInfo> KEY = DataKey.create(CmdInfo.class.getName());
+
+        String cmdName;
+
         Module module;
+
     }
 }

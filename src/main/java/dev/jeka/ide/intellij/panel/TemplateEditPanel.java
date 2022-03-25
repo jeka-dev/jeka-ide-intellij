@@ -63,6 +63,8 @@ class TemplateEditPanel {
         });
         descTextarea.setFont(cmdTextField.getFont());
         descTextarea.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+        descTextarea.setLineWrap(true);
+        descTextarea.setWrapStyleWord(true);
         panel = panel();
     }
 
@@ -93,24 +95,5 @@ class TemplateEditPanel {
         listenerOn.set(true);
 
     }
-
-    public JekaTemplate getTemplate() {
-        return JekaTemplate.builder()
-                .name(nameTextField.getText().trim())
-                .commandArgs(cmdTextField.getText().trim())
-                .description(descTextarea.getText().trim())
-                .build();
-    }
-
-    private void updateName(DocumentEvent e) {
-        this.editedTemplate.setName(nameTextField.getText());
-    }
-
-    private void updateCmd(DocumentEvent e) {
-        this.editedTemplate.setCommandArgs(cmdTextField.getText());
-    }
-
-
-
 
 }

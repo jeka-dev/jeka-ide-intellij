@@ -1,33 +1,47 @@
 package dev.jeka.ide.intellij.panel.explorer.model;
 
 import com.intellij.ide.util.treeView.NodeDescriptor;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiManager;
+import dev.jeka.core.tool.JkConstants;
 import dev.jeka.core.tool.JkExternalToolApi;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import icons.JekaIcons;
 import lombok.Getter;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JekaCmdNode extends JekaAbstractModelNode {
 
     @Getter
-    private final String name;
+    private final String cmdName;
 
-    private final String value;
+    @Getter
+    private final VirtualFile file;
 
-    public JekaCmdNode(JekaAbstractModelNode parent, String name, String value) {
+    @Getter
+    private final Module module;
+
+    public JekaCmdNode(JekaAbstractModelNode parent, Module module, String name, VirtualFile file) {
         super(parent);
-        this.name = name;
-        this.value = value;
+        this.cmdName = name;
+        this.module = module;
+        this.file = file;
     }
 
     @Override
     protected NodeDescriptor<? extends JekaAbstractModelNode> makeNodeDescriptor() {
-        return basicNodeDescriptor(JekaIcons.CMD, name);
+        return basicNodeDescriptor(JekaIcons.CMD, cmdName);
     }
 
     @Override
@@ -35,17 +49,38 @@ public class JekaCmdNode extends JekaAbstractModelNode {
         return Collections.emptyList();
     }
 
-    static Map<String, String> all(Path moduleDir) {
-        Map<String, String> result = new HashMap<>();
-        JkExternalToolApi.getCmdPropertiesContent(moduleDir).entrySet().stream()
-                .filter(entry -> !entry.getKey().startsWith("_"))
-                .forEach(entry -> result.put(entry.getKey(), entry.getValue()));
+
+    private static Map<String, String> all(Document document) {
+        String content = document.getText();
+        Map<String, String> result = new TreeMap<>();
+        Properties properties = new Properties();
+        try {
+            properties.load(new StringReader(content));
+            Enumeration<String> e = (Enumeration<String>) properties.propertyNames();
+            while (e.hasMoreElements()) {
+                System.out.println(e.nextElement());
+            }
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                String key = (String) entry.getKey();
+                if (!key.startsWith("_")) {
+                    String value = (String) entry.getValue();
+                    result.put(key, value);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         return result;
     }
 
-    static List<JekaCmdNode> children(JekaAbstractModelNode parent, Path moduleDir) {
-        return all(moduleDir).entrySet().stream()
-                .map(entry -> new JekaCmdNode(parent, entry.getKey(), entry.getValue()))
+    static List<JekaCmdNode> children(JekaAbstractModelNode parent, Module module, VirtualFile moduleDir) {
+        VirtualFile cmdFile = moduleDir.findChild(JkConstants.JEKA_DIR).findChild(JkConstants.CMD_PROPERTIES);
+        if (!cmdFile.exists()) {
+            return Collections.emptyList();
+        }
+        Document document = FileDocumentManager.getInstance().getDocument(cmdFile);
+        return all(document).entrySet().stream()
+                .map(entry -> new JekaCmdNode(parent, module, entry.getKey(), cmdFile))
                 .collect(Collectors.toList());
     }
 }

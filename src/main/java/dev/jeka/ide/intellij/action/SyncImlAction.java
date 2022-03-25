@@ -30,10 +30,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
+import dev.jeka.core.api.utils.JkUtilsIterable;
+import dev.jeka.core.tool.JkConstants;
 import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
+
+import java.util.List;
 
 /**
  * @author Jerome Angibaud
@@ -46,12 +50,17 @@ public class SyncImlAction extends AnAction {
         return ActionManager.getInstance().getAction(ID);
     }
 
+    private static final List<String> RESYNC_FILES = JkUtilsIterable.listOf(JkConstants.CMD_PROPERTIES, JkConstants.PROJECT_PROPERTIES, "dependencies.txt");
+
     @Override
     public void actionPerformed(AnActionEvent event) {
         ////ModuleClass moduleClass = ModuleClass.of(event);
         VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (selectedFile.getName().equals("jeka")) {
+        if (selectedFile.getName().equals(JkConstants.JEKA_DIR)) {
             selectedFile = selectedFile.getParent();
+        }
+        if (isResyncFile(selectedFile)) {
+            selectedFile = selectedFile.getParent().getParent();
         }
         PsiClass beanClass = getPsiJkBeanClass(event);
         String className = beanClass == null ? null : beanClass.getQualifiedName();
@@ -95,8 +104,12 @@ public class SyncImlAction extends AnAction {
             return;
         }
 
-        if (selectedFile.getName().equals("jeka")) {
+        if (selectedFile.getName().equals(JkConstants.JEKA_DIR)) {
             selectedFile = selectedFile.getParent();
+        } else if (isResyncFile(selectedFile)) {
+            selectedFile = selectedFile.getParent().getParent();
+        } else if (selectedFile.findChild(JkConstants.JEKA_DIR) != null && selectedFile.findChild(JkConstants.JEKA_DIR).isDirectory()) {
+            // This is the module root dir => ok
         } else if ("ProjectViewPopup".equals(event.getPlace())) {
             event.getPresentation().setVisible(false);
             return;
@@ -155,5 +168,14 @@ public class SyncImlAction extends AnAction {
         }
         return null;
     }
+
+    private boolean isResyncFile(VirtualFile file) {
+        if (file.getParent().getName().equals(JkConstants.JEKA_DIR)) {
+            return false;
+        }
+        return RESYNC_FILES.contains(file.getName());
+    }
+
+
 
 }

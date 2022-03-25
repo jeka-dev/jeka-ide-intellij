@@ -145,12 +145,11 @@ public final class CmdJekaDoer {
     private void refreshAfterIml(Module existingModule, Path moduleDir, Runnable onFinish) {
         if (existingModule == null) {
             addModule(moduleDir);
-        } else {
-            SlowOperations.allowSlowOperations(() -> {
-                VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
-                VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
-            });
         }
+        SlowOperations.allowSlowOperations(() -> {
+            VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
+            VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
+        });
         if (onFinish != null) {
             onFinish.run();
         }
@@ -161,8 +160,10 @@ public final class CmdJekaDoer {
             Path iml = JkExternalToolApi.getImlFile(moduleDir);
             Path projectDir = Paths.get(project.getBasePath());
             Path modulesXml = projectDir.resolve(".idea/modules.xml");
-            ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
-            VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
+            if (Files.exists(modulesXml)) {
+                ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
+                VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
+            }
         });
     }
 

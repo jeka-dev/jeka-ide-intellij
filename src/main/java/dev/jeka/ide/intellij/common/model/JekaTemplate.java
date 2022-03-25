@@ -55,8 +55,8 @@ public class JekaTemplate {
         return JekaTemplate.builder()
                 .name("java project - code.less")
                 .commandArgs("project#scaffoldTemplate=CODE_LESS scaffold#cmdExtraContent=\"_append=@dev.jeka:jacoco-plugin" +
-                        " @dev.jeka:sonarqube-plugin\\nbuild=clean project#pack" +
-                        "\\nbuild_quality=clean project#pack sonanrqube#run jacoco# -Dsonar.host.url=http://localhost:9000\\n\" " +
+                        " @dev.jeka:sonarqube-plugin -kb=project\\nbuild=clean project#pack" +
+                        "\\nbuild_quality=clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\" " +
                         "scaffold#projectPropsExtraContent=\"jeka.java.version=11\"")
                 .description("Template for building Java projects witout needing build code.\n" +
                         "\n" +

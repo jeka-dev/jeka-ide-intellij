@@ -84,7 +84,9 @@ public class ScaffoldFormPanel {
         }
 
         //formBuilder.addComponentFillVertically(new JPanel(), 0);
-        return formBuilder.getPanel();
+        JPanel panel = formBuilder.getPanel();
+        panel.setMinimumSize(new Dimension(600, 0));
+        return panel;
     }
 
     private java.util.List<Module> effectiveModules() {

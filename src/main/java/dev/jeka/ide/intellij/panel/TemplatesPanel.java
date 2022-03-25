@@ -52,7 +52,13 @@ public class TemplatesPanel {
 
     private JComponent component() {
         templateJBList = new JBList<>(templateListModel);
-        templateJBList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> new JBLabel(value.getName()));
+        templateJBList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            JLabel label = new JBLabel(value.getName());
+            if (cellHasFocus) {
+                label.setForeground(Color.white);
+            }
+            return label;
+        });
         templateEditPanel = new TemplateEditPanel();
         templateJBList.addListSelectionListener(event -> {
             if (templateJBList.getSelectedValue() != null) {
@@ -115,6 +121,7 @@ public class TemplatesPanel {
                 ;
 
         JPanel decoratorPanel = toolbarDecorator.createPanel();
+        decoratorPanel.setMinimumSize(new Dimension(200, 0));
         JBSplitter splitter = new JBSplitter();
         splitter.setFirstComponent(decoratorPanel);
         splitter.setSecondComponent(templateEditPanel.getPanel());

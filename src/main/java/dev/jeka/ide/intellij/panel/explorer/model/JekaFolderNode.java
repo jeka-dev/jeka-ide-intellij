@@ -4,6 +4,9 @@ import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,7 +53,7 @@ public class JekaFolderNode extends JekaAbstractModelNode {
     public List<JekaAbstractModelNode> getChildren() {
         List<JekaAbstractModelNode> children = new LinkedList<>();
         if (jekaModuleContainer != null) {
-            children.addAll(JekaCmdNode.children(this, folderPath));
+            children.addAll(JekaCmdNode.children(this, module, VirtualFileManager.getInstance().findFileByNioPath(folderPath)));
             children.addAll(jekaModuleContainer.getBeanNodes());
         }
         children.addAll(subFolders);

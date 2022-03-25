@@ -9,15 +9,17 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.data.CommandInfo;
+import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -57,13 +59,13 @@ public class JekaRunMethodAction extends AnAction {
             simpleClassName = psiMethod.getContainingClass().getName();
             module = ModuleHelper.getModule(event);
         } else {
-            CommandInfo commandInfo = CommandInfo.KEY.getData(dataContext);
-            if (commandInfo == null) {
+            MethodInfo methodInfo = MethodInfo.KEY.getData(dataContext);
+            if (methodInfo == null) {
                 throw new IllegalStateException("Can not find reference to Psi method");
             }
-            methodName = commandInfo.getMethodName();
-            simpleClassName = commandInfo.getCommandClass().getName();
-            module = commandInfo.getModule();;
+            methodName = methodInfo.getMethodName();
+            simpleClassName = methodInfo.getBeanClass().getName();
+            module = methodInfo.getModule();;
         }
         String name = configurationName(module, simpleClassName, methodName);
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
@@ -108,4 +110,19 @@ public class JekaRunMethodAction extends AnAction {
                 .collect(Collectors.toList());
     }
 
+    @Value
+    public static class MethodInfo {
+
+        public static final DataKey<MethodInfo> KEY = DataKey.create(MethodInfo.class.getName());
+
+        Module module;
+
+        PsiClass beanClass;
+
+        String beanName;
+
+        String methodName;
+
+
+    }
 }
