@@ -3,6 +3,7 @@ package dev.jeka.ide.intellij.common;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import dev.jeka.core.tool.JkDoc;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,22 +33,7 @@ public class PsiClassHelper {
         return false;
     }
 
-    public static boolean isExtending(PsiClass psiClass, String superclassName) {
-        if (psiClass == null) {
-            return false;
-        }
-        if (superclassName.equals(psiClass.getQualifiedName())) {
-            return true;
-        }
-        for (PsiClass superPsiClass : psiClass.getSupers()) {
-            if (superclassName.equals(superPsiClass.getQualifiedName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static List<PsiClass> findJekaCommandClasses(Module module) {
+    public static List<PsiClass> findKBeanClasses(Module module) {
         VirtualFile rootDir = ModuleHelper.getModuleDir(module);
         if (rootDir == null) {
             return Collections.emptyList();
@@ -58,10 +44,10 @@ public class PsiClassHelper {
         }
         PsiManager psiManager = PsiManager.getInstance(module.getProject());
         PsiDirectory jekaDir = psiManager.findDirectory(jekaDefFolder);
-        return findJekaCommandClasses(jekaDir);
+        return findKBeanClasses(jekaDir);
     }
 
-    private static List<PsiClass> findJekaCommandClasses(PsiDirectory dir) {
+    private static List<PsiClass> findKBeanClasses(PsiDirectory dir) {
         List<PsiClass> result = new LinkedList<>();
         for (PsiFile psiFile : dir.getFiles()) {
             if (psiFile instanceof PsiJavaFile) {
@@ -74,9 +60,38 @@ public class PsiClassHelper {
             }
         }
         for (PsiDirectory subDir : dir.getSubdirectories()) {
-            result.addAll(findJekaCommandClasses(subDir));
+            result.addAll(findKBeanClasses(subDir));
         }
         return result;
     }
+
+    public static String getJkDoc(PsiJvmModifiersOwner psiClass) {
+        PsiAnnotation annotation = psiClass.getAnnotation(JkDoc.class.getName());
+        if (annotation == null) {
+            return null;
+        }
+        PsiAnnotationMemberValue value = annotation.findAttributeValue("value");
+        if (value == null || value.getText() == null) {
+            return null;
+        }
+        String text = value.getText();
+        if (text.startsWith("{")) {
+            text = text.substring(1);
+        }
+        if (text.startsWith("\"")) {
+            text = text.substring(1);
+        }
+        if (text.endsWith("}")) {
+            text = text.substring(0, text.length()-1);
+        }
+        if (text.endsWith("\"")) {
+            text = text.substring(0, text.length()-1);
+        }
+        if (text.endsWith(".")) {
+            text = text.substring(0, text.length()-1);
+        }
+        return text;
+    }
+
 
 }

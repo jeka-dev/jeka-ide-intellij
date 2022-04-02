@@ -1,30 +1,22 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package dev.jeka.ide.intellij.panel.explorer;
 
-import com.intellij.ide.DataManager;
-import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
-import com.intellij.ui.tree.AsyncTreeModel;
-import com.intellij.ui.tree.StructureTreeModel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.ui.tree.TreeUtil;
-import dev.jeka.ide.intellij.action.*;
-import dev.jeka.ide.intellij.panel.explorer.action.RootAndJekaFolder;
-import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
-import dev.jeka.ide.intellij.panel.explorer.model.*;
-import lombok.Getter;
+import dev.jeka.ide.intellij.action.RefreshWindowToolAction;
+import dev.jeka.ide.intellij.action.SyncAllImlAction;
+import dev.jeka.ide.intellij.panel.explorer.tree.AbstractNode;
+import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,14 +25,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 
 
-public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposable {
-
-    @Getter
-    private final JekaRootManager jekaRootManager;
-
-    private final StructureTreeModel structureTreeModel;
+public class JekaExplorerPanel extends SimpleToolWindowPanel {
 
     private final Tree tree;
 
@@ -49,17 +37,10 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
     public JekaExplorerPanel(Project project) {
         super(true, true);
         this.project = project;
-        this.jekaRootManager = project.getService(JekaRootManager.class);
-        Disposer.register(this, jekaRootManager);
-        JekaExplorerTreeStructure treeStructure = new JekaExplorerTreeStructure(this.jekaRootManager);
-        this.structureTreeModel = new StructureTreeModel(treeStructure, this);
-        this.jekaRootManager.addChangeListener(this::refreshTree);
-        this.tree = new Tree(new AsyncTreeModel(this.structureTreeModel, this));
-        this.tree.setRootVisible(false);
-        this.tree.setShowsRootHandles(true);
+        this.tree = project.getService(JekaToolWindowTreeService.class).getTree();
+
         setupActions();
         setContent(ScrollPaneFactory.createScrollPane(tree));
-        DumbService.getInstance(project).smartInvokeLater(this::populateTree);
 
         // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360006504879-Add-an-action-buttons-to-my-custom-tool-window
         final ActionManager actionManager = ActionManager.getInstance();
@@ -72,162 +53,37 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel implements Disposab
         this.setToolbar(actionToolbar.getComponent());
     }
 
-    private void populateTree() {
-        jekaRootManager.init();
-    }
-
-    public void refreshTree() {
-        tree.invalidate();
-        structureTreeModel.invalidate();
-    }
-
-    @Override
-    public void dispose() {
-        System.out.println(this.getClass() + " disposed !!!!!!!!!!!!");
-        jekaRootManager.removeChangeListener(this::refreshTree);
-    }
-
     private void setupActions() {
         TreeUtil.installActions(tree);
         new TreeSpeedSearch(tree);
         tree.addMouseListener(new PopupHandler() {
             @Override
             public void invokePopup(final Component comp, final int x, final int y) {
-                popupInvoked(tree, comp, x, y);
+                //popupInvoked(tree, comp, x, y);
             }
         });
         new EditSourceOnDoubleClickHandler.TreeMouseListener(tree, null) {
             @Override
             protected void processDoubleClick(@NotNull MouseEvent e, @NotNull DataContext dataContext, @NotNull TreePath treePath) {
-                doubleClick(tree, e.getX(), e.getY());
+                //doubleClick(tree, e.getX(), e.getY());
             }
         }.installOn(tree);
-    }
-
-    private static void doubleClick(Tree tree, final int x, final int y) {
-        Object userObject = null;
-        final TreePath path = tree.getSelectionPath();
-        if (path != null) {
-            final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-            if (node != null) {
-                userObject = node.getUserObject();
-            }
-        }
-        NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
-        if (nodeDescriptor.getElement() instanceof JekaMethodNode) {
-            AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
-                    ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
-            JekaRunMethodAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
-        }
-        if (nodeDescriptor.getElement() instanceof JekaCmdNode) {
-            AnActionEvent actionEvent = new AnActionEvent(null, DataManager.getInstance().getDataContext(tree),
-                    ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
-            JekaRunCmdAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
-        }
-    }
-
-    private static void popupInvoked(Tree tree, final Component comp, final int x, final int y) {
-        Object userObject = null;
-        final TreePath path = tree.getSelectionPath();
-        if (path != null) {
-            final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-            if (node != null) {
-                userObject = node.getUserObject();
-            }
-        }
-        NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
-        final DefaultActionGroup group = new DefaultActionGroup();
-        if (nodeDescriptor.getElement() instanceof JekaMethodNode) {
-            group.add(JekaRunMethodAction.RUN_JEKA_INSTANCE);
-            group.add(JekaRunMethodAction.DEBUG_JEKA_INSTANCE);
-            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
-
-        } else if (nodeDescriptor.getElement() instanceof JekaCmdNode) {
-            group.add(JekaRunCmdAction.RUN_JEKA_INSTANCE);
-            group.add(JekaRunCmdAction.DEBUG_JEKA_INSTANCE);
-            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
-
-        } else if (nodeDescriptor.getElement() instanceof JekaFieldNode) {
-            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
-
-        } else if (nodeDescriptor.getElement() instanceof JekaBeanNode) {
-            group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
-
-        } else if (nodeDescriptor.getElement() instanceof JekaFolderNode) {
-            JekaFolderNode jekaFolder = (JekaFolderNode) nodeDescriptor.getElement();
-            if (jekaFolder.getJekaModuleContainer() != null) {
-                group.add(SyncImlAction.get());
-                group.add(ShowRuntimeInformationAction.INSTANCE);
-            }
-            group.add(ScaffoldAction.get());
-        }
-        final ActionPopupMenu popupMenu = ActionManager.getInstance()
-                .createActionPopupMenu(ActionPlaces.ANT_EXPLORER_POPUP, group);
-        popupMenu.getComponent().show(comp, x, y);
     }
 
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (CommonDataKeys.NAVIGATABLE.is(dataId)
-                || JekaRunCmdAction.CmdInfo.KEY.is(dataId)
-                || JekaRunMethodAction.MethodInfo.KEY.is(dataId)
-                || CommonDataKeys.VIRTUAL_FILE.is(dataId)
-                || RootAndJekaFolder.DATA_KEY.is(dataId)) {
-            TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
-            if (treePath == null) {
-                return null;
-            }
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-            NodeDescriptor nodeDescriptor = (NodeDescriptor) node.getUserObject();
-            Object element = nodeDescriptor.getElement();
-            if (element instanceof JekaMethodNode) {
-                JekaMethodNode method = (JekaMethodNode) element;
-                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-                    return method.getPsiMethod();
-                }
-                if (JekaRunMethodAction.MethodInfo.KEY.is(dataId)) {
-                    JekaBeanNode parent = (JekaBeanNode) method.getParent();
-                    String beanName = parent.getName();
-                    return new JekaRunMethodAction.MethodInfo(parent.getModule(),
-                            parent.getKbeanPsiClass(), beanName, method.getPsiMethod().getName());
-                }
-            }
-            if (element instanceof JekaCmdNode) {
-                JekaCmdNode cmdNode = (JekaCmdNode) element;
-                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-                    return PsiManager.getInstance(project).findFile(cmdNode.getFile());
-                }
-                if (JekaRunCmdAction.CmdInfo.KEY.is(dataId)) {
-                    return new JekaRunCmdAction.CmdInfo(cmdNode.getCmdName(), cmdNode.getModule());
-                }
-            }
-            if (element instanceof JekaFieldNode) {
-                JekaFieldNode jekaField = (JekaFieldNode) element;
-                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-                    return jekaField.getField();
-                }
-            }
-            if (element instanceof JekaBeanNode) {
-                JekaBeanNode holder = (JekaBeanNode) element;
-                if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-                    return holder.getKbeanPsiClass();
-                }
-            }
-            if (element instanceof JekaFolderNode) {
-                JekaFolderNode folder = (JekaFolderNode) element;
-                if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
-                    VirtualFile virtualFile =
-                            LocalFileSystem.getInstance().findFileByIoFile(folder.getFolderPath().toFile());
-                    if (virtualFile != null) {
-                        return virtualFile;
-                    }
-                }
-                if (RootAndJekaFolder.DATA_KEY.is(dataId)) {
-                    return new RootAndJekaFolder(jekaRootManager, folder);
-                }
-            }
+        TreePath treePath = tree.getSelectionModel().getLeadSelectionPath();
+        if (treePath == null) {
+            return super.getData(dataId);
         }
-        return super.getData(dataId);
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+        if (node == null || !(node instanceof AbstractNode)) {
+            return super.getData(dataId);
+        }
+        AbstractNode abstractNode = (AbstractNode) node;
+        return Optional.ofNullable(abstractNode.getActionData(dataId)).orElseGet(() -> super.getData(dataId));
     }
+
+
 }

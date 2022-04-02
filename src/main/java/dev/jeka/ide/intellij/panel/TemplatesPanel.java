@@ -70,7 +70,7 @@ public class TemplatesPanel {
         // feed back when template neme changed by user
         templateEditPanel.getNameChangeListener().append(template -> templateListModel.contentsChanged(template));
 
-        templateJBList.setSelectedValue(JekaTemplate.blank(), true);
+        templateJBList.setSelectedIndex(0);
         ToolbarDecorator toolbarDecorator = ToolbarDecorator.createDecorator(templateJBList)
                 .setMinimumSize(new Dimension(200, 150))
                 .addExtraAction(new AnActionButton("Duplicate", "Duplicate", AllIcons.Actions.Copy) {

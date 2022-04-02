@@ -19,9 +19,8 @@ package dev.jeka.ide.intellij.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
+import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
 
 
 /**
@@ -38,13 +37,7 @@ public class RefreshWindowToolAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getProject();
-        JekaRootManager jekaRootManager = project.getService(JekaRootManager.class);
-        if (!jekaRootManager.isInitialised()) {
-            return;
-        }
-        if (jekaRootManager != null) {
-            DumbService.getInstance(project).smartInvokeLater(jekaRootManager::init);
-        }
+        project.getService(JekaToolWindowTreeService.class).reloadAndRefresh();
     }
 
 }

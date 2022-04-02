@@ -96,12 +96,11 @@
     </extensions>
     
     <projectListeners>
-
-        <listener class="dev.jeka.ide.intellij.extension.JekaToolWindowManagerListener"
-                  topic="com.intellij.openapi.wm.ex.ToolWindowManagerListener"/>
-
+        
         <listener class="dev.jeka.ide.intellij.extension.JekaModuleListener"
                   topic="com.intellij.openapi.project.ModuleListener"/>
+
+
     </projectListeners>
     
 

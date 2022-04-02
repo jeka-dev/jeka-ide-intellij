@@ -19,6 +19,7 @@ package dev.jeka.ide.intellij.panel.explorer.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.module.Module;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 
@@ -26,6 +27,8 @@ import dev.jeka.ide.intellij.engine.CmdJekaDoer;
  * @author Jerome Angibaud
  */
 public class ShowRuntimeInformationAction extends AnAction {
+
+    public static final DataKey<Module> DATA_KEY = DataKey.create(ShowRuntimeInformationAction.class.getName());
 
     public static final ShowRuntimeInformationAction INSTANCE = new ShowRuntimeInformationAction();
 
@@ -35,8 +38,7 @@ public class ShowRuntimeInformationAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        RootAndJekaFolder rootAndJekaFolder = event.getData(RootAndJekaFolder.DATA_KEY);
-        Module module = rootAndJekaFolder.getJekaFolder().getJekaModuleContainer().getModule();
+        Module module = event.getData(DATA_KEY);
         CmdJekaDoer.getInstance(event.getProject()).showRuntimeInformation(module);
     }
 

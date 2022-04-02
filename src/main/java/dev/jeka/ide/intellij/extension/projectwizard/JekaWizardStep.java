@@ -67,6 +67,9 @@ class JekaWizardStep extends ModuleWizardStep implements Disposable {
                 && ProjectJdkTable.getInstance().getSdksOfType(SdkType.findInstance(JavaSdkImpl.class)).isEmpty()) {
             throw new ConfigurationException("No Java Sdk found on this instance of Intellij.");
         }
+        if (wizardPanel.getScaffoldPanel().getTemplate() == null) {
+            throw new ConfigurationException("You must choose a template.");
+        }
         return true;
     }
 

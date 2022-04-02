@@ -123,7 +123,7 @@ public final class CmdJekaDoer {
         setJekaJDKEnv(cmd, module.getProject(), module);
         cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
-        start(cmd, true, null, null);
+        start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
     }
 
     private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,

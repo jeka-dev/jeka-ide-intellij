@@ -58,7 +58,7 @@ public class JekaTemplate {
                         " @dev.jeka:sonarqube-plugin -kb=project\\nbuild=clean project#pack" +
                         "\\nbuild_quality=clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\" " +
                         "scaffold#projectPropsExtraContent=\"jeka.java.version=11\"")
-                .description("Template for building Java projects witout needing build code.\n" +
+                .description("Template for building Java projects without needing build code.\n" +
                         "\n" +
                         "Use this template if your project is standard enough to not require \n" +
                         "any code to configure builds.\n" +

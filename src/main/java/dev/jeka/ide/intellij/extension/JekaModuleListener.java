@@ -1,11 +1,9 @@
 package dev.jeka.ide.intellij.extension;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
-import dev.jeka.ide.intellij.panel.explorer.model.JekaRootManager;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +31,7 @@ public class JekaModuleListener implements ModuleListener {
     }
 
     private void notifyChange(Project project) {
+        /*
         JekaRootManager jekaRootManager = project.getService(JekaRootManager.class);
         if (!jekaRootManager.isInitialised()) {
             return;
@@ -40,6 +39,7 @@ public class JekaModuleListener implements ModuleListener {
         if (jekaRootManager != null) {
             DumbService.getInstance(project).smartInvokeLater(jekaRootManager::init);
         }
+         */
     }
 
 }
