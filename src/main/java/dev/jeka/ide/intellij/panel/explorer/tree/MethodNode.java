@@ -6,6 +6,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.ide.intellij.extension.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
+import dev.jeka.ide.intellij.extension.action.JekaRunMethodParamAction;
 import icons.JekaIcons;
 
 public class MethodNode extends AbstractNode {
@@ -39,6 +40,8 @@ public class MethodNode extends AbstractNode {
     public void fillPopupMenu(DefaultActionGroup group) {
         group.add(JekaRunMethodAction.RUN_JEKA_INSTANCE);
         group.add(JekaRunMethodAction.DEBUG_JEKA_INSTANCE);
+        group.add(JekaRunMethodParamAction.RUN_JEKA_INSTANCE);
+        group.add(JekaRunMethodParamAction.DEBUG_JEKA_INSTANCE);
         group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
     }
 

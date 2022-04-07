@@ -19,6 +19,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,50 +48,11 @@ public class JekaRunCmdAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        Project project = event.getProject();
         DataContext dataContext = event.getDataContext();
         CmdInfo data = CmdInfo.KEY.getData(dataContext);
-        String name = configurationName(data.module,  data.cmdName);
-        ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
-        configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
-        configuration.setMainClassName("dev.jeka.core.tool.Main");
-        configuration.setModule(data.module);
-        configuration.setProgramParameters("$" + data.cmdName);
-        configuration.setBeforeRunTasks(Collections.emptyList());
-
-        RunnerAndConfigurationSettings runnerAndConfigurationSettings =
-                RunManager.getInstance(project).createConfiguration(configuration, configuration.getFactory());
-        ApplicationConfiguration applicationRunConfiguration =
-                (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
-
-        applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
-        applyClasspathModification(applicationRunConfiguration, data.module);
-
-        Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
-                DefaultRunExecutor.getRunExecutorInstance();
-        RunManager.getInstance(project).addConfiguration(runnerAndConfigurationSettings);
-        RunManager.getInstance(project).setSelectedConfiguration(runnerAndConfigurationSettings);
-        ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
-    }
-
-    private static void applyClasspathModification(ApplicationConfiguration applicationConfiguration, Module module) {
-        LinkedHashSet<ModuleBasedConfigurationOptions.ClasspathModification> excludes = new LinkedHashSet<>();
-        excludes.addAll(findExclusion(module));
-        ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
-        List<Module> depModules = ModuleHelper.getModuleDependencies(moduleManager, module);
-        depModules.forEach(mod -> excludes.addAll(findExclusion(mod)));
-        applicationConfiguration.setClasspathModifications(new LinkedList<>(excludes));
-    }
-
-    private static List<ModuleBasedConfigurationOptions.ClasspathModification> findExclusion(Module module) {
-        VirtualFile[] roots = ModuleRootManager.getInstance(module).orderEntries().classes().getRoots();
-        return Arrays.stream(roots)
-                .filter(virtualFile -> "file".equals(virtualFile.getFileSystem().getProtocol()))
-                .peek(virtualFile -> System.out.println(virtualFile.getPath()))
-                .map(VirtualFile::toNioPath)
-                .map(path ->
-                        new ModuleBasedConfigurationOptions.ClasspathModification(path.toString(), true))
-                .collect(Collectors.toList());
+        String configurationName = configurationName(data.module,  data.cmdName);
+        String cmd = "$" + data.cmdName;
+        ConfigurationRunner.run(data.module, configurationName, cmd, debug);
     }
 
     @Value
