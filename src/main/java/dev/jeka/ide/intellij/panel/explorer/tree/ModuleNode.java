@@ -6,12 +6,14 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.util.SlowOperations;
 import dev.jeka.core.tool.JkConstants;
-import dev.jeka.ide.intellij.action.ScaffoldAction;
-import dev.jeka.ide.intellij.action.SyncImlAction;
+import dev.jeka.ide.intellij.extension.action.ScaffoldAction;
+import dev.jeka.ide.intellij.extension.action.SyncImlAction;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
@@ -22,7 +24,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,9 +39,13 @@ public class ModuleNode extends AbstractNode {
     }
 
     private void load() {
-        System.out.println("------------------------------------------------load module " + module);
         createCmdChildren().forEach(this::add);
-        createBeanNodes().forEach(this::add);
+        List<BeanNode> beanNodes = createBeanNodes();
+        beanNodes.forEach(this::add);
+        Set<String> names = beanNodes.stream()
+                .map(beanNode -> beanNode.getPsiClass().getQualifiedName())
+                .collect(Collectors.toSet());
+        this.add(new BeanBoxNode(project, ModuleHelper.getModuleDirPath(module), names));
     }
 
     @Override
@@ -139,24 +144,21 @@ public class ModuleNode extends AbstractNode {
     }
 
     @Override
-    protected void onFileEvent(VFileEvent fileEvent) {
-        Path filePath = Paths.get(fileEvent.getPath());
+    protected void onFileEvent(List<? extends VFileEvent> fileEvents) {
         Path modulePath = ModuleHelper.getModuleDirPath(module);
         Path jekaDirPath = modulePath.resolve(JkConstants.JEKA_DIR);
-        if (!filePath.startsWith(jekaDirPath)) {
-            return;
-        }
-        if (filePath.equals(jekaDirPath.resolve(JkConstants.CMD_PROPERTIES))) {
-            removeCmdNodes();
-            List<CmdNode> newNodes = createCmdChildren();
-            Collections.reverse(newNodes);
-            newNodes.forEach(node -> insert(node, 0));
-            refresh();
-        }
-        if (filePath.startsWith(modulePath.resolve(JkConstants.DEF_DIR))) {
-            removeBeanNodes();
-            createBeanNodes().forEach(this::add);
-            refresh();
+        boolean mustRecompute = fileEvents.stream()
+                .map(fileEvent -> fileEvent.getFile().toNioPath())
+                .anyMatch(file -> mustRecompute(jekaDirPath, file));
+        if (mustRecompute) {
+            removeAllChildren();
+            DumbService.getInstance(project).smartInvokeLater(() -> {
+                SlowOperations.allowSlowOperations(() -> {
+                    load();
+                    refresh();
+                });
+            });
+
         }
 
     }
@@ -165,5 +167,22 @@ public class ModuleNode extends AbstractNode {
        return PsiClassHelper.findKBeanClasses(module).stream()
                 .map(beanClass -> new BeanNode(project, beanClass))
                 .collect(Collectors.toList());
+    }
+
+    private static boolean mustRecompute(Path jekaFir, Path file) {
+        if (!file.startsWith(jekaFir)) {
+            return false;
+        }
+        if (file.startsWith(jekaFir.resolve(JkConstants.CMD_PROPERTIES))) {
+            return true;
+        }
+        if (file.startsWith(jekaFir.resolve(JkConstants.DEF_DIR))
+                && (file.endsWith(".java") || file.endsWith(".kotlin"))) {
+            return true;
+        }
+        if (file.equals(jekaFir.resolve(JkConstants.WORK_PATH).resolve("kbean-classes.txt"))) {
+            return true;
+        }
+        return false;
     }
 }

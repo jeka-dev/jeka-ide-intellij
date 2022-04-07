@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.ColoredTreeCellRenderer;
-import dev.jeka.ide.intellij.action.JekaRunMethodAction;
+import dev.jeka.ide.intellij.extension.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import icons.JekaIcons;
 
@@ -20,7 +20,7 @@ public class MethodNode extends AbstractNode {
         super(project);
         this.psiMethod = psiMethod;
         this.name = psiMethod.getName();
-        this.tooltipText = PsiClassHelper.getJkDoc(psiMethod);
+        this.tooltipText = PsiClassHelper.getFormattedJkDoc(psiMethod);
         this.setAllowsChildren(false);
     }
 

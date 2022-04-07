@@ -9,6 +9,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import java.util.List;
 
 public abstract class AbstractNode extends DefaultMutableTreeNode {
 
@@ -50,7 +51,7 @@ public abstract class AbstractNode extends DefaultMutableTreeNode {
         return getCloserParentOfType(clazz, treeNode.getParent());
     }
 
-    protected void onFileEvent(VFileEvent fileEvent) {
+    protected void onFileEvent(List<? extends VFileEvent> fileEvents) {
     }
 
     protected void refresh() {

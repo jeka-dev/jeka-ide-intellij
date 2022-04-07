@@ -1,8 +1,10 @@
 package dev.jeka.ide.intellij.common;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import dev.jeka.core.tool.JkDoc;
 
 import java.util.Collections;
@@ -33,6 +35,10 @@ public class PsiClassHelper {
         return false;
     }
 
+    public static PsiClass getPsiClass(Project project, String className) {
+        return JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.allScope(project));
+    }
+
     public static List<PsiClass> findKBeanClasses(Module module) {
         VirtualFile rootDir = ModuleHelper.getModuleDir(module);
         if (rootDir == null) {
@@ -50,8 +56,8 @@ public class PsiClassHelper {
     private static List<PsiClass> findKBeanClasses(PsiDirectory dir) {
         List<PsiClass> result = new LinkedList<>();
         for (PsiFile psiFile : dir.getFiles()) {
-            if (psiFile instanceof PsiJavaFile) {
-                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+            if (psiFile instanceof PsiClassOwner) {
+                PsiClassOwner psiJavaFile = (PsiClassOwner) psiFile;
                 for (PsiClass psiClass : psiJavaFile.getClasses()) {
                     if (PsiClassHelper.isExtendingJkBean(psiClass)) {
                         result.add(psiClass);
@@ -65,6 +71,14 @@ public class PsiClassHelper {
         return result;
     }
 
+    public static String getFormattedJkDoc(PsiJvmModifiersOwner psiClass) {
+        String doc = getJkDoc(psiClass);
+        if (doc == null) {
+            return null;
+        }
+        return doc.replace("\\n", "<br/>").replace("\n", "<br/>");
+    }
+
     public static String getJkDoc(PsiJvmModifiersOwner psiClass) {
         PsiAnnotation annotation = psiClass.getAnnotation(JkDoc.class.getName());
         if (annotation == null) {
@@ -74,24 +88,16 @@ public class PsiClassHelper {
         if (value == null || value.getText() == null) {
             return null;
         }
-        String text = value.getText();
-        if (text.startsWith("{")) {
-            text = text.substring(1);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (PsiElement psiElement : value.getChildren()) {
+            String item = psiElement.getText();
+            if (item.startsWith("\"")) {
+                item = item.substring(1, item.length() -1);
+            }
+            stringBuilder.append(item).append("\n");
         }
-        if (text.startsWith("\"")) {
-            text = text.substring(1);
-        }
-        if (text.endsWith("}")) {
-            text = text.substring(0, text.length()-1);
-        }
-        if (text.endsWith("\"")) {
-            text = text.substring(0, text.length()-1);
-        }
-        if (text.endsWith(".")) {
-            text = text.substring(0, text.length()-1);
-        }
+        String text = stringBuilder.length() == 0 ? "" : stringBuilder.substring(0, stringBuilder.length() -1);
         return text;
     }
-
 
 }

@@ -25,4 +25,6 @@ public interface JekaIcons {
 
     Icon CMD = IconLoader.getIcon("/icons/cmd.svg", JekaIcons.class);
 
+    Icon BEAN_BOX = IconLoader.getIcon("/icons/managedBean.svg", JekaIcons.class);
+
 }

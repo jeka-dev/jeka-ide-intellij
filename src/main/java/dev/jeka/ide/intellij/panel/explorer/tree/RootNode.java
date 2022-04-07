@@ -92,13 +92,13 @@ public class RootNode extends AbstractNode {
     }
 
     @Override
-    protected void onFileEvent(VFileEvent fileEvent) {
+    protected void onFileEvent(List<? extends VFileEvent> fileEvents) {
         if (children == null) {
             return;
         }
         children.stream()
                 .map(AbstractNode.class::cast)
-                .forEach(child -> child.onFileEvent(fileEvent));
+                .forEach(child -> child.onFileEvent(fileEvents));
     }
 
 }

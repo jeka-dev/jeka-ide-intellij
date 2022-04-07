@@ -27,9 +27,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 
-    <!--
-    <depends optional="true" config-file="withKotlin.xml">org.jetbrains.kotlin</depends>
-    -->
+    <depends>org.jetbrains.kotlin</depends>
 
     <idea-version since-build="213"/>
 
@@ -38,21 +36,21 @@
                 id="JEKA_SYNC_IML"
                 text="Jeka Synchronize iml File"
                 icon="AllIcons.Actions.Refresh"
-                class="dev.jeka.ide.intellij.action.SyncImlAction">
+                class="dev.jeka.ide.intellij.extension.action.SyncImlAction">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </action>
         <action
                 text="Go to KBean source"
                 icon="JekaIcons.KBEAN"
-                class="dev.jeka.ide.intellij.action.GotoJkBeanAction">
+                class="dev.jeka.ide.intellij.extension.action.GotoJkBeanAction">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </action>
         <action
                 id="JEKA_SCAFFOLD"
                 text="Scaffold ..."
                 icon="JekaIcons.JEKA_GROUP_ACTION"
-                class="dev.jeka.ide.intellij.action.ScaffoldAction">
+                class="dev.jeka.ide.intellij.extension.action.ScaffoldAction">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
 
@@ -75,8 +73,10 @@
             displayName="Jeka"/>
 
         <runLineMarkerContributor language="JAVA"
-                                  id="jeka"
                                   implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributor"/>
+
+        <runLineMarkerContributor language="kotlin"
+                                  implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributorForKotlin"/>
 
         <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder"/>
 

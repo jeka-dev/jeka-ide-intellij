@@ -78,9 +78,8 @@ public final class JekaToolWindowTreeService {
                     if (!listen) {
                         return;
                     }
-                    events.forEach(fileEvent -> {
-                        SlowOperations.allowSlowOperations(() -> rootNode.onFileEvent(fileEvent));
-                    });
+                    SlowOperations.allowSlowOperations(() -> rootNode.onFileEvent(events));
+
                 }
         });
 

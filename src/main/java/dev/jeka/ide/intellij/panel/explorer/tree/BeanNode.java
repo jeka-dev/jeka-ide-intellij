@@ -6,7 +6,9 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.util.CachedValue;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
@@ -34,7 +36,12 @@ class BeanNode extends AbstractNode {
         createMethodNodes().forEach(this::add);
         createNestedBeanNodes().forEach(this::add);
         name = JkExternalToolApi.getBeanName(psiClass.getQualifiedName());
-        tooltipText = PsiClassHelper.getJkDoc(psiClass);
+        String tooltipContent = "<b>" + psiClass.getQualifiedName() + "</b><";
+        String doc = PsiClassHelper.getFormattedJkDoc(psiClass);
+        if (!JkUtilsString.isBlank(doc)) {
+            tooltipContent = tooltipContent + "<br/>" + doc;
+        }
+        tooltipText = tooltipContent;
     }
 
     @Override
@@ -67,7 +74,6 @@ class BeanNode extends AbstractNode {
         try {
             methods = psiClass.getAllMethods();
         } catch (PsiInvalidElementAccessException e) {
-            System.out.println("issue with getAllMethods on class " + psiClass.getName());
             return Collections.emptyList();
         }
         for (PsiMethod method : methods) {
@@ -102,6 +108,5 @@ class BeanNode extends AbstractNode {
         }
         return result;
     }
-
 
 }

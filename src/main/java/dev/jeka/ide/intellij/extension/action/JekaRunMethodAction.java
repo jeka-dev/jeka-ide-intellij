@@ -1,9 +1,6 @@
-package dev.jeka.ide.intellij.action;
+package dev.jeka.ide.intellij.extension.action;
 
-import com.intellij.execution.Executor;
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
+import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
 import com.intellij.execution.executors.DefaultDebugExecutor;
@@ -18,44 +15,76 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiIdentifier;
+import com.intellij.psi.PsiMethod;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.psi.KtNamedFunction;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class JekaRunCmdAction extends AnAction {
+public class JekaRunMethodAction extends AnAction {
 
-    public static final JekaRunCmdAction RUN_JEKA_INSTANCE = new JekaRunCmdAction(false);
+    public static final JekaRunMethodAction RUN_JEKA_INSTANCE = new JekaRunMethodAction(false);
 
-    public static final JekaRunCmdAction DEBUG_JEKA_INSTANCE = new JekaRunCmdAction(true);
+    public static final JekaRunMethodAction DEBUG_JEKA_INSTANCE = new JekaRunMethodAction(true);
 
     private final boolean debug;
 
-    private JekaRunCmdAction(boolean debug) {
-        super((debug ? "Debug" : "Run") +   " Command",
-                (debug ? "Debug" : "Run") +   " Command",
+    private JekaRunMethodAction(boolean debug) {
+        super((debug ? "Debug" : "Run") +   " method",
+                (debug ? "Debug" : "Run") +   " method",
                 debug ? AllIcons.Actions.StartDebugger : AllIcons.RunConfigurations.TestState.Run);
         this.debug = debug;
     }
 
-    private static String configurationName(Module module, String cmdName) {
-        return module.getName() + " [jeka $" + cmdName + "]";
+    private static String configurationName(Module module, String simpleClassName, String methodName) {
+        return module.getName() + " [jeka " + simpleClassName + "#" + methodName + "]";
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         DataContext dataContext = event.getDataContext();
-        CmdInfo data = CmdInfo.KEY.getData(dataContext);
-        String name = configurationName(data.module,  data.cmdName);
+        PsiLocation<PsiElement> location = (PsiLocation<PsiElement>) dataContext.getData(Location.DATA_KEY);
+        final String methodName;
+        final String simpleClassName;
+        final Module module;
+        if (location != null) {
+            if (location.getPsiElement() instanceof PsiIdentifier) {
+                PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
+                methodName = psiMethod.getName();
+                simpleClassName =  psiMethod.getContainingClass().getName();
+
+                // Handle kotlin
+            } else if (location.getPsiElement().getParent() instanceof KtNamedFunction) {
+                KtNamedFunction ktNamedFunction = (KtNamedFunction) location.getPsiElement().getParent();
+                methodName = ktNamedFunction.getName();
+                simpleClassName = ktNamedFunction.getContainingKtFile().getClasses()[0].getName();
+            } else {
+                throw new IllegalStateException("Type of action data " + location.getPsiElement() + " not handled.");
+            }
+            module = ModuleHelper.getModule(event);
+        } else {
+            MethodInfo methodInfo = MethodInfo.KEY.getData(dataContext);
+            if (methodInfo == null) {
+                throw new IllegalStateException("Can not find reference to Psi method");
+            }
+            methodName = methodInfo.getMethodName();
+            simpleClassName = methodInfo.getBeanClass().getName();
+            module = methodInfo.getModule();;
+        }
+        String name = configurationName(module, simpleClassName, methodName);
         ApplicationConfiguration configuration = new ApplicationConfiguration(name, project);
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName("dev.jeka.core.tool.Main");
-        configuration.setModule(data.module);
-        configuration.setProgramParameters("$" + data.cmdName);
+        configuration.setModule(module);
+        configuration.setProgramParameters(simpleClassName + "#" + methodName);
         configuration.setBeforeRunTasks(Collections.emptyList());
 
         RunnerAndConfigurationSettings runnerAndConfigurationSettings =
@@ -64,7 +93,7 @@ public class JekaRunCmdAction extends AnAction {
                 (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
 
         applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
-        applyClasspathModification(applicationRunConfiguration, data.module);
+        applyClasspathModification(applicationRunConfiguration, module);
 
         Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
                 DefaultRunExecutor.getRunExecutorInstance();
@@ -94,13 +123,18 @@ public class JekaRunCmdAction extends AnAction {
     }
 
     @Value
-    public static class CmdInfo {
+    public static class MethodInfo {
 
-        public static final DataKey<CmdInfo> KEY = DataKey.create(CmdInfo.class.getName());
-
-        String cmdName;
+        public static final DataKey<MethodInfo> KEY = DataKey.create(MethodInfo.class.getName());
 
         Module module;
+
+        PsiClass beanClass;
+
+        String beanName;
+
+        String methodName;
+
 
     }
 }

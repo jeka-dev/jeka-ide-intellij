@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.ColoredTreeCellRenderer;
-import dev.jeka.ide.intellij.action.JekaRunCmdAction;
+import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
 import icons.JekaIcons;
 
 public class CmdNode extends AbstractNode {

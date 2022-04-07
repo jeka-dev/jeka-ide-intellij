@@ -31,7 +31,7 @@ class FieldNode extends AbstractNode {
         super(project);
         this.psiField = psiField;
         this.name = psiField.getName();
-        this.tooltipText = PsiClassHelper.getJkDoc(psiField);
+        this.tooltipText = PsiClassHelper.getFormattedJkDoc(psiField);
         this.createChildren().forEach(this::add);
     }
 
