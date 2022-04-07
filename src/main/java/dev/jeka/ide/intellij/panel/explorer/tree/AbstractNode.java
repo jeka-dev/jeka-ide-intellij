@@ -51,7 +51,7 @@ public abstract class AbstractNode extends DefaultMutableTreeNode {
         return getCloserParentOfType(clazz, treeNode.getParent());
     }
 
-    protected void onFileEvent(List<? extends VFileEvent> fileEvents) {
+    protected void onFileEvents(List<? extends VFileEvent> fileEvents) {
     }
 
     protected void refresh() {

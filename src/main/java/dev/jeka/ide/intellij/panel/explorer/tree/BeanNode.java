@@ -32,9 +32,9 @@ class BeanNode extends AbstractNode {
     public BeanNode(Project project, PsiClass psiClass) {
         super(project);
         this.psiClass = psiClass;
-        createFieldNodes().forEach(this::add);
-        createMethodNodes().forEach(this::add);
-        createNestedBeanNodes().forEach(this::add);
+        createFieldNodes(psiClass).forEach(this::add);
+        createMethodNodes(psiClass).forEach(this::add);
+        createNestedBeanNodes(psiClass).forEach(this::add);
         name = JkExternalToolApi.getBeanName(psiClass.getQualifiedName());
         String tooltipContent = "<b>" + psiClass.getQualifiedName() + "</b><";
         String doc = PsiClassHelper.getFormattedJkDoc(psiClass);
@@ -68,7 +68,7 @@ class BeanNode extends AbstractNode {
         return null;
     }
 
-    private List<MethodNode> createMethodNodes() {
+    private List<MethodNode> createMethodNodes(PsiClass psiClass) {
         List<MethodNode> result = new LinkedList<>();
         PsiMethod[] methods;
         try {
@@ -85,11 +85,11 @@ class BeanNode extends AbstractNode {
         return result;
     }
 
-    private List<FieldNode> createFieldNodes() {
+    private List<FieldNode> createFieldNodes(PsiClass psiClass) {
         return FieldNode.createFieldNodes(project, psiClass);
     }
 
-    private List<BeanNode> createNestedBeanNodes() {
+    private List<BeanNode> createNestedBeanNodes(PsiClass psiClass) {
         PsiField[] psiFields = psiClass.getAllFields();
         List<BeanNode> result = new LinkedList<>();
         for (PsiField psiField : psiFields) {
@@ -99,9 +99,9 @@ class BeanNode extends AbstractNode {
             PsiType psiType = psiField.getType();
             if (psiType instanceof PsiClassType) {
                 PsiClassType classType = (PsiClassType) psiType;
-                PsiClass psiClass = classType.resolve();
-                if (PsiClassHelper.isExtendingJkBean(psiClass)) {
-                    BeanNode beanNode = new BeanNode(project, psiClass);
+                PsiClass childPsiClass = classType.resolve();
+                if (PsiClassHelper.isExtendingJkBean(childPsiClass)) {
+                    BeanNode beanNode = new BeanNode(project, childPsiClass);
                     result.add(beanNode);
                 }
             }
