@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.util.SlowOperations;
+import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.tool.JkConstants;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
@@ -164,5 +165,22 @@ public class ModuleNode extends AbstractNode {
             return true;
         }
         return false;
+    }
+
+    List<String> availableKBeans() {
+        if (children == null) {
+            return new LinkedList<>();
+        }
+        List<String> defBeans = this.children.stream()
+                .filter(BeanNode.class::isInstance)
+                .map(BeanNode.class::cast)
+                .map(beanNode -> beanNode.getName())
+                .collect(Collectors.toList());
+        List<String> availableBeans = this.children.stream()
+                .filter(BeanBoxNode.class::isInstance)
+                .map(BeanBoxNode.class::cast)
+                .flatMap(beanBoxNode -> beanBoxNode.beans().stream())
+                .collect(Collectors.toList());
+        return JkUtilsIterable.concatLists(defBeans, availableBeans);
     }
 }

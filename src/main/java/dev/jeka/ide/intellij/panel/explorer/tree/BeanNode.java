@@ -78,7 +78,6 @@ class BeanNode extends AbstractNode {
         }
         for (PsiMethod method : methods) {
             if (PsiMethodHelper.isInstancePublicVoidNoArgsNotFromObject(method)) {
-                String methodName = method.getName();
                 result.add(new MethodNode(project, method));
             }
         }
@@ -108,5 +107,7 @@ class BeanNode extends AbstractNode {
         }
         return result;
     }
+
+
 
 }

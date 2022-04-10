@@ -9,6 +9,7 @@ import dev.jeka.ide.intellij.common.PsiClassHelper;
 import icons.JekaIcons;
 
 import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -41,6 +42,17 @@ public class BeanBoxNode extends AbstractNode {
                 .map(className -> PsiClassHelper.getPsiClass(project, className))
                 .filter(Objects::nonNull)
                 .map(psiClass -> new BeanNode(project, psiClass))
+                .collect(Collectors.toList());
+    }
+
+    List<String> beans() {
+        if (children == null) {
+            return new LinkedList<>();
+        }
+        return this.children.stream()
+                .filter(BeanNode.class::isInstance)
+                .map(BeanNode.class::cast)
+                .map(beanNode -> beanNode.getName())
                 .collect(Collectors.toList());
     }
 }

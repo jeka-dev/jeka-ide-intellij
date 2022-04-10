@@ -101,4 +101,15 @@ public class RootNode extends AbstractNode {
                 .forEach(child -> child.onFileEvents(fileEvents));
     }
 
+    ModuleNode getModuleNode(Module module) {
+        if (children == null) {
+            return null;
+        }
+        return children.stream()
+                .filter(ModuleNode.class::isInstance)
+                .map(ModuleNode.class::cast)
+                .filter(moduleNode -> moduleNode.getModule().equals(module))
+                .findFirst().orElse(null);
+    }
+
 }

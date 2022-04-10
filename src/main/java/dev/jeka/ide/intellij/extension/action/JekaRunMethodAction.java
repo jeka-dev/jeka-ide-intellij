@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -33,17 +34,12 @@ public class JekaRunMethodAction extends AnAction {
         this.debug = debug;
     }
 
-    static String configurationName(Module module, String simpleClassName, String methodName) {
-        return module.getName() + " [jeka " + simpleClassName + "#" + methodName + "]";
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        CallContext callContext = getCallContext(event);
-        Module module = callContext.getModule();
-        String configurationName = configurationName(module, callContext.getSimpleClassName(),
-                callContext.getMethodName());
-        ConfigurationRunner.run(callContext.getModule(), configurationName, callContext.cmd(), debug);
+        ApplicationManager.getApplication().runReadAction(() -> {
+            CallContext callContext = getCallContext(event);
+            ConfigurationRunner.run(callContext.getModule(), null, callContext.cmd(), debug);
+        });
     }
 
     static CallContext getCallContext(AnActionEvent event) {

@@ -3,6 +3,8 @@ package dev.jeka.ide.intellij.extension.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
 import dev.jeka.ide.intellij.panel.RunDialogWrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,9 +25,18 @@ public class JekaRunMethodParamAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        JekaRunMethodAction.CallContext callContext = JekaRunMethodAction.getCallContext(event);
-        RunDialogWrapper runDialogWrapper = new RunDialogWrapper(callContext.getModule(), debug, callContext.cmd());
-        runDialogWrapper.show();
+        ApplicationManager.getApplication().runReadAction(() -> {
+            JekaRunMethodAction.CallContext callContext = JekaRunMethodAction.getCallContext(event);
+            String configurationName = configurationName(callContext.getModule(), callContext.getSimpleClassName(),
+                    callContext.getMethodName());
+            RunDialogWrapper runDialogWrapper = new RunDialogWrapper(callContext.getModule(), debug, callContext.cmd(),
+                    configurationName);
+            runDialogWrapper.show();
+        });
+    }
+
+    private static String configurationName(Module module, String simpleClassName, String methodName) {
+        return module.getName() + " [jeka " + simpleClassName + "#" + methodName + "]";
     }
 
 }

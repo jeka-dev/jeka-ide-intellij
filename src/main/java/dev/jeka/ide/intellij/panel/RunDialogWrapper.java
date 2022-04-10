@@ -15,7 +15,7 @@ import java.nio.file.Path;
 
 public class RunDialogWrapper extends DialogWrapper {
 
-    private Module module;
+    private final Module module;
 
     private final boolean debug;
 
@@ -23,26 +23,29 @@ public class RunDialogWrapper extends DialogWrapper {
 
     private String originalCommand;
 
-    public RunDialogWrapper(Module module, boolean debug, String originalCommand) {
+    private final String confifurationName;
+
+    public RunDialogWrapper(Module module, boolean debug, String originalCommand, @Nullable String configurationName) {
         super(module.getProject(), true);
         this.module = module;
         this.debug = debug;
         this.originalCommand = originalCommand;
-        this.init();
+        this.confifurationName = configurationName;
         setTitle("Execute Jeka command");
+        this.init();
     }
 
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        runFormPanel = new RunFormPanel(originalCommand);
+        runFormPanel = new RunFormPanel(module, originalCommand);
         return runFormPanel.getPanel();
     }
 
     @Override
     protected void doOKAction() {
-        ApplicationManager.getApplication().invokeAndWait(() -> {
-            ConfigurationRunner.run(module, "my name", runFormPanel.getCmd(), false);
+        ApplicationManager.getApplication().invokeLater(() -> {
+            ConfigurationRunner.run(module, confifurationName, runFormPanel.getCmd(), false);
             RunDialogWrapper.this.close(0);
         });
 

@@ -12,7 +12,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.core.tool.JkConstants;
+import com.intellij.util.SlowOperations;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 
 import java.util.*;
@@ -20,27 +20,31 @@ import java.util.stream.Collectors;
 
 public class ConfigurationRunner {
 
-    public static void run(Module module, String name, String cmd, boolean debug) {
-        ApplicationConfiguration configuration = new ApplicationConfiguration(name, module.getProject());
-        configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
-        configuration.setMainClassName("dev.jeka.core.tool.Main");
-        configuration.setModule(module);
-        configuration.setProgramParameters(cmd);
-        configuration.setBeforeRunTasks(Collections.emptyList());
+    public static void run(Module module, String configurationName, String cmd, boolean debug) {
+        SlowOperations.allowSlowOperations(() -> {
+            ApplicationConfiguration configuration = new ApplicationConfiguration(configurationName, module.getProject());
+            configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
+            configuration.setMainClassName("dev.jeka.core.tool.Main");
+            configuration.setModule(module);
+            configuration.setProgramParameters(cmd);
+            configuration.setBeforeRunTasks(Collections.emptyList());
 
-        RunnerAndConfigurationSettings runnerAndConfigurationSettings =
-                RunManager.getInstance(module.getProject()).createConfiguration(configuration, configuration.getFactory());
-        ApplicationConfiguration applicationRunConfiguration =
-                (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
+            RunnerAndConfigurationSettings runnerAndConfigurationSettings =
+                    RunManager.getInstance(module.getProject()).createConfiguration(configuration, configuration.getFactory());
+            ApplicationConfiguration applicationRunConfiguration =
+                    (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
 
-        applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
-        applyClasspathModification(applicationRunConfiguration, module);
+            applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
+            applyClasspathModification(applicationRunConfiguration, module);
 
-        Executor executor = debug ?  DefaultDebugExecutor.getDebugExecutorInstance() :
-                DefaultRunExecutor.getRunExecutorInstance();
-        RunManager.getInstance(module.getProject()).addConfiguration(runnerAndConfigurationSettings);
-        RunManager.getInstance(module.getProject()).setSelectedConfiguration(runnerAndConfigurationSettings);
-        ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
+            Executor executor = debug ? DefaultDebugExecutor.getDebugExecutorInstance() :
+                    DefaultRunExecutor.getRunExecutorInstance();
+            if (configurationName != null) {
+                RunManager.getInstance(module.getProject()).addConfiguration(runnerAndConfigurationSettings);
+                RunManager.getInstance(module.getProject()).setSelectedConfiguration(runnerAndConfigurationSettings);
+            }
+            ProgramRunnerUtil.executeConfiguration(runnerAndConfigurationSettings, executor);
+        });
     }
 
     private static void applyClasspathModification(ApplicationConfiguration applicationConfiguration, Module module) {

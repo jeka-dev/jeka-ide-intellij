@@ -26,6 +26,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -164,5 +165,14 @@ public final class JekaToolWindowTreeService {
             return null;
         }
         return (AbstractNode) node;
+    }
+
+    public List<String> getKbeans(Module module) {
+        RootNode rootNode = (RootNode) getTree().getModel().getRoot();
+        ModuleNode moduleNode = rootNode.getModuleNode(module);
+        if (moduleNode == null) {
+            return Collections.emptyList();
+        }
+        return moduleNode.availableKBeans();
     }
 }

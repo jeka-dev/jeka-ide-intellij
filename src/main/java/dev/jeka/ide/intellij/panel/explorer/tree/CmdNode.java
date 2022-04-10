@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
+import dev.jeka.ide.intellij.extension.action.JekaRunCmdParamAction;
 import icons.JekaIcons;
 
 public class CmdNode extends AbstractNode {
@@ -35,6 +36,8 @@ public class CmdNode extends AbstractNode {
     public void fillPopupMenu(DefaultActionGroup group) {
         group.add(JekaRunCmdAction.RUN_JEKA_INSTANCE);
         group.add(JekaRunCmdAction.DEBUG_JEKA_INSTANCE);
+        group.add(JekaRunCmdParamAction.RUN_JEKA_INSTANCE);
+        group.add(JekaRunCmdParamAction.DEBUG_JEKA_INSTANCE);
         group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
     }
 

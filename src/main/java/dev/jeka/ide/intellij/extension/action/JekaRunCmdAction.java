@@ -50,9 +50,8 @@ public class JekaRunCmdAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         DataContext dataContext = event.getDataContext();
         CmdInfo data = CmdInfo.KEY.getData(dataContext);
-        String configurationName = configurationName(data.module,  data.cmdName);
         String cmd = "$" + data.cmdName;
-        ConfigurationRunner.run(data.module, configurationName, cmd, debug);
+        ConfigurationRunner.run(data.module, null, cmd, debug);
     }
 
     @Value
