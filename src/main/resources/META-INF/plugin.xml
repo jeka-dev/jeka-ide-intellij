@@ -80,6 +80,11 @@
 
         <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder"/>
 
+        <completion.contributor
+                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.JavaDepCompletionContributor"
+                language="JAVA"
+        />
+
         <!--
 
          <projectStructureDetector implementation="dev.jeka.ide.intellij.extension.JekaProjectStructureDetector"/>
@@ -91,6 +96,8 @@
 
 
       <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
+
+
 
        -->
     </extensions>

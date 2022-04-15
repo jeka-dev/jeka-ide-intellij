@@ -36,6 +36,7 @@ import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
+import lombok.Value;
 
 import java.util.List;
 
@@ -54,41 +55,13 @@ public class SyncImlAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        ////ModuleClass moduleClass = ModuleClass.of(event);
-        VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (selectedFile.getName().equals(JkConstants.JEKA_DIR)) {
-            selectedFile = selectedFile.getParent();
-        }
-        if (isResyncFile(selectedFile)) {
-            selectedFile = selectedFile.getParent().getParent();
-        }
-        PsiClass beanClass = getPsiJkBeanClass(event);
-        String className = beanClass == null ? null : beanClass.getQualifiedName();
-        if (className != null) {
-            VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-            Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-            FileDocumentManager.getInstance().saveDocument(document);
-        }
-        final Module existingModule;
-        final VirtualFile moduleDir;
-        if (beanClass != null) {
-            existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
-            moduleDir = ModuleHelper.getModuleDir(existingModule);
-        } else if (isWrapperProperties(selectedFile)) {
-            moduleDir = selectedFile.getParent().getParent().getParent();
-            existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
-        } else if ("EditorPopup".equals(event.getPlace())) {
-            existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
-            moduleDir = ModuleHelper.getModuleDir(existingModule);
-        } else {
-            moduleDir = selectedFile;
-            existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
-        }
+        CallContext callContext = extractCallContext(event);
         Project project = event.getProject();
         CmdJekaDoer jekaDoer = CmdJekaDoer.getInstance(project);
         ApplicationManager.getApplication().invokeAndWait(() -> {
             FileDocumentManager.getInstance().saveAllDocuments();
-            jekaDoer.generateIml(moduleDir.toNioPath(), className, true, existingModule, null);
+            jekaDoer.generateIml(callContext.moduleDir.toNioPath(), callContext.className, true,
+                    callContext.existingModule, null);
         });
     }
 
@@ -133,10 +106,14 @@ public class SyncImlAction extends AnAction {
             return;
         }
         if (ModuleHelper.isPotentialModule(dir)) {
-            event.getPresentation().setText("Jeka Synchronize Module");
+            event.getPresentation().setText(getText());
         } else {
             event.getPresentation().setText("Jeka Create Module '" + dir.getName() + "'");
         }
+    }
+
+    protected String getText() {
+        return "Jeka Synchronize Module";
     }
 
     private static boolean isWrapperProperties(VirtualFile virtualFile) {
@@ -169,11 +146,56 @@ public class SyncImlAction extends AnAction {
         return null;
     }
 
-    private boolean isResyncFile(VirtualFile file) {
+    private static boolean isResyncFile(VirtualFile file) {
         if (file.getParent().getName().equals(JkConstants.JEKA_DIR)) {
             return false;
         }
         return RESYNC_FILES.contains(file.getName());
+    }
+
+    static CallContext extractCallContext(AnActionEvent event) {
+        VirtualFile selectedFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (selectedFile.getName().equals(JkConstants.JEKA_DIR)) {
+            selectedFile = selectedFile.getParent();
+        }
+        if (isResyncFile(selectedFile)) {
+            selectedFile = selectedFile.getParent().getParent();
+        }
+        PsiClass beanClass = getPsiJkBeanClass(event);
+        String className = beanClass == null ? null : beanClass.getQualifiedName();
+        if (className != null) {
+            VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+            Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+            FileDocumentManager.getInstance().saveDocument(document);
+        }
+        final Module existingModule;
+        final VirtualFile moduleDir;
+        if (beanClass != null) {
+            existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
+            moduleDir = ModuleHelper.getModuleDir(existingModule);
+        } else if (isWrapperProperties(selectedFile)) {
+            moduleDir = selectedFile.getParent().getParent().getParent();
+            existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
+        } else if ("EditorPopup".equals(event.getPlace())) {
+            existingModule = ModuleUtil.findModuleForFile(selectedFile, event.getProject());
+            moduleDir = ModuleHelper.getModuleDir(existingModule);
+        } else {
+            moduleDir = selectedFile;
+            existingModule = ModuleHelper.getModuleHavingRootDir(event.getProject(), moduleDir);
+        }
+        return new CallContext(moduleDir, existingModule, className);
+    }
+
+    @Value
+    static class CallContext {
+
+        VirtualFile moduleDir;
+
+        Module existingModule;
+
+        String className;
+
+
     }
 
 

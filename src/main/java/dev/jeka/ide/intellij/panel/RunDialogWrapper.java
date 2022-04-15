@@ -31,7 +31,11 @@ public class RunDialogWrapper extends DialogWrapper {
         this.debug = debug;
         this.originalCommand = originalCommand;
         this.confifurationName = configurationName;
-        setTitle("Execute Jeka command");
+        if (debug) {
+            setTitle("Debug Jeka command");
+        } else {
+            setTitle("Execute Jeka command");
+        }
         this.init();
     }
 
