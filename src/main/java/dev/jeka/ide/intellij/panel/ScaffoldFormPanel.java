@@ -131,6 +131,10 @@ public class ScaffoldFormPanel {
         return templatesPanel.getSelectedTemplate();
     }
 
+    public String getTemplateCmd() {
+        return templatesPanel.getTemplateCmd();
+    }
+
     static class WrapperPanel {
 
         private final List<Module> modules;

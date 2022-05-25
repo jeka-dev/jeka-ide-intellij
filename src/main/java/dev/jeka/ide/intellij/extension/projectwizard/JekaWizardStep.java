@@ -43,7 +43,7 @@ class JekaWizardStep extends ModuleWizardStep implements Disposable {
         moduleBuilder.setModuleFilePath(JkExternalToolApi.getImlFile(Paths.get(wizardPanel.getLocation())).toString());
         JekaModuleBuilder.ModuleData moduleData = moduleBuilder.moduleData;
         moduleData.setModuleDir(this.wizardPanel.getLocation());
-        moduleData.setTemplate(wizardPanel.getScaffoldPanel().getTemplate());
+        moduleData.setTemplateCmd(wizardPanel.getScaffoldPanel().getTemplateCmd());
         moduleData.setWrapperDelegate(wizardPanel.getScaffoldPanel().getSelectedDelegateWrapperModule());
         moduleData.setWrapperVersion(wizardPanel.getScaffoldPanel().getSelectedJekaVersion());
         if (wizardPanel.getWizardContext().getProject() == null) {

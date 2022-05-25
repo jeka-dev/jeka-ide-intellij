@@ -127,7 +127,7 @@ public class JekaModuleBuilder extends ModuleBuilder {
                 wrapperDelegateModulePath,
                 moduleData.getWrapperVersion(),
                 null,
-                moduleData.getTemplate().getCommandArgs()
+                moduleData.getTemplateCmd()
         );
     }
 
@@ -139,7 +139,7 @@ public class JekaModuleBuilder extends ModuleBuilder {
 
         private String moduleDir;
 
-        private JekaTemplate template;
+        private String templateCmd;
 
         private Module wrapperDelegate;
 

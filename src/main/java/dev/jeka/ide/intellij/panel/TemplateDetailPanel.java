@@ -16,15 +16,11 @@ import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class TemplateEditPanel {
-
-    private final JBTextField nameTextField = new JBTextField();
+class TemplateDetailPanel {
 
     private final JBTextField cmdTextField = new ExpandableTextField();
 
     private final JBTextArea descTextarea = new JBTextArea();
-
-    private final AtomicBoolean listenerOn = new AtomicBoolean(true);
 
     @Getter
     private JekaTemplate editedTemplate;
@@ -35,43 +31,13 @@ class TemplateEditPanel {
     @Getter
     private JPanel panel;
 
-    TemplateEditPanel() {
-        nameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                if (listenerOn.get()) {
-                    editedTemplate.setName(nameTextField.getText());
-                    nameChangeListener.accept(editedTemplate);
-                }
-            }
-        });
-        cmdTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                if (listenerOn.get()) {
-                    editedTemplate.setCommandArgs(cmdTextField.getText());
-                }
-            }
-        });
-        descTextarea.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                if (listenerOn.get()) {
-                    editedTemplate.setDescription(descTextarea.getText());
-                }
-            }
-        });
+    TemplateDetailPanel() {
         descTextarea.setFont(cmdTextField.getFont());
         descTextarea.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         descTextarea.setLineWrap(true);
         descTextarea.setWrapStyleWord(true);
+        descTextarea.setEditable(false);
         panel = panel();
-    }
-
-    void setEnabled(boolean enabled) {
-        this.nameTextField.setEnabled(enabled);
-        this.cmdTextField.setEnabled(enabled);
-        this.descTextarea.setEnabled(enabled);
     }
 
     private JPanel panel() {
@@ -80,7 +46,6 @@ class TemplateEditPanel {
                 .moveLabelOnTop()
                 .createPanel();
         return FormBuilder.createFormBuilder()
-                .addLabeledComponent("Name:", nameTextField, false)
                 .addComponent(cmdPanel)
                 .addLabeledComponentFillVertically("Description:", descTextarea)
                 .getPanel();
@@ -88,12 +53,12 @@ class TemplateEditPanel {
 
     public void fill(JekaTemplate template) {
         editedTemplate = template;
-        listenerOn.set(false);
-        nameTextField.setText(template.getName());
         cmdTextField.setText(template.getCommandArgs());
         descTextarea.setText(template.getDescription());
-        listenerOn.set(true);
+    }
 
+    String getCmd() {
+        return cmdTextField.getText();
     }
 
 }

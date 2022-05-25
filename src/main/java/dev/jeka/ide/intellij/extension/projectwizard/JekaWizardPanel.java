@@ -26,6 +26,8 @@ import java.util.Arrays;
 
 class JekaWizardPanel {
 
+    private static final int MARGIN = 25;
+
     @Getter
     private WizardContext wizardContext;
 
@@ -78,11 +80,13 @@ class JekaWizardPanel {
         });
         this.scaffoldPanel = ScaffoldFormPanel.of(wizardContext.getProject(), null, true, false);
 
-        return FormBuilder.createFormBuilder()
+        JPanel result = FormBuilder.createFormBuilder()
                 .addLabeledComponent(new JBLabel("Name:"), nameLabel)
-                .addLabeledComponent(new JBLabel("Location:"), locationTextField)
+                .addLabeledComponent(new JBLabel("Location:"), locationTextField, 15)
                 .addComponentFillVertically(this.scaffoldPanel.getPanel(), 20)
                 .getPanel();
+        result.setBorder(BorderFactory.createEmptyBorder(MARGIN, MARGIN, MARGIN, MARGIN));
+        return result;
     }
 
     private static FileChooserDescriptor fileChooserDescriptor() {

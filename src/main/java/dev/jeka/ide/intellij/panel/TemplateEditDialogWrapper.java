@@ -16,7 +16,7 @@ import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ScaffoldDialogWrapper extends DialogWrapper {
+public class TemplateEditDialogWrapper extends DialogWrapper {
 
     private VirtualFile moduleDir;
 
@@ -26,7 +26,7 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
 
     private Module exisitingModule;
 
-    public ScaffoldDialogWrapper(Project project, VirtualFile moduleDir, Module existingModule) {
+    public TemplateEditDialogWrapper(Project project, VirtualFile moduleDir, Module existingModule) {
         super(project, true);
         this.project = project;
         this.moduleDir = moduleDir;
@@ -67,7 +67,7 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
                     scaffoldFormPanel.getSelectedJekaVersion(),
                     exisitingModule,
                     templateCmd);
-            ScaffoldDialogWrapper.this.close(0);
+            TemplateEditDialogWrapper.this.close(0);
         });
     }
 

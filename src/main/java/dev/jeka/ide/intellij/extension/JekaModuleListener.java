@@ -1,8 +1,11 @@
 package dev.jeka.ide.intellij.extension;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.Function;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +18,9 @@ public class JekaModuleListener implements ModuleListener {
     @Override
     public void moduleAdded(@NotNull Project project, @NotNull Module module) {
         notifyChange(project);
-        JekaToolWindows.registerIfNeeded(project, true);
+        ToolWindowManager.getInstance(project).invokeLater(() ->
+                JekaToolWindows.registerIfNeeded(project, true)
+        );
     }
 
     @Override

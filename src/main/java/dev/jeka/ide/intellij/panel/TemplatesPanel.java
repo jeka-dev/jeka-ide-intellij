@@ -1,16 +1,11 @@
 package dev.jeka.ide.intellij.panel;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.ui.AnActionButton;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.JBSplitter;
-import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +20,7 @@ public class TemplatesPanel {
 
     private JBList<JekaTemplate> templateJBList;
 
-    private TemplateEditPanel templateEditPanel;
+    private TemplateDetailPanel templateDetailPanel;
 
     private CollectionListModel<JekaTemplate> templateListModel;
 
@@ -43,88 +38,44 @@ public class TemplatesPanel {
 
     public void setEnabled(boolean enabled) {
         templateJBList.setEnabled(enabled);
-        templateEditPanel.setEnabled(enabled);
     }
 
     public JekaTemplate getSelectedTemplate() {
         return templateJBList.getSelectedValue();
     }
 
+    public String getTemplateCmd() {
+        return templateDetailPanel.getCmd();
+    }
+
     private JComponent component() {
         templateJBList = new JBList<>(templateListModel);
+        templateJBList.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         templateJBList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel label = new JBLabel(value.getName());
+            label.setBorder(BorderFactory.createEmptyBorder(2, 5, 5 , 0));
             if (cellHasFocus) {
                 label.setForeground(Color.white);
             }
             return label;
         });
-        templateEditPanel = new TemplateEditPanel();
+        templateDetailPanel = new TemplateDetailPanel();
         templateJBList.addListSelectionListener(event -> {
             if (templateJBList.getSelectedValue() != null) {
-                templateEditPanel.fill(templateJBList.getSelectedValue());
+                templateDetailPanel.fill(templateJBList.getSelectedValue());
                 System.out.println(templateListModel.getItems());
             }
         });
 
         // feed back when template neme changed by user
-        templateEditPanel.getNameChangeListener().append(template -> templateListModel.contentsChanged(template));
+        templateDetailPanel.getNameChangeListener().append(template -> templateListModel.contentsChanged(template));
 
         templateJBList.setSelectedIndex(0);
-        ToolbarDecorator toolbarDecorator = ToolbarDecorator.createDecorator(templateJBList)
-                .setMinimumSize(new Dimension(200, 150))
-                .addExtraAction(new AnActionButton("Duplicate", "Duplicate", AllIcons.Actions.Copy) {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e) {
-                        List<JekaTemplate> newTemplates = templateListModel.toList();
-                        if (templateJBList.getSelectedValue() == null) {
-                            return;
-                        }
-                        JekaTemplate newTemplate = JekaTemplate.duplicate(newTemplates,
-                                templateJBList.getSelectedValue());
-                        templateListModel.replaceAll(newTemplates);
-                        templateJBList.setSelectedValue(newTemplate, true);
-                    }
-                })
-                .setAddAction(anActionButton -> {
-                    List<JekaTemplate> newTemplates = templateListModel.toList();
-                    String name = JekaTemplate.suggestNewName(newTemplates);
-                    JekaTemplate newTemplate = JekaTemplate.builder()
-                                    .name(name).commandArgs("").description("No description available.").build();
-                    newTemplates.add(newTemplate);
-                    templateListModel.replaceAll(newTemplates);
-                    templateJBList.setSelectedValue(newTemplate, true);
-                })
-                .addExtraAction(new AnActionButton("Reload standard template definitions", "Reload standard template definitions",
-                        AllIcons.Diff.Revert) {
 
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e) {
-                        List<JekaTemplate> newTemplates = templateListModel.toList();
-                        JekaTemplate.resetBuiltin(newTemplates);
-                        templateListModel.replaceAll(newTemplates);
-                    }
-
-                })
-                .addExtraAction(new AnActionButton("Save", "Save", AllIcons.Actions.MenuSaveall) {
-
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e) {
-                        saveAction.accept(templateListModel.getItems());
-                    }
-
-                    @Override
-                    public boolean isVisible() {
-                        return saveAction != null;
-                    }
-                })
-                ;
-
-        JPanel decoratorPanel = toolbarDecorator.createPanel();
-        decoratorPanel.setMinimumSize(new Dimension(200, 0));
+        templateJBList.setMinimumSize(new Dimension(200, 0));
         JBSplitter splitter = new JBSplitter();
-        splitter.setFirstComponent(decoratorPanel);
-        splitter.setSecondComponent(templateEditPanel.getPanel());
+        splitter.setFirstComponent(templateJBList);
+        splitter.setSecondComponent(templateDetailPanel.getPanel());
         splitter.setProportion(0.2f);
         splitter.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         return splitter;
