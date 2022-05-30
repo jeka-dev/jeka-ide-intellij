@@ -27,7 +27,6 @@ import java.util.Arrays;
 class JekaWizardPanel {
 
     private static final int MARGIN = 25;
-
     @Getter
     private WizardContext wizardContext;
 
@@ -85,7 +84,7 @@ class JekaWizardPanel {
                 .addLabeledComponent(new JBLabel("Location:"), locationTextField, 15)
                 .addComponentFillVertically(this.scaffoldPanel.getPanel(), 20)
                 .getPanel();
-        result.setBorder(BorderFactory.createEmptyBorder(MARGIN, MARGIN, MARGIN, MARGIN));
+        result.setBorder(BorderFactory.createEmptyBorder(MARGIN, MARGIN, 0, MARGIN));
         return result;
     }
 

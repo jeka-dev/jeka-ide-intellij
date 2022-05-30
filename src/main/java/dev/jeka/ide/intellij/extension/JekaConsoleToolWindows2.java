@@ -65,7 +65,6 @@ public final class JekaConsoleToolWindows2 {
     public void launch(GeneralCommandLine commandLine) {
         OSProcessHandler osProcessHandler;
         try {
-            System.out.println("__________________-launch jeka " + commandLine.getCommandLineString());
             osProcessHandler = new OSProcessHandler(commandLine);
             osProcessHandler.startNotify();
             consoleView.attachToProcess(osProcessHandler);

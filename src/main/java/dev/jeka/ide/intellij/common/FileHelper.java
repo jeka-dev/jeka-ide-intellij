@@ -21,7 +21,6 @@ public class FileHelper {
         try (Stream<Path> walk = Files.walk(dir)) {
             walk.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
-                    .peek(System.out::println)
                     .forEach(File::delete);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

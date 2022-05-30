@@ -1,6 +1,7 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
@@ -17,6 +18,7 @@ import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -88,11 +90,17 @@ public class JavaDepCompletionContributor extends CompletionContributor {
             List<String> suggests = JkModuleSearch.of(repoSet.getRepos().get(0))
                     .setGroupOrNameCriteria(content)
                     .search();
-            List<String> container = new LinkedList<>(suggests);
+            List<String> container = new ArrayList<>(suggests);
             Collections.reverse(container);
-            container.stream().forEach(item ->
-                    resultSet.addElement(LookupElementBuilder.create(item)
-                            .withIcon(AllIcons.Nodes.PpLibFolder)));
+            for (int i=0; i < container.size(); i++ ) {
+                LookupElementBuilder lookupElementBuilder = LookupElementBuilder
+                        .create(container.get(i))
+                        .withIcon(AllIcons.Nodes.PpLibFolder);
+                LookupElement prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
+                        lookupElementBuilder, i);
+                resultSet.addElement(prioritizedLookupElement);
+            }
+
         }
     }
 

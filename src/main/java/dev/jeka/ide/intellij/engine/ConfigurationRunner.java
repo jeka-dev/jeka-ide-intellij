@@ -60,7 +60,6 @@ public class ConfigurationRunner {
         VirtualFile[] roots = ModuleRootManager.getInstance(module).orderEntries().classes().getRoots();
         return Arrays.stream(roots)
                 .filter(virtualFile -> "file".equals(virtualFile.getFileSystem().getProtocol()))
-                .peek(virtualFile -> System.out.println(virtualFile.getPath()))
                 .map(VirtualFile::toNioPath)
                 .map(path ->
                         new ModuleBasedConfigurationOptions.ClasspathModification(path.toString(), true))

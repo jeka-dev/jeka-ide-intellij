@@ -1,22 +1,26 @@
 package dev.jeka.ide.intellij.panel;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.JBSplitter;
+import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
+import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
 import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class TemplatesPanel {
 
-    private final List<JekaTemplate> originalTemplates;
+    private final Project project;
+
+    private final TemplatePersistentStateComponent persistedTemplatesComponent = TemplatePersistentStateComponent.getInstance();
 
     private JBList<JekaTemplate> templateJBList;
 
@@ -24,16 +28,14 @@ public class TemplatesPanel {
 
     private CollectionListModel<JekaTemplate> templateListModel;
 
-    private Consumer<List<JekaTemplate>> saveAction = null;
-
     @Getter
     private JComponent component;
 
-    public TemplatesPanel(List<JekaTemplate> templates, Consumer<List<JekaTemplate>> saveAction) {
-        this.templateListModel = new CollectionListModel<>(templates);
-        this.originalTemplates = Collections.unmodifiableList(new LinkedList<>(templates));
-        this.saveAction = saveAction;
+
+    public TemplatesPanel(Project project) {
+        init();
         this.component = component();
+        this.project = project;
     }
 
     public void setEnabled(boolean enabled) {
@@ -63,7 +65,6 @@ public class TemplatesPanel {
         templateJBList.addListSelectionListener(event -> {
             if (templateJBList.getSelectedValue() != null) {
                 templateDetailPanel.fill(templateJBList.getSelectedValue());
-                System.out.println(templateListModel.getItems());
             }
         });
 
@@ -78,10 +79,34 @@ public class TemplatesPanel {
         splitter.setSecondComponent(templateDetailPanel.getPanel());
         splitter.setProportion(0.2f);
         splitter.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-        return splitter;
+
+
+        ActionLink actionLink = new ActionLink("Manage templates ...", e -> {
+            TemplatesEditPanel templatesEditPanel = new TemplatesEditPanel();
+            TemplateEditDialogWrapper dialogWrapper = new TemplateEditDialogWrapper(project, templatesEditPanel, this::reload);
+            dialogWrapper.show();
+        });
+        actionLink.setText("Manage templates ...");
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(splitter, BorderLayout.CENTER);
+        panel.add(actionLink, BorderLayout.SOUTH);
+        return panel;
     }
 
-    private boolean templatesChanged() {
-        return !this.originalTemplates.equals(this.templateListModel.getItems());
+    private void reload() {
+        List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
+        templateListModel.removeAll();
+        templateListModel.addAll(0, templates);
+        if (templates.size() > 0) {
+            templateJBList.setSelectedIndex(0);
+        }
     }
+
+    private void init() {
+        List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
+        this.templateListModel = new CollectionListModel<>(templates);
+    }
+
+
 }

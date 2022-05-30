@@ -11,7 +11,6 @@ import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
-import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -28,6 +27,8 @@ public class ScaffoldFormPanel {
 
     private static final String WRAPPER_DOC_URL = "https://jeka-dev.github.io/jeka/reference-guide/execution-engine-files/#jeka-wrapper";
 
+    private final Project project;
+
     // All modules available in project
     private final Module[] modules;
 
@@ -43,25 +44,23 @@ public class ScaffoldFormPanel {
 
     private TemplatesPanel templatesPanel;
 
-    private TemplatePersistentStateComponent persistedTemplatesComponent =
-            TemplatePersistentStateComponent.getInstance();
-
     @Getter
     private JPanel panel;
 
-    public ScaffoldFormPanel(Module[] allModules, @Nullable Module currentModule, boolean wrapperSelected,
+    public ScaffoldFormPanel(Project project, Module[] allModules, @Nullable Module currentModule, boolean wrapperSelected,
                              boolean showCreateStructure) {
         this.modules = allModules;
         this.wrapperSelected = wrapperSelected;
         this.currentModule = currentModule;
         this.showCreateStructure = showCreateStructure;
+        this.project = project;
         this.panel = panel();
     }
 
     public static ScaffoldFormPanel of(@Nullable Project project, @Nullable Module currentModule, boolean wrapperSelected,
                                        boolean showCreateStructure) {
         Module[] modules = project != null ? ModuleManager.getInstance(project).getModules() : new Module[0];
-        return new ScaffoldFormPanel(modules, currentModule, wrapperSelected, showCreateStructure);
+        return new ScaffoldFormPanel(project, modules, currentModule, wrapperSelected, showCreateStructure);
     }
 
     private JPanel panel() {
@@ -70,17 +69,24 @@ public class ScaffoldFormPanel {
         wrapperPanel = new WrapperPanel(modules, wrapperSelected);
         formBuilder.addComponent(wrapperPanel.getPanel());
         formBuilder.addVerticalGap(15);
-        templatesPanel = new TemplatesPanel(this.persistedTemplatesComponent.getTemplates(),
-                templates -> this.persistedTemplatesComponent.setTemplates(templates));
+        templatesPanel = new TemplatesPanel(project);
+        JComponent templatesComponent = templatesPanel.getComponent();
+        templatesComponent.setPreferredSize(new Dimension(700, 300));
         if (showCreateStructure) {
             generateStructureCheckBox = new JCheckBox();
             generateStructureCheckBox.addItemListener(item ->
                     templatesPanel.setEnabled(generateStructureCheckBox.isSelected()));
             generateStructureCheckBox.setSelected(true);
             formBuilder.addLabeledComponent("Generate structure and Build class", generateStructureCheckBox);
-            formBuilder.addComponentFillVertically( templatesPanel.getComponent(), 5);
+            formBuilder.addComponentFillVertically( templatesComponent, 5);
         } else {
-            formBuilder.addLabeledComponentFillVertically("Template", templatesPanel.getComponent());
+            JPanel templateLabel = UI.PanelFactory.panel(new JLabel("Template"))
+                    .withTooltip("<b>Template</b><br/>Pre-configured command-line arguments to generate a customised Jeka project.<br/><br/>" +
+                            "The special things generated here can be added later by using <i>scaffold...</i> from project contextual menu or manually.<br/>"
+                            )
+                    .createPanel();
+            formBuilder.addComponent(templateLabel);
+            formBuilder.addComponentFillVertically(templatesComponent, 5);
         }
 
         //formBuilder.addComponentFillVertically(new JPanel(), 0);

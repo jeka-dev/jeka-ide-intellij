@@ -9,6 +9,7 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
+import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,31 +24,26 @@ public class TemplatesEditPanel {
 
     private final List<JekaTemplate> originalTemplates;
 
+    private final TemplatePersistentStateComponent persistedTemplatesComponent =
+            TemplatePersistentStateComponent.getInstance();
+
     private JBList<JekaTemplate> templateJBList;
 
     private TemplateDetailEditPanel templateDetailEditPanel;
 
     private CollectionListModel<JekaTemplate> templateListModel;
 
-    private Consumer<List<JekaTemplate>> saveAction = null;
+    private Consumer<List<JekaTemplate>> saveAction;
 
     @Getter
     private JComponent component;
 
-    public TemplatesEditPanel(List<JekaTemplate> templates, Consumer<List<JekaTemplate>> saveAction) {
+    public TemplatesEditPanel() {
+        List<JekaTemplate> templates = persistedTemplatesComponent.getTemplates();
         this.templateListModel = new CollectionListModel<>(templates);
         this.originalTemplates = Collections.unmodifiableList(new LinkedList<>(templates));
         this.saveAction = saveAction;
         this.component = component();
-    }
-
-    public void setEnabled(boolean enabled) {
-        templateJBList.setEnabled(enabled);
-        templateDetailEditPanel.setEnabled(enabled);
-    }
-
-    public JekaTemplate getSelectedTemplate() {
-        return templateJBList.getSelectedValue();
     }
 
     private JComponent component() {
@@ -64,7 +60,6 @@ public class TemplatesEditPanel {
         templateJBList.addListSelectionListener(event -> {
             if (templateJBList.getSelectedValue() != null) {
                 templateDetailEditPanel.fill(templateJBList.getSelectedValue());
-                System.out.println(templateListModel.getItems());
             }
         });
 
@@ -106,18 +101,8 @@ public class TemplatesEditPanel {
                         templateListModel.replaceAll(newTemplates);
                     }
 
-                })
-                .addExtraAction(new AnActionButton("Save", "Save", AllIcons.Actions.MenuSaveall) {
 
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e) {
-                        saveAction.accept(templateListModel.getItems());
-                    }
 
-                    @Override
-                    public boolean isVisible() {
-                        return saveAction != null;
-                    }
                 })
                 ;
 
@@ -131,7 +116,14 @@ public class TemplatesEditPanel {
         return splitter;
     }
 
+    void save() {
+        if (templatesChanged()) {
+            this.persistedTemplatesComponent.setTemplates(templateListModel.getItems());
+        }
+    }
+
     private boolean templatesChanged() {
         return !this.originalTemplates.equals(this.templateListModel.getItems());
     }
+
 }

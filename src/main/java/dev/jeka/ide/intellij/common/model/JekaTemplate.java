@@ -60,7 +60,7 @@ public class JekaTemplate {
                         "scaffold#projectPropsExtraContent=\"jeka.java.version=11\"")
                 .description("Template for building Java projects without needing build code.\n" +
                         "\n" +
-                        "Use this template if your project is standard enough to not require \n" +
+                        "Use this template if your project is standard enough to not require " +
                         "any code to configure builds.\n" +
                         "\n" +
                         "You can configure the build by editing :\n" +

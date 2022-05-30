@@ -61,4 +61,5 @@ public final class TemplatePersistentStateComponent implements PersistentStateCo
         templates.clear();
         templates.addAll(result);
     }
+
 }
