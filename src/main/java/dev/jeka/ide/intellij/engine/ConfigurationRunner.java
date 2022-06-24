@@ -13,6 +13,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.SlowOperations;
+import dev.jeka.core.tool.Main;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 
 import java.util.*;
@@ -23,12 +24,9 @@ public class ConfigurationRunner {
     public static void run(Module module, String configurationName, String cmd, boolean debug) {
         SlowOperations.allowSlowOperations(() -> {
             ApplicationConfiguration configuration = new ApplicationConfiguration(configurationName, module.getProject());
-            configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
-            configuration.setMainClassName("dev.jeka.core.tool.Main");
+            initConfiguration(configuration);
             configuration.setModule(module);
             configuration.setProgramParameters(cmd);
-            configuration.setBeforeRunTasks(Collections.emptyList());
-
             RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                     RunManager.getInstance(module.getProject()).createConfiguration(configuration, configuration.getFactory());
             ApplicationConfiguration applicationRunConfiguration =
@@ -47,7 +45,7 @@ public class ConfigurationRunner {
         });
     }
 
-    private static void applyClasspathModification(ApplicationConfiguration applicationConfiguration, Module module) {
+    public static void applyClasspathModification(ApplicationConfiguration applicationConfiguration, Module module) {
         LinkedHashSet<ModuleBasedConfigurationOptions.ClasspathModification> excludes = new LinkedHashSet<>();
         excludes.addAll(findExclusion(module));
         ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
@@ -64,5 +62,11 @@ public class ConfigurationRunner {
                 .map(path ->
                         new ModuleBasedConfigurationOptions.ClasspathModification(path.toString(), true))
                 .collect(Collectors.toList());
+    }
+
+    public static void initConfiguration(ApplicationConfiguration configuration) {
+        configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
+        configuration.setMainClassName(Main.class.getName());
+        configuration.setBeforeRunTasks(Collections.emptyList());
     }
 }

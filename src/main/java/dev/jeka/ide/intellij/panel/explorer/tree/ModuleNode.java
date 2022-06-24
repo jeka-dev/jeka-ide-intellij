@@ -167,7 +167,7 @@ public class ModuleNode extends AbstractNode {
         return false;
     }
 
-    List<String> availableKBeans() {
+    List<String> kbeans() {
         if (children == null) {
             return new LinkedList<>();
         }

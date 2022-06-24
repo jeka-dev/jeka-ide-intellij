@@ -1,4 +1,4 @@
-package dev.jeka.ide.intellij.unused.runconfigations;
+package dev.jeka.ide.intellij.extension.runconfiguration;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
@@ -8,7 +8,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class JekaToolRunConfigurationType implements ConfigurationType {
+public class JekaRunConfigurationType implements ConfigurationType {
+
+    static final String ID = JekaRunConfigurationType.class.getName();
+
     @NotNull
     @Override
     public String getDisplayName() {
@@ -18,7 +21,7 @@ public class JekaToolRunConfigurationType implements ConfigurationType {
     @Nls
     @Override
     public String getConfigurationTypeDescription() {
-        return "Jeka Tool Run Configuration";
+        return "Jeka Run Configuration";
     }
 
     @Override
@@ -29,11 +32,11 @@ public class JekaToolRunConfigurationType implements ConfigurationType {
     @NotNull
     @Override
     public String getId() {
-        return "JEKA_RUN_CONFIGURATION";
+        return ID;
     }
 
     @Override
     public ConfigurationFactory[] getConfigurationFactories() {
-        return new ConfigurationFactory[]{new JekaToolRunConfigurationFactory(this)};
+        return new ConfigurationFactory[]{new JekaRunConfigurationFactory(this)};
     }
 }

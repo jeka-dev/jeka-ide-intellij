@@ -85,11 +85,13 @@
                 language="JAVA"
         />
 
+        <configurationType implementation="dev.jeka.ide.intellij.extension.runconfiguration.JekaRunConfigurationType"/>
+
         <!--
 
          <projectStructureDetector implementation="dev.jeka.ide.intellij.extension.JekaProjectStructureDetector"/>
 
-      <configurationType implementation="dev.jeka.ide.intellij.unused.runconfigations.JekaToolRunConfigurationType"/>
+
 
        <runConfigurationProducer implementation="ShellConfigurationProducer"/>
 

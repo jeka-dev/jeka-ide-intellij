@@ -41,7 +41,7 @@ public class JekaConsoleToolWindows {
 
     private static final String ID = "Jeka console";
 
-    private static final Icon ICON = JekaIcons.JEKA_GREY_NAKED_13;
+    private static final Icon ICON = JekaIcons.JEKA_GREY;
 
     private static ConsoleView createConsoleView(Project project) {
         TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();

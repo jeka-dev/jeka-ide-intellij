@@ -43,7 +43,7 @@ public final class JekaConsoleToolWindows2 {
 
     private static final String ID = "Jeka console2";
 
-    private static final Icon ICON = JekaIcons.JEKA_GREY_NAKED_13;
+    private static final Icon ICON = JekaIcons.JEKA_GREY;
 
     private final Project project;
 

@@ -27,7 +27,7 @@ public class BeanBoxNode extends AbstractNode {
 
     @Override
     public String toString() {
-        return "Available KBeans";
+        return "Classpath KBeans";
     }
 
     @Override
@@ -42,6 +42,7 @@ public class BeanBoxNode extends AbstractNode {
                 .map(className -> PsiClassHelper.getPsiClass(project, className))
                 .filter(Objects::nonNull)
                 .map(psiClass -> new BeanNode(project, psiClass))
+                .sorted()
                 .collect(Collectors.toList());
     }
 

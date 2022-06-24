@@ -14,12 +14,13 @@ import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import icons.JekaIcons;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-class BeanNode extends AbstractNode {
+class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
     @Getter
     private final PsiClass psiClass;
@@ -109,5 +110,8 @@ class BeanNode extends AbstractNode {
     }
 
 
-
+    @Override
+    public int compareTo(@NotNull BeanNode o) {
+        return this.name.compareTo(o.name);
+    }
 }
