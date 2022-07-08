@@ -21,6 +21,7 @@ import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
+import javax.swing.tree.TreeNode;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
@@ -167,20 +168,32 @@ public class ModuleNode extends AbstractNode {
         return false;
     }
 
-    List<String> kbeans() {
+    List<String> kbeanClassNames() {
         if (children == null) {
             return new LinkedList<>();
         }
         List<String> defBeans = this.children.stream()
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
-                .map(beanNode -> beanNode.getName())
+                .map(beanNode -> beanNode.getClassName())
                 .collect(Collectors.toList());
         List<String> availableBeans = this.children.stream()
                 .filter(BeanBoxNode.class::isInstance)
                 .map(BeanBoxNode.class::cast)
-                .flatMap(beanBoxNode -> beanBoxNode.beans().stream())
+                .flatMap(beanBoxNode -> beanBoxNode.beanClassNames().stream())
                 .collect(Collectors.toList());
         return JkUtilsIterable.concatLists(defBeans, availableBeans);
+    }
+
+    List<ModuleNode> getDescendantModuleNodes() {
+        List<ModuleNode> result = new LinkedList<>();
+        for (TreeNode treeNode : children) {
+            if (treeNode instanceof ModuleNode) {
+                ModuleNode moduleNode = (ModuleNode) treeNode;
+                result.add(moduleNode);
+                result.addAll(moduleNode.getDescendantModuleNodes());
+            }
+        }
+        return result;
     }
 }

@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.util.SlowOperations;
+import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -108,6 +109,12 @@ public class RootNode extends AbstractNode {
         return children.stream()
                 .filter(ModuleNode.class::isInstance)
                 .map(ModuleNode.class::cast)
+                .flatMap(moduleNode -> {
+                    List<ModuleNode> moduleNodes = new LinkedList<>();
+                    moduleNodes.add(moduleNode);
+                    moduleNodes.addAll(moduleNode.getDescendantModuleNodes());
+                    return moduleNodes.stream();
+                })
                 .filter(moduleNode -> moduleNode.getModule().equals(module))
                 .findFirst().orElse(null);
     }

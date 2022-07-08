@@ -5,12 +5,15 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.GroupHeaderSeparator;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.utils.JkUtilsString;
+import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -68,11 +71,6 @@ public class RunFormPanel {
 
     public void setModule(Module module) {
         behaviorPanel.setKBeanCombo(module);
-    }
-
-    public void syncCheckBoxes() {
-        String cmd = cmdTextField.getText();
-
     }
 
     private JPanel panel() {
@@ -253,14 +251,15 @@ public class RunFormPanel {
 
         private ComboBox<String> kb;
 
-        private JBCheckBox wcCb = new JBCheckBox("work.clean (-wc)");
+        private JBCheckBox cwCb = new JBCheckBox("clean.work (-cw)");
 
         private JBCheckBox dciCb = new JBCheckBox("def.compile.ignore-failure (-dci)");
 
         BehaviorPanel() {
             Border border = BorderFactory.createEmptyBorder(0,20,0,0);
-            setBorder(border);
-            GridLayout layout = new GridLayout(0,3);
+            //Border border = BorderFactory.createLineBorder(Color.BLUE);
+            //setBorder(border);
+            GridLayout layout = new GridLayout(2,1);
             layout.setVgap(0);
             layout.setHgap(20);
             this.setLayout(layout);
@@ -270,31 +269,44 @@ public class RunFormPanel {
             setKBeanCombo(module);
             kb.setName("log.style (-ls)");
             kb.setMaximumRowCount(20);
+            kb.setMinimumAndPreferredWidth(300);
+            kb.setRenderer(new DefaultListCellRenderer());
             JPanel lsPanel = UI.PanelFactory.panel(kb)
                     .withLabel("kbean (-kb)")
                     .withTooltip("The first KBean to be instantiated.<br/>" +
                             "By default this is the first one found in 'def' folder. <br/>Methods and properties not prefixed with bean name will apply on this bean.")
                     .createPanel();
+            lsPanel.setBorder(border);
             this.add(lsPanel);
             kb.addItemListener(event -> {
                 if (!updateCmd) {
                     return;
                 }
                 String selectedValue = kb.getItem();
-                selectedValue = selectedValue.equals("default") ? null : selectedValue;
-                adaptText("kb", selectedValue);
+                if (selectedValue != null) {
+                    selectedValue = selectedValue.equals("default") ? null : selectedValue;
+                    String value = selectedValue != null ? selectedValue.split(" ")[0] : selectedValue;
+                    adaptText("kb", value);
+                }
             });
 
-            this.add(new JPanel());
-            this.add(new JPanel());
+            JBPanel cbPanel = new JBPanel();
+            cbPanel.setBorder(border);
+            FlowLayout flowLayout = new FlowLayout();
+            flowLayout.setAlignment(FlowLayout.LEFT);
+            flowLayout.setHgap(0);
+            cbPanel.setLayout(flowLayout);
 
             // -wc
-            listen(wcCb, "wc");
-            this.add(itemPanel(wcCb, "Delete Jeka caches before running."));
+            listen(cwCb, "cw");
+            cbPanel.add(itemPanel(cwCb, "Delete Jeka caches before running."));
+            cbPanel.add(new JBLabel("      "));
 
             // -dci
             listen(dciCb, "dci");
-            this.add(itemPanel(dciCb, "Ignore compilation failure on 'def' folder. It can be useful if you want execute a KBean which is not on 'def' folder."));
+            cbPanel.add(itemPanel(dciCb, "Ignore compilation failure on 'def' folder. It can be useful if you want to execute a KBean which is already on classpath."));
+
+            this.add(cbPanel);
         }
 
         private void setKBeanCombo(Module module) {
@@ -304,12 +316,19 @@ public class RunFormPanel {
         }
 
         private void updateKbeans(Module module) {
+            String currentValue = kb.getItem();
             kb.removeAllItems();
             List<String> valueList = new LinkedList<>();
             valueList.add("default");
-            List<String> kbeans = module.getProject().getService(JekaToolWindowTreeService.class).getKbeans(module);
-            valueList.addAll(kbeans);
+            List<String> kbeanClassNames = module.getProject().getService(JekaToolWindowTreeService.class).getKbeans(module);
+            List<String> items = kbeanClassNames.stream()
+                            .map(className -> JkExternalToolApi.getBeanName(className) + "  (" + className + ")")
+                            .collect(Collectors.toList());
+            valueList.addAll(items);
             valueList.forEach(item -> kb.addItem(item));
+            if (valueList.contains(currentValue)) {
+                kb.setItem(currentValue);
+            }
             kb.addNotify();
         }
 
@@ -332,7 +351,7 @@ public class RunFormPanel {
         private void sync(String cmd) {
             updateCmd = false;
             List<String> items = Arrays.asList(JkUtilsString.translateCommandline(cmd));
-            RunFormPanel.sync(items, wcCb, "wc", "work.clean");
+            RunFormPanel.sync(items, cwCb, "cw", "clean.work");
             RunFormPanel.sync(items, dciCb, "dci", "def.compile.ignore-failure");
             RunFormPanel.sync(items, kb, "kb", "kbean");
             updateCmd = true;
@@ -356,6 +375,9 @@ public class RunFormPanel {
     }
 
     private static void sync(List<String> items, ComboBox<String> comboBox, String ... optionNames) {
+        if (comboBox.getItemCount() == 0) {
+            return;
+        }
         for (String optionName : optionNames) {
             for (String item : items) {
                 String prefix = "-" + optionName + "=";

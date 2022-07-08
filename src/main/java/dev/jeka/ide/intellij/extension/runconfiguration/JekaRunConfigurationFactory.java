@@ -6,13 +6,19 @@ import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.components.BaseState;
 import com.intellij.openapi.project.Project;
+import jdk.nashorn.internal.objects.annotations.Constructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
 public class JekaRunConfigurationFactory extends ConfigurationFactory {
 
-    protected JekaRunConfigurationFactory(@NotNull ConfigurationType type) {
+    static final JekaRunConfigurationFactory INSTANCE = new JekaRunConfigurationFactory(JekaRunConfigurationType.INSTANCE);
+
+    private JekaRunConfigurationFactory(@NotNull ConfigurationType type) {
         super(type);
     }
 
@@ -31,7 +37,5 @@ public class JekaRunConfigurationFactory extends ConfigurationFactory {
     public @Nullable Class<? extends BaseState> getOptionsClass() {
         return JvmMainMethodRunConfigurationOptions.class;
     }
-
-
 
 }

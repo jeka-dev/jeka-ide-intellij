@@ -173,6 +173,6 @@ public final class JekaToolWindowTreeService {
         if (moduleNode == null) {
             return Collections.emptyList();
         }
-        return moduleNode.kbeans();
+        return moduleNode.kbeanClassNames();
     }
 }

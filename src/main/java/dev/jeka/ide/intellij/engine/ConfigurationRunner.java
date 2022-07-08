@@ -1,9 +1,6 @@
 package dev.jeka.ide.intellij.engine;
 
-import com.intellij.execution.Executor;
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
+import com.intellij.execution.*;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
 import com.intellij.execution.executors.DefaultDebugExecutor;
@@ -15,6 +12,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.tool.Main;
 import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.RunConfigurationHelper;
+import dev.jeka.ide.intellij.extension.runconfiguration.JekaRunConfiguration;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ public class ConfigurationRunner {
 
     public static void run(Module module, String configurationName, String cmd, boolean debug) {
         SlowOperations.allowSlowOperations(() -> {
-            ApplicationConfiguration configuration = new ApplicationConfiguration(configurationName, module.getProject());
+            JekaRunConfiguration configuration = new JekaRunConfiguration(configurationName, module.getProject());
             initConfiguration(configuration);
             configuration.setModule(module);
             configuration.setProgramParameters(cmd);
@@ -33,7 +32,8 @@ public class ConfigurationRunner {
                     (ApplicationConfiguration) runnerAndConfigurationSettings.getConfiguration();
 
             applicationRunConfiguration.setBeforeRunTasks(Collections.emptyList());
-            applyClasspathModification(applicationRunConfiguration, module);
+            applicationRunConfiguration.setClasspathModifications(
+                    RunConfigurationHelper.computeIntellijCompiledClassExclusions( module));
 
             Executor executor = debug ? DefaultDebugExecutor.getDebugExecutorInstance() :
                     DefaultRunExecutor.getRunExecutorInstance();
@@ -45,28 +45,10 @@ public class ConfigurationRunner {
         });
     }
 
-    public static void applyClasspathModification(ApplicationConfiguration applicationConfiguration, Module module) {
-        LinkedHashSet<ModuleBasedConfigurationOptions.ClasspathModification> excludes = new LinkedHashSet<>();
-        excludes.addAll(findExclusion(module));
-        ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
-        List<Module> depModules = ModuleHelper.getModuleDependencies(moduleManager, module);
-        depModules.forEach(mod -> excludes.addAll(findExclusion(mod)));
-        applicationConfiguration.setClasspathModifications(new LinkedList<>(excludes));
-    }
-
-    private static List<ModuleBasedConfigurationOptions.ClasspathModification> findExclusion(Module module) {
-        VirtualFile[] roots = ModuleRootManager.getInstance(module).orderEntries().classes().getRoots();
-        return Arrays.stream(roots)
-                .filter(virtualFile -> "file".equals(virtualFile.getFileSystem().getProtocol()))
-                .map(VirtualFile::toNioPath)
-                .map(path ->
-                        new ModuleBasedConfigurationOptions.ClasspathModification(path.toString(), true))
-                .collect(Collectors.toList());
-    }
-
     public static void initConfiguration(ApplicationConfiguration configuration) {
         configuration.setWorkingDirectory("$MODULE_WORKING_DIR$");
         configuration.setMainClassName(Main.class.getName());
         configuration.setBeforeRunTasks(Collections.emptyList());
     }
+
 }

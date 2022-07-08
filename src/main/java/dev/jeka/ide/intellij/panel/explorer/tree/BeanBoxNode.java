@@ -1,9 +1,7 @@
 package dev.jeka.ide.intellij.panel.explorer.tree;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiManager;
 import com.intellij.ui.ColoredTreeCellRenderer;
-import dev.jeka.core.tool.JkBean;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import icons.JekaIcons;
@@ -46,14 +44,14 @@ public class BeanBoxNode extends AbstractNode {
                 .collect(Collectors.toList());
     }
 
-    List<String> beans() {
+    List<String> beanClassNames() {
         if (children == null) {
             return new LinkedList<>();
         }
         return this.children.stream()
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
-                .map(beanNode -> beanNode.getName())
+                .map(beanNode -> beanNode.getClassName())
                 .collect(Collectors.toList());
     }
 }

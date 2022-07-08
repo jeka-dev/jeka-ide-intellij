@@ -14,13 +14,13 @@ import dev.jeka.core.api.depmanagement.JkDepSuggest;
 import dev.jeka.core.api.depmanagement.JkModuleSearch;
 import dev.jeka.core.api.depmanagement.JkRepoSet;
 import dev.jeka.core.tool.JkExternalToolApi;
+import dev.jeka.core.tool.JkInjectClasspath;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -37,29 +37,42 @@ public class JavaDepCompletionContributor extends CompletionContributor {
             @Override
             public boolean accepts(@NotNull PsiLiteralExpression literalExpression, ProcessingContext context) {
                 Object parent = literalExpression.getParent();
-                if (parent == null || !(parent instanceof PsiExpressionList)) {
+                if (!parentIsCandidate(parent)) {
                     return false;
                 }
-                PsiExpressionList expressionList = (PsiExpressionList) parent;
-                parent = expressionList.getParent();
-                if (parent == null || !(parent instanceof PsiMethodCallExpression)) {
-                    return false;
-                }
-                PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) parent;
-                PsiReferenceExpression method = methodCallExpression.getMethodExpression();
-                PsiMethod psiMethod = (PsiMethod) method.getLastChild().findReferenceAt(0).resolve();
-                PsiParameterList parameterList = psiMethod.getParameterList();
-                int i = 0;
-                for (; i < expressionList.getExpressionCount(); i++) {
-                    if (expressionList.getExpressions()[i] == literalExpression) {
-                        break;
+                if (parent instanceof PsiMethodCallExpression) {
+                    PsiExpressionList expressionList = (PsiExpressionList) parent;
+                    parent = expressionList.getParent();
+                    PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) parent;
+                    PsiReferenceExpression methodExpression = methodCallExpression.getMethodExpression();
+                    int i = 0;
+                    for (; i < expressionList.getExpressionCount(); i++) {
+                        if (expressionList.getExpressions()[i] == literalExpression) {
+                            break;
+                        }
                     }
+                    PsiMethod psiMethod = (PsiMethod) methodExpression.getLastChild().findReferenceAt(0).resolve();
+                    return hasDepSuggestAnnotation(psiMethod);
+                } else if (parent instanceof PsiNameValuePair) {
+                    PsiNameValuePair parentPsi = (PsiNameValuePair) parent;
+                    PsiReference psiReference = parentPsi.findReferenceAt(0); // method
+                    if (psiReference == null) {
+                        return false;
+                    }
+                    PsiElement psiElement = psiReference.resolve();
+                    if (psiElement instanceof PsiMethod) {
+                        PsiMethod psiMethod = (PsiMethod) psiElement;
+                        PsiElement psiMethodParent = psiMethod.getParent();
+                        if (psiMethodParent instanceof PsiClass) {
+                            PsiClass psiClass = (PsiClass) psiMethodParent;
+                            return psiClass.isAnnotationType() &&
+                                    JkInjectClasspath.class.getName().equals(psiClass.getQualifiedName());
+                        }
+                    }
+                    return false;
+                } else {
+                    return false;
                 }
-                Object jkCoordinateAutoComplete = null;
-                if (parameterList.getParameters().length > 0) {
-                    jkCoordinateAutoComplete = psiMethod.getParameterList().getParameter(0).getAnnotation(JkDepSuggest.class.getName());
-                }
-                return jkCoordinateAutoComplete != null;
             }
         };
 
@@ -68,6 +81,16 @@ public class JavaDepCompletionContributor extends CompletionContributor {
         );
 
         extend(CompletionType.BASIC, place, completionProvider);
+    }
+
+    private static boolean hasDepSuggestAnnotation(PsiMethod psiMethod) {
+        PsiParameterList parameterList = psiMethod.getParameterList();
+        Object jkCoordinateAutoComplete = null;
+        if (parameterList.getParameters().length > 0) {
+            jkCoordinateAutoComplete = psiMethod.getParameterList().getParameter(0).getAnnotation(
+                    JkDepSuggest.class.getName());
+        }
+        return jkCoordinateAutoComplete != null;
     }
 
     private static class DependenciesCompletionProvider extends CompletionProvider {
@@ -102,6 +125,19 @@ public class JavaDepCompletionContributor extends CompletionContributor {
             }
 
         }
+    }
+
+    private static boolean parentIsCandidate(Object parent) {
+        if (parent == null) {
+            return false;
+        }
+        if (parent instanceof PsiExpressionList) {
+            return true;
+        }
+        if ((parent instanceof PsiNameValuePair)) {
+            return true;
+        }
+        return false;
     }
 
 }

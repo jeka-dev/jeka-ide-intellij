@@ -3,9 +3,14 @@ package dev.jeka.ide.intellij.extension.runconfiguration;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.application.JavaSettingsEditorBase;
+import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
 import com.intellij.execution.ui.*;
+import com.intellij.openapi.module.Module;
 import com.intellij.ui.EditorTextField;
 import com.intellij.util.ui.UIUtil;
+import dev.jeka.core.api.utils.JkUtilsIterable;
+import dev.jeka.ide.intellij.common.RunConfigurationHelper;
+import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import dev.jeka.ide.intellij.panel.RunFormPanel;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,9 +20,12 @@ import java.util.List;
 
 public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<ApplicationConfiguration> {
 
+    private final RunFormPanel runFormPanel;
+
 
     public JekaRunConfigurationSettingsEditor(ApplicationConfiguration configuration) {
         super(configuration);
+        runFormPanel = new RunFormPanel(null, "");
     }
 
     @Override
@@ -35,14 +43,24 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
         fragments.add(mainClassFragment);
         DefaultJreSelector jreSelector = DefaultJreSelector.fromSourceRootsDependencies(moduleClasspath.component(), mainClassFragment.component());
         SettingsEditorFragment<ApplicationConfiguration, JrePathEditor> jrePath = CommonJavaFragments.createJrePath(jreSelector);
+        moduleClasspath.addSettingsEditorListener(editor -> {
+            ModuleClasspathCombo moduleClasspathCombo = (ModuleClasspathCombo) moduleClasspath.getComponent();
+            Module selectedModule = moduleClasspathCombo.getSelectedModule();
+            this.runFormPanel.setModule(selectedModule);
+            List<ModuleBasedConfigurationOptions.ClasspathModification> cpModifications =
+                    RunConfigurationHelper.computeIntellijCompiledClassExclusions(selectedModule);
+            System.out.println("------------" + selectedModule + "---------" + cpModifications);
+           //this.mySettings.setClasspathModifications(cpModifications);
+
+        });
         fragments.add(jrePath);
 
-        // Try to hide WORKING_DIRECTORY. Cannot find a solution to set it hidden.
-        // The only thing working here, is compoent.setEnaabled
-        commonParameterFragments.getFragments().get(0).setCanBeHidden(true);
-        // commonParameterFragments.getFragments().get(0).getComponent().setVisible(false);  no effect
-        commonParameterFragments.getFragments().get(0).setRemovable(true);
-        commonParameterFragments.getFragments().get(0).getComponent().setEnabled(false);
+        fragments.stream()
+                .filter(fragment -> JkUtilsIterable.listOf("workingDirectory").contains(fragment.getId()))
+                .forEach(fragment -> {
+                    fragment.getComponent().setEnabled(false);
+                });
+
     }
 
     @NotNull
@@ -60,8 +78,7 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
         return mainClassFragment;
     }
 
-    private static SettingsEditorFragment createJekaFormFragment() {
-        RunFormPanel runFormPanel = new RunFormPanel(null, "");
+    private SettingsEditorFragment createJekaFormFragment() {
         SettingsEditorFragment<ApplicationConfiguration, JPanel> settingsEditorFragment =
                 new SettingsEditorFragment<>("", "Jeka", null, runFormPanel.getPanel(),
                         SettingsEditorFragmentType.COMMAND_LINE,

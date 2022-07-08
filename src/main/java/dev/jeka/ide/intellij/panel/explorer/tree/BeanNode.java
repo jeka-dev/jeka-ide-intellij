@@ -28,6 +28,9 @@ class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     @Getter
     private final String name;
 
+    @Getter
+    private final String className;
+
     private final String tooltipText;
 
     public BeanNode(Project project, PsiClass psiClass) {
@@ -37,6 +40,7 @@ class BeanNode extends AbstractNode implements Comparable<BeanNode> {
         createMethodNodes(psiClass).forEach(this::add);
         createNestedBeanNodes(psiClass).forEach(this::add);
         name = JkExternalToolApi.getBeanName(psiClass.getQualifiedName());
+        className = psiClass.getQualifiedName();
         String tooltipContent = "<b>" + psiClass.getQualifiedName() + "</b><";
         String doc = PsiClassHelper.getFormattedJkDoc(psiClass);
         if (!JkUtilsString.isBlank(doc)) {

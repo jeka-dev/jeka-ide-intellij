@@ -12,6 +12,8 @@ public class JekaRunConfigurationType implements ConfigurationType {
 
     static final String ID = JekaRunConfigurationType.class.getName();
 
+    public static JekaRunConfigurationType INSTANCE = new JekaRunConfigurationType();
+
     @NotNull
     @Override
     public String getDisplayName() {
@@ -37,6 +39,6 @@ public class JekaRunConfigurationType implements ConfigurationType {
 
     @Override
     public ConfigurationFactory[] getConfigurationFactories() {
-        return new ConfigurationFactory[]{new JekaRunConfigurationFactory(this)};
+        return new ConfigurationFactory[]{JekaRunConfigurationFactory.INSTANCE};
     }
 }
