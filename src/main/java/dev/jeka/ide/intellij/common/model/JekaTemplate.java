@@ -73,7 +73,7 @@ public class JekaTemplate {
 
 
     public static final List<JekaTemplate> builtins() {
-        return JkUtilsIterable.listOf(blank(), project(), projectCodeLess(), springboot(), plugin());
+        return JkUtilsIterable.listOf(project(), springboot(), plugin(), blank(), projectCodeLess());
     }
 
     private static List<String> builtinNames() {
