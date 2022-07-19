@@ -9,10 +9,12 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
+import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import lombok.Value;
@@ -46,19 +48,19 @@ public class JekaRunMethodAction extends AnAction {
         DataContext dataContext = event.getDataContext();
         PsiLocation<PsiElement> location = (PsiLocation<PsiElement>) dataContext.getData(Location.DATA_KEY);
         final String methodName;
-        final String simpleClassName;
+        final String className;
         final Module module;
         if (location != null) {
             if (location.getPsiElement() instanceof PsiIdentifier) {
                 PsiMethod psiMethod = (PsiMethod) location.getPsiElement().getParent();
                 methodName = psiMethod.getName();
-                simpleClassName =  psiMethod.getContainingClass().getName();
+                className =  psiMethod.getContainingClass().getName();
 
                 // Handle kotlin
             } else if (location.getPsiElement().getParent() instanceof KtNamedFunction) {
                 KtNamedFunction ktNamedFunction = (KtNamedFunction) location.getPsiElement().getParent();
                 methodName = ktNamedFunction.getName();
-                simpleClassName = ktNamedFunction.getContainingKtFile().getClasses()[0].getName();
+                className = ktNamedFunction.getContainingKtFile().getClasses()[0].getName();
             } else {
                 throw new IllegalStateException("Type of action data " + location.getPsiElement() + " not handled.");
             }
@@ -69,10 +71,11 @@ public class JekaRunMethodAction extends AnAction {
                 throw new IllegalStateException("Can not find reference to Psi method");
             }
             methodName = methodInfo.getMethodName();
-            simpleClassName = methodInfo.getBeanClass().getName();
+            className = methodInfo.getBeanClass().getQualifiedName();
             module = methodInfo.getModule();;
         }
-        return new CallContext(module, simpleClassName, methodName);
+        boolean multiModule = ModuleManager.getInstance(module.getProject()).getModules().length > 1;
+        return new CallContext(module, className, methodName, multiModule);
     }
 
     @Value
@@ -95,13 +98,20 @@ public class JekaRunMethodAction extends AnAction {
 
         Module module;
 
-        String simpleClassName;
+        String className;
 
         String methodName;
 
+        boolean multiModule;
+
         String cmd() {
-            return simpleClassName + "#" + methodName;
+            return  JkExternalToolApi.getBeanName(className) + "#" + methodName;
         }
 
+        String toConfigName() {
+            String beanName = JkExternalToolApi.getBeanName(className);
+            String prefix = multiModule ? "[" + module.getName() + "] " : "";
+            return prefix + beanName + "#" + methodName;
+        }
     }
 }

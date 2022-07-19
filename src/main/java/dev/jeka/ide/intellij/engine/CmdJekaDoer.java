@@ -23,13 +23,19 @@ import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.ui.components.ActionLink;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
@@ -40,6 +46,9 @@ import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
 import dev.jeka.ide.intellij.extension.JekaToolWindows;
+import dev.jeka.ide.intellij.extension.action.GotoJkBeanAction;
+import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
+import dev.jeka.ide.intellij.extension.action.OpenManageDistributionsAction;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -128,6 +137,16 @@ public final class CmdJekaDoer {
 
     private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                                @Nullable  Module existingModule, Runnable onFinish) {
+        String execFile = jekaCmd(moduleDir, false);
+        if (!Files.exists(Paths.get(execFile))) {
+            NotificationGroupManager.getInstance()
+                    .getNotificationGroup("jeka.notifGroup")
+                    .createNotification("Distribution file " + execFile + " is missing. " +
+                            "Please re-install the distro or suppress it.", NotificationType.ERROR)
+                    .addAction(new OpenManageDistributionsAction())
+                    .notify(this.project);
+            return;
+        }
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
         setJekaJDKEnv(cmd, project, existingModule);
         cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld");
@@ -233,7 +252,8 @@ public final class CmdJekaDoer {
         } else {
             distributionPath = Paths.get(settingDistrib);
         }
-        return distributionPath.resolve(scriptName).toAbsolutePath().toString();
+        String result = distributionPath.resolve(scriptName).toAbsolutePath().toString();
+        return result;
     }
 
     private static void setJekaJDKEnv(GeneralCommandLine cmd, Project project, Module module) {

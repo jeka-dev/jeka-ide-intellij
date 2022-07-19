@@ -38,6 +38,7 @@ public class ConfigurationRunner {
             Executor executor = debug ? DefaultDebugExecutor.getDebugExecutorInstance() :
                     DefaultRunExecutor.getRunExecutorInstance();
             if (configurationName != null) {
+                configuration.setName(configurationName);
                 RunManager.getInstance(module.getProject()).addConfiguration(runnerAndConfigurationSettings);
                 RunManager.getInstance(module.getProject()).setSelectedConfiguration(runnerAndConfigurationSettings);
             }

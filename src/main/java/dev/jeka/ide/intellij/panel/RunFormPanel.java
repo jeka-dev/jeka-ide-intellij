@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.panel;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.DocumentAdapter;
@@ -10,10 +11,9 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.FormBuilder;
-import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.utils.JkUtilsString;
-import dev.jeka.core.tool.JkExternalToolApi;
+import dev.jeka.ide.intellij.panel.explorer.tree.BeanNode;
 import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -244,12 +244,11 @@ public class RunFormPanel {
             RunFormPanel.sync(items, ls, "ls", "log.style");
             updateCmd = true;
         }
-
     }
 
     private class BehaviorPanel extends JBPanel {
 
-        private ComboBox<String> kb;
+        private ComboBox<BeanNode> kb;
 
         private JBCheckBox cwCb = new JBCheckBox("clean.work (-cw)");
 
@@ -266,11 +265,12 @@ public class RunFormPanel {
 
             // -kb
             kb = new ComboBox<>();
+            ListCellRenderer cellRenderer = new KbCellRenderer();
+            kb.setRenderer(cellRenderer);
             setKBeanCombo(module);
             kb.setName("log.style (-ls)");
             kb.setMaximumRowCount(20);
             kb.setMinimumAndPreferredWidth(300);
-            kb.setRenderer(new DefaultListCellRenderer());
             JPanel lsPanel = UI.PanelFactory.panel(kb)
                     .withLabel("kbean (-kb)")
                     .withTooltip("The first KBean to be instantiated.<br/>" +
@@ -282,11 +282,11 @@ public class RunFormPanel {
                 if (!updateCmd) {
                     return;
                 }
-                String selectedValue = kb.getItem();
+                BeanNode selectedValue = kb.getItem();
                 if (selectedValue != null) {
-                    selectedValue = selectedValue.equals("default") ? null : selectedValue;
-                    String value = selectedValue != null ? selectedValue.split(" ")[0] : selectedValue;
-                    adaptText("kb", value);
+                    adaptText("kb", selectedValue.getName());
+                } else {
+                    adaptText("kb", null);
                 }
             });
 
@@ -316,15 +316,13 @@ public class RunFormPanel {
         }
 
         private void updateKbeans(Module module) {
-            String currentValue = kb.getItem();
+            BeanNode currentValue = kb.getItem();
             kb.removeAllItems();
-            List<String> valueList = new LinkedList<>();
-            valueList.add("default");
-            List<String> kbeanClassNames = module.getProject().getService(JekaToolWindowTreeService.class).getKbeans(module);
-            List<String> items = kbeanClassNames.stream()
-                            .map(className -> JkExternalToolApi.getBeanName(className) + "  (" + className + ")")
-                            .collect(Collectors.toList());
-            valueList.addAll(items);
+            List<BeanNode> valueList = new LinkedList<>();
+
+            List<BeanNode> kbeans = module.getProject().getService(JekaToolWindowTreeService.class).getKbeans(module);
+            valueList.add(null);
+            valueList.addAll(kbeans);
             valueList.forEach(item -> kb.addItem(item));
             if (valueList.contains(currentValue)) {
                 kb.setItem(currentValue);
@@ -374,7 +372,7 @@ public class RunFormPanel {
         checkBox.setSelected(select);
     }
 
-    private static void sync(List<String> items, ComboBox<String> comboBox, String ... optionNames) {
+    private static void sync(List<String> items, ComboBox<?> comboBox, String ... optionNames) {
         if (comboBox.getItemCount() == 0) {
             return;
         }
@@ -385,7 +383,8 @@ public class RunFormPanel {
                     String suffix = item.substring(prefix.length());
                     for (int i=0; i < comboBox.getItemCount(); i++) {
                         Object comboItem = comboBox.getItemAt(i);
-                        if (Objects.equals(comboItem, suffix)) {
+                        String stringItem = comboItem == null ? null : comboItem.toString();
+                        if (Objects.equals(stringItem, suffix)) {
                             comboBox.setSelectedIndex(i);
                             return;
                         }
@@ -396,5 +395,21 @@ public class RunFormPanel {
         comboBox.setSelectedIndex(0);
     }
 
+    private static class KbCellRenderer extends DefaultListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel original = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            original.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+            BeanNode beanNode = (BeanNode) value;
+            if (beanNode == null) {
+                original.setText("default");
+                return original;
+            }
+            String name = Strings.padEnd(beanNode.getName(), 18, ' ');
+            original.setText(name + "      " + beanNode.getClassName());
+            return original;
+        }
+    }
 
 }

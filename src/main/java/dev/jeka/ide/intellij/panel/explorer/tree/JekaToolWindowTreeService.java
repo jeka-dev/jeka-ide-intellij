@@ -167,12 +167,12 @@ public final class JekaToolWindowTreeService {
         return (AbstractNode) node;
     }
 
-    public List<String> getKbeans(Module module) {
+    public List<BeanNode> getKbeans(Module module) {
         RootNode rootNode = (RootNode) getTree().getModel().getRoot();
         ModuleNode moduleNode = rootNode.getModuleNode(module);
         if (moduleNode == null) {
             return Collections.emptyList();
         }
-        return moduleNode.kbeanClassNames();
+        return moduleNode.kbeans();
     }
 }

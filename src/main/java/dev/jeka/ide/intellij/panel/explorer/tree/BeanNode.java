@@ -13,6 +13,7 @@ import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import icons.JekaIcons;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-class BeanNode extends AbstractNode implements Comparable<BeanNode> {
+public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
     @Getter
     private final PsiClass psiClass;
@@ -117,5 +118,20 @@ class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     @Override
     public int compareTo(@NotNull BeanNode o) {
         return this.name.compareTo(o.name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BeanNode beanNode = (BeanNode) o;
+
+        return className.equals(beanNode.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return className.hashCode();
     }
 }

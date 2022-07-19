@@ -44,14 +44,13 @@ public class BeanBoxNode extends AbstractNode {
                 .collect(Collectors.toList());
     }
 
-    List<String> beanClassNames() {
+    List<BeanNode> kbeans() {
         if (children == null) {
             return new LinkedList<>();
         }
         return this.children.stream()
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
-                .map(beanNode -> beanNode.getClassName())
                 .collect(Collectors.toList());
     }
 }

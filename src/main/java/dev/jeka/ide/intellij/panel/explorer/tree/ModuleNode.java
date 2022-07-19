@@ -168,19 +168,18 @@ public class ModuleNode extends AbstractNode {
         return false;
     }
 
-    List<String> kbeanClassNames() {
+    List<BeanNode> kbeans() {
         if (children == null) {
             return new LinkedList<>();
         }
-        List<String> defBeans = this.children.stream()
+        List<BeanNode> defBeans = this.children.stream()
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
-                .map(beanNode -> beanNode.getClassName())
                 .collect(Collectors.toList());
-        List<String> availableBeans = this.children.stream()
+        List<BeanNode> availableBeans = this.children.stream()
                 .filter(BeanBoxNode.class::isInstance)
                 .map(BeanBoxNode.class::cast)
-                .flatMap(beanBoxNode -> beanBoxNode.beanClassNames().stream())
+                .flatMap(beanBoxNode -> beanBoxNode.kbeans().stream())
                 .collect(Collectors.toList());
         return JkUtilsIterable.concatLists(defBeans, availableBeans);
     }
