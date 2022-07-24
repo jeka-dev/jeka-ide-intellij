@@ -16,10 +16,13 @@ import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
+
+import java.util.List;
 
 public class JekaRunMethodAction extends AnAction {
 
@@ -75,7 +78,8 @@ public class JekaRunMethodAction extends AnAction {
             module = methodInfo.getModule();;
         }
         boolean multiModule = ModuleManager.getInstance(module.getProject()).getModules().length > 1;
-        return new CallContext(module, className, methodName, multiModule);
+        List<PsiClass> psiClasses = PsiClassHelper.findLocalBeanClasses(module);
+        return new CallContext(module, className, methodName, multiModule, psiClasses.size() > 1);
     }
 
     @Value
@@ -104,6 +108,8 @@ public class JekaRunMethodAction extends AnAction {
 
         boolean multiModule;
 
+        boolean multiLocalBeans;
+
         String cmd() {
             return  JkExternalToolApi.getBeanName(className) + "#" + methodName;
         }
@@ -111,7 +117,8 @@ public class JekaRunMethodAction extends AnAction {
         String toConfigName() {
             String beanName = JkExternalToolApi.getBeanName(className);
             String prefix = multiModule ? "[" + module.getName() + "] " : "";
-            return prefix + beanName + "#" + methodName;
+            String suffix = multiLocalBeans ? beanName + "#" : "";
+            return prefix + suffix + methodName;
         }
     }
 }

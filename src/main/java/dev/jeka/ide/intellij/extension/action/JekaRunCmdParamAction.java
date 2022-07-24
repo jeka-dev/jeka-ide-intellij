@@ -4,11 +4,9 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.module.Module;
-import dev.jeka.ide.intellij.engine.ConfigurationRunner;
+import com.intellij.openapi.module.ModuleManager;
 import dev.jeka.ide.intellij.panel.RunDialogWrapper;
-import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -28,7 +26,9 @@ public class JekaRunCmdParamAction extends AnAction {
     }
 
     private static String configurationName(Module module, String cmdName) {
-        return module.getName() + " [jeka $" + cmdName + "]";
+        boolean multiModule = ModuleManager.getInstance(module.getProject()).getModules().length > 1;
+        String prefix = multiModule ? "[" + module.getName() + "] " : "";
+        return prefix + "$" + cmdName;
     }
 
     @Override

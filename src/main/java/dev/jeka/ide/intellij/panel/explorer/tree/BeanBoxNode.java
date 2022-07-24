@@ -39,7 +39,7 @@ public class BeanBoxNode extends AbstractNode {
                 .filter(name -> !localKbeans.contains(name))
                 .map(className -> PsiClassHelper.getPsiClass(project, className))
                 .filter(Objects::nonNull)
-                .map(psiClass -> new BeanNode(project, psiClass))
+                .map(psiClass -> new BeanNode(project, psiClass, false))
                 .sorted()
                 .collect(Collectors.toList());
     }
@@ -53,4 +53,5 @@ public class BeanBoxNode extends AbstractNode {
                 .map(BeanNode.class::cast)
                 .collect(Collectors.toList());
     }
+
 }

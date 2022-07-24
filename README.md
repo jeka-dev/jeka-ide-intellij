@@ -4,10 +4,10 @@
 
 * Jeka distribution management : user don't need to install Jeka manually.
 * Project/Module creation from scratch
-* Synchronize of .iml files according dependencies declared in modules
+* Synchronize module with Intellij according build class
 * right-side tool panel Jeka explorer
-* Buttons to run/debug command methods directly from editor (similarly to @Test methods)
-* Register automatically RunConfiguration while launching run/debug commands
+* Launch Jeka methods directly from the editor
+* RunConfiguration 
 
 ## How to use it ?
 

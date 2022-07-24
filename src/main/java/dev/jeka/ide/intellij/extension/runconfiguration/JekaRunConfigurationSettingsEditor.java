@@ -10,7 +10,6 @@ import com.intellij.ui.EditorTextField;
 import com.intellij.util.ui.UIUtil;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.ide.intellij.common.RunConfigurationHelper;
-import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import dev.jeka.ide.intellij.panel.RunFormPanel;
 import org.jetbrains.annotations.NotNull;
 
@@ -98,5 +97,10 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
     @Override
     protected void initFragments(Collection<? extends SettingsEditorFragment<ApplicationConfiguration, ?>> settingsEditorFragments) {
         super.initFragments(settingsEditorFragments);
+    }
+
+    @Override
+    public void disposeEditor() {
+        super.disposeEditor();
     }
 }

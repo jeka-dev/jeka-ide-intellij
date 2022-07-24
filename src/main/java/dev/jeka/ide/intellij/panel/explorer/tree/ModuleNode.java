@@ -40,7 +40,8 @@ public class ModuleNode extends AbstractNode {
         load();
     }
 
-    private void load() {
+    void load() {
+        this.removeAllChildren();
         createCmdChildren().forEach(this::add);
         List<BeanNode> beanNodes = createBeanNodes();
         beanNodes.forEach(this::add);
@@ -142,16 +143,19 @@ public class ModuleNode extends AbstractNode {
             });
 
         }
-
     }
 
     private List<BeanNode> createBeanNodes() {
-       return PsiClassHelper.findKBeanClasses(module).stream()
-                .map(beanClass -> new BeanNode(project, beanClass))
+       return PsiClassHelper.findLocalBeanClasses(module).stream()
+                .map(beanClass -> new BeanNode(project, beanClass, true))
                 .collect(Collectors.toList());
     }
 
     private static boolean mustRecompute(Path jekaDir, Path file) {
+        if (file.equals(jekaDir.getParent().resolve(JkConstants.WORK_PATH)
+                .resolve(JkConstants.KBEAN_CLASSES_CACHE_FILE_NAME))) {
+            return true;
+        }
         if (!file.startsWith(jekaDir)) {
             return false;
         }
@@ -162,9 +166,7 @@ public class ModuleNode extends AbstractNode {
                 && (file.toString().endsWith(".java") || file.toString().endsWith(".kt"))) {
             return true;
         }
-        if (file.equals(jekaDir.resolve(JkConstants.WORK_PATH).resolve("kbean-classes.txt"))) {
-            return true;
-        }
+
         return false;
     }
 
@@ -176,12 +178,12 @@ public class ModuleNode extends AbstractNode {
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
                 .collect(Collectors.toList());
-        List<BeanNode> availableBeans = this.children.stream()
+        List<BeanNode> classpathBeans = this.children.stream()
                 .filter(BeanBoxNode.class::isInstance)
                 .map(BeanBoxNode.class::cast)
                 .flatMap(beanBoxNode -> beanBoxNode.kbeans().stream())
                 .collect(Collectors.toList());
-        return JkUtilsIterable.concatLists(defBeans, availableBeans);
+        return JkUtilsIterable.concatLists(defBeans, classpathBeans);
     }
 
     List<ModuleNode> getDescendantModuleNodes() {

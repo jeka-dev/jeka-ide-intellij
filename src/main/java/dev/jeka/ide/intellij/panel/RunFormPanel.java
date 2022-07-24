@@ -1,18 +1,18 @@
 package dev.jeka.ide.intellij.panel;
 
 import com.google.common.base.Strings;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.GroupHeaderSeparator;
-import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.components.*;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.utils.JkUtilsString;
+import dev.jeka.ide.intellij.common.ModuleHelper;
+import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 import dev.jeka.ide.intellij.panel.explorer.tree.BeanNode;
 import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
 import lombok.Getter;
@@ -37,11 +37,13 @@ public class RunFormPanel {
 
     private BehaviorPanel behaviorPanel;
 
-    private final Module module;
+    private Module module;
 
     private final JBTextField cmdTextField = new ExpandableTextField();
 
     private volatile boolean updateCmd = true;
+
+    private NoSyncPanel noSyncPanel = new NoSyncPanel();
 
     public RunFormPanel(Module module, String originalCommand) {
         this.module = module;
@@ -70,6 +72,7 @@ public class RunFormPanel {
     }
 
     public void setModule(Module module) {
+        this.module = module;
         behaviorPanel.setKBeanCombo(module);
     }
 
@@ -83,6 +86,7 @@ public class RunFormPanel {
 
         JPanel result = FormBuilder.createFormBuilder()
                 //.addLabeledComponent("Name:", nameTextField, false)
+                .addComponent(noSyncPanel)
                 .addComponent(cmdPanel)
                 .addLabeledComponent("Log Options", new GroupHeaderSeparator(new Insets(0,0,20,0)))
                 .addComponent(optionPanel, 10)
@@ -138,6 +142,36 @@ public class RunFormPanel {
             return token.substring(1);
         }
         return JkUtilsString.substringBeforeFirst(token.substring(1), "=");
+    }
+
+    private class NoSyncPanel extends JBPanel {
+
+        private ActionLink link;
+
+        NoSyncPanel() {
+            FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
+            this.setLayout(flowLayout);
+            JBLabel noSyncLabel = new JBLabel();
+            noSyncLabel.setIcon(AllIcons.General.Warning);
+            noSyncLabel.setText("This module is not synchronised. Autocompletion can not work fully...");
+            this.add(noSyncLabel);
+            link = new ActionLink("Sync module");
+            link.addActionListener(event -> {
+                if (module == null) {
+                    return;
+                }
+                link.setEnabled(false);
+                CmdJekaDoer.getInstance(module.getProject()).generateIml(
+                    ModuleHelper.getModuleDirPath(module), null, true, module, this::update);
+            });
+            this.add(link);
+            this.setVisible(false);
+        }
+
+        private void update() {
+            RunFormPanel.this.setModule(module);
+            this.link.setEnabled(true);
+        }
     }
 
     private class OptionPanel extends JBPanel {
@@ -320,7 +354,13 @@ public class RunFormPanel {
             kb.removeAllItems();
             List<BeanNode> valueList = new LinkedList<>();
 
-            List<BeanNode> kbeans = module.getProject().getService(JekaToolWindowTreeService.class).getKbeans(module);
+            JekaToolWindowTreeService treeService = module.getProject().getService(JekaToolWindowTreeService.class);
+            try {
+                Thread.sleep(1000);  //TODO replace by a listener mechanism.
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            List<BeanNode> kbeans = treeService.getKbeans(module);
             valueList.add(null);
             valueList.addAll(kbeans);
             valueList.forEach(item -> kb.addItem(item));
@@ -328,6 +368,8 @@ public class RunFormPanel {
                 kb.setItem(currentValue);
             }
             kb.addNotify();
+            boolean hasClasspathKbeans = kbeans.stream().filter(kbean -> !kbean.isLocal()).count() > 0;
+            RunFormPanel.this.noSyncPanel.setVisible(!hasClasspathKbeans);
         }
 
         private JPanel itemPanel(JComponent cmp, String tooltipText) {
@@ -397,6 +439,8 @@ public class RunFormPanel {
 
     private static class KbCellRenderer extends DefaultListCellRenderer {
 
+        private static final  Color GREY = new Color(28, 35, 35, 124);
+
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel original = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -405,11 +449,15 @@ public class RunFormPanel {
             if (beanNode == null) {
                 original.setText("default");
                 return original;
+            } else if (!beanNode.isLocal()) {
+                original.setForeground(Color.GRAY);
             }
             String name = Strings.padEnd(beanNode.getName(), 18, ' ');
             original.setText(name + "      " + beanNode.getClassName());
             return original;
         }
     }
+
+
 
 }

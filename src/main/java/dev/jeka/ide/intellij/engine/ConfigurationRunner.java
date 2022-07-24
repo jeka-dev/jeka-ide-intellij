@@ -1,22 +1,19 @@
 package dev.jeka.ide.intellij.engine;
 
-import com.intellij.execution.*;
+import com.intellij.execution.Executor;
+import com.intellij.execution.ProgramRunnerUtil;
+import com.intellij.execution.RunManager;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.tool.Main;
-import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.RunConfigurationHelper;
 import dev.jeka.ide.intellij.extension.runconfiguration.JekaRunConfiguration;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 public class ConfigurationRunner {
 

@@ -6,14 +6,12 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.util.CachedValue;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
 import icons.JekaIcons;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +32,10 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
     private final String tooltipText;
 
-    public BeanNode(Project project, PsiClass psiClass) {
+    @Getter
+    private final boolean local;
+
+    public BeanNode(Project project, PsiClass psiClass, boolean local) {
         super(project);
         this.psiClass = psiClass;
         createFieldNodes(psiClass).forEach(this::add);
@@ -48,6 +49,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
             tooltipContent = tooltipContent + "<br/>" + doc;
         }
         tooltipText = tooltipContent;
+        this.local = local;
     }
 
     @Override
@@ -106,14 +108,13 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
                 PsiClassType classType = (PsiClassType) psiType;
                 PsiClass childPsiClass = classType.resolve();
                 if (PsiClassHelper.isExtendingJkBean(childPsiClass)) {
-                    BeanNode beanNode = new BeanNode(project, childPsiClass);
+                    BeanNode beanNode = new BeanNode(project, childPsiClass, false);
                     result.add(beanNode);
                 }
             }
         }
         return result;
     }
-
 
     @Override
     public int compareTo(@NotNull BeanNode o) {
@@ -124,9 +125,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         BeanNode beanNode = (BeanNode) o;
-
         return className.equals(beanNode.className);
     }
 

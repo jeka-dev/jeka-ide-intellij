@@ -23,19 +23,15 @@ import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.ui.components.ActionLink;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
@@ -45,9 +41,6 @@ import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
-import dev.jeka.ide.intellij.extension.JekaToolWindows;
-import dev.jeka.ide.intellij.extension.action.GotoJkBeanAction;
-import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
 import dev.jeka.ide.intellij.extension.action.OpenManageDistributionsAction;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +68,6 @@ public final class CmdJekaDoer {
     public void generateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
         doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish);
-        JekaToolWindows.registerIfNeeded(project, false);
     }
 
     public void scaffoldModule(Path moduleDir,
@@ -122,7 +114,6 @@ public final class CmdJekaDoer {
         } else {
             doCreateStructure.run();
         }
-        JekaToolWindows.registerIfNeeded(project, false);
     }
 
 
@@ -133,6 +124,25 @@ public final class CmdJekaDoer {
         cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
+    }
+
+    public void execute(Module module, String command, boolean clearConsole, Runnable onFinish) {
+        Path moduleDir = ModuleHelper.getModuleDirPath(module);
+        String execFile = jekaCmd(moduleDir, false);
+        if (!Files.exists(Paths.get(execFile))) {
+            NotificationGroupManager.getInstance()
+                    .getNotificationGroup("jeka.notifGroup")
+                    .createNotification("Distribution file " + execFile + " is missing. " +
+                            "Please re-install the distro or suppress it.", NotificationType.ERROR)
+                    .addAction(new OpenManageDistributionsAction())
+                    .notify(this.project);
+            return;
+        }
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
+        setJekaJDKEnv(cmd, project, module);
+        cmd.setWorkDirectory(moduleDir.toFile());
+        cmd.addParameters(JkUtilsString.translateCommandline(command));
+        start(cmd, clearConsole, onFinish,  null );
     }
 
     private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,

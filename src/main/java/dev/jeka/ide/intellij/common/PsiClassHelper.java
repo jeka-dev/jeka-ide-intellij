@@ -39,7 +39,7 @@ public class PsiClassHelper {
         return JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.allScope(project));
     }
 
-    public static List<PsiClass> findKBeanClasses(Module module) {
+    public static List<PsiClass> findLocalBeanClasses(Module module) {
         VirtualFile rootDir = ModuleHelper.getModuleDir(module);
         if (rootDir == null) {
             return Collections.emptyList();

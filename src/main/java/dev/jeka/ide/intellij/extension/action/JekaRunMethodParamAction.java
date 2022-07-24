@@ -4,8 +4,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
-import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.panel.RunDialogWrapper;
 import org.jetbrains.annotations.NotNull;
 

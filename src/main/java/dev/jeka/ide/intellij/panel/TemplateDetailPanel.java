@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.panel;
 
-import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
@@ -9,12 +8,9 @@ import com.intellij.util.ui.UI;
 import dev.jeka.core.api.function.JkConsumers;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import java.awt.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 class TemplateDetailPanel {
 

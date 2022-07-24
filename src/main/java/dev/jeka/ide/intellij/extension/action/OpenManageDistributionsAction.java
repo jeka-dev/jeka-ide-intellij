@@ -3,7 +3,6 @@ package dev.jeka.ide.intellij.extension.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.options.newEditor.ConfigurableMarkerProvider;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import org.jetbrains.annotations.NotNull;
 

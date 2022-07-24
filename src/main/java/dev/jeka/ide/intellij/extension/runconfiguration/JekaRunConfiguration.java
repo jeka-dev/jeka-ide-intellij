@@ -51,7 +51,6 @@ public class JekaRunConfiguration extends ApplicationConfiguration {
         return false;
     }
 
-
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment env) throws ExecutionException {
         adaptClasspathExclusions();

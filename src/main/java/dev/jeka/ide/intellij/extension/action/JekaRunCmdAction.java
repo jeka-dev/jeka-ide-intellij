@@ -1,30 +1,14 @@
 package dev.jeka.ide.intellij.extension.action;
 
-import com.intellij.execution.Executor;
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.configurations.ModuleBasedConfigurationOptions;
-import com.intellij.execution.executors.DefaultDebugExecutor;
-import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class JekaRunCmdAction extends AnAction {
@@ -42,17 +26,14 @@ public class JekaRunCmdAction extends AnAction {
         this.debug = debug;
     }
 
-    private static String configurationName(Module module, String cmdName) {
-        return module.getName() + " [jeka $" + cmdName + "]";
-    }
+
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         DataContext dataContext = event.getDataContext();
         CmdInfo data = CmdInfo.KEY.getData(dataContext);
         String cmd = "$" + data.cmdName;
-        String name = configurationName(data.module, data.cmdName);
-        ConfigurationRunner.run(data.module, name, cmd, debug);
+        ConfigurationRunner.run(data.module, null, cmd, debug);
     }
 
     @Value

@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.util.SlowOperations;
-import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.AccessLevel;
 import lombok.Getter;

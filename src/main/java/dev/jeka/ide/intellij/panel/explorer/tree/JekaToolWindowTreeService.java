@@ -27,10 +27,11 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Service
+@Service(Service.Level.PROJECT)
 public final class JekaToolWindowTreeService {
 
     private final Project project;
@@ -40,11 +41,21 @@ public final class JekaToolWindowTreeService {
     @Setter
     private boolean listen = true;
 
+    private List<Runnable> workFileListeners = new LinkedList<>();
+
     public Tree getTree() {
         if (tree == null) {
             tree = createTree();
         }
         return tree;
+    }
+
+    public void addWorkFileListener(Runnable runnable) {
+        this.workFileListeners.add(runnable);
+    }
+
+    public void removeWorkFileListener(Runnable runnable) {
+        this.workFileListeners.remove(runnable);
     }
 
     private Tree createTree() {
@@ -122,6 +133,15 @@ public final class JekaToolWindowTreeService {
        rootNode.refresh();
     }
 
+    public List<BeanNode> getKbeans(Module module) {
+        RootNode rootNode = (RootNode) getTree().getModel().getRoot();
+        ModuleNode moduleNode = rootNode.getModuleNode(module);
+        if (moduleNode == null) {
+            return Collections.emptyList();
+        }
+        return moduleNode.kbeans();
+    }
+
     public static class CellRenderer extends ColoredTreeCellRenderer {
 
         @Override
@@ -167,12 +187,5 @@ public final class JekaToolWindowTreeService {
         return (AbstractNode) node;
     }
 
-    public List<BeanNode> getKbeans(Module module) {
-        RootNode rootNode = (RootNode) getTree().getModel().getRoot();
-        ModuleNode moduleNode = rootNode.getModuleNode(module);
-        if (moduleNode == null) {
-            return Collections.emptyList();
-        }
-        return moduleNode.kbeans();
-    }
+
 }

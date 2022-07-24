@@ -12,9 +12,7 @@ import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class TemplatesPanel {
 

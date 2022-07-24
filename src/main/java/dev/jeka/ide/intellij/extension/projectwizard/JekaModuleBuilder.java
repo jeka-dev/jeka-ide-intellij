@@ -19,7 +19,6 @@ import dev.jeka.core.api.utils.JkUtilsPath;
 import dev.jeka.core.tool.JkConstants;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 import icons.JekaIcons;
 import lombok.Data;

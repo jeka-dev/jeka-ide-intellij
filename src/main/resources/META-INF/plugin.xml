@@ -86,6 +86,14 @@
         />
 
         <configurationType implementation="dev.jeka.ide.intellij.extension.runconfiguration.JekaRunConfigurationType"/>
+        
+        <toolWindow factoryClass="dev.jeka.ide.intellij.extension.JekaExplorerToolWindowsFactory"
+                    id="Jeka"
+                    anchor="right"
+                    icon="JekaIcons.JEKA_GREY">
+
+
+        </toolWindow>
 
         <notificationGroup id="jeka.notifGroup"
                            displayType="BALLOON"/>
@@ -96,11 +104,7 @@
 
 
 
-       <runConfigurationProducer implementation="ShellConfigurationProducer"/>
-
-
-
-      <configurationType implementation="dev.jeka.ide.intellij.platform.JekaRunConfigurationType"/>
+   
 
 
 
