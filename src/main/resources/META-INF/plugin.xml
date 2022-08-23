@@ -90,10 +90,21 @@
         <toolWindow factoryClass="dev.jeka.ide.intellij.extension.JekaExplorerToolWindowsFactory"
                     id="Jeka"
                     anchor="right"
-                    icon="JekaIcons.JEKA_GREY">
+                    icon="JekaIcons.JEKA_GREY"
+        />
+
+        <toolWindow factoryClass="dev.jeka.ide.intellij.extension.JekaConsoleToolWindowFactory"
+                    id="Jeka console"
+                    anchor="bottom"
+                    icon="JekaIcons.JEKA_GREY"
+                    doNotActivateOnStart="true"
+                    canCloseContents="true"
+        />
 
 
-        </toolWindow>
+
+
+
 
         <notificationGroup id="jeka.notifGroup"
                            displayType="BALLOON"/>

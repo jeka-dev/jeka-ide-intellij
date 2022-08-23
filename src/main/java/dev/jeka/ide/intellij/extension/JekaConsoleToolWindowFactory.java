@@ -22,45 +22,38 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.RegisterToolWindowTask;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.*;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import icons.JekaIcons;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
 /**
  * @author Jerome Angibaud
  */
-public class JekaConsoleToolWindows {
+public class JekaConsoleToolWindowFactory implements ToolWindowFactory {
 
-    private static final String ID = "Jeka console";
+    public static final String ID = "Jeka console";
 
-    private static final Icon ICON = JekaIcons.JEKA_GREY;
-
-    private static ConsoleView createConsoleView(Project project) {
-        TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
-        TextConsoleBuilder builder = factory.createBuilder(project);
-        return builder.getConsole();
-    }
-
-    @Deprecated
-    public static void registerToolWindow(Project project) {
-        ToolWindowManager manager = ToolWindowManager.getInstance(project);
-        RegisterToolWindowTask registerToolWindowTask = RegisterToolWindowTask.notClosable(ID,
-                ICON, ToolWindowAnchor.BOTTOM);
-        ToolWindow toolWindow = manager.registerToolWindow(registerToolWindowTask);
+    @Override
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         final ContentManager contentManager = toolWindow.getContentManager();
         Content content = contentManager
                 .getFactory()
                 .createContent(getConsoleView(project).getComponent(), "", false);
         contentManager.addContent(content);
     }
+
+    @Override
+    public boolean isApplicable(@NotNull Project project) {
+        return JekaExplorerToolWindowsFactory.hasJekaModules(project);
+    }
+
+    is
 
     public static ConsoleView getConsoleView(Project project) {
         ConsoleView consoleView = project.getService(JekaConsoleViewService.class).getConsoleView();
@@ -71,9 +64,13 @@ public class JekaConsoleToolWindows {
         return consoleView;
     }
 
-    public static ToolWindow getToolWindow(Project project) {
-        return ToolWindowManager.getInstance(project).getToolWindow(ID);
+
+    private static ConsoleView createConsoleView(Project project) {
+        TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
+        TextConsoleBuilder builder = factory.createBuilder(project);
+        return builder.getConsole();
     }
+
 
     @Service
     private static final class JekaConsoleViewService implements Disposable {

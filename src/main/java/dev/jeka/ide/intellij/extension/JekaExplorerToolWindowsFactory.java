@@ -25,17 +25,19 @@ public class JekaExplorerToolWindowsFactory implements ToolWindowFactory {
 
     @Override
     public boolean isApplicable(@NotNull Project project) {
-        ModuleManager moduleManager = ModuleManager.getInstance(project);
-        return DumbService.getInstance(project).runReadActionInSmartMode(() -> {
-            boolean result = Arrays.stream(moduleManager.getModules())
-                    .anyMatch(ModuleHelper::isJekaModule);
-            System.out.println("--------------------------isapplicable?" + result);
-            return result;
-        });
+        return hasJekaModules(project);
     }
 
     @Override
     public boolean shouldBeAvailable(@NotNull Project project) {
         return this.isApplicable(project);
+    }
+
+    static boolean hasJekaModules(@NotNull Project project) {
+        ModuleManager moduleManager = ModuleManager.getInstance(project);
+        return DumbService.getInstance(project).runReadActionInSmartMode(() -> {
+            return Arrays.stream(moduleManager.getModules())
+                    .anyMatch(ModuleHelper::isJekaModule);
+        });
     }
 }

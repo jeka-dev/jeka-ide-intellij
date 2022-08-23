@@ -32,6 +32,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
@@ -40,7 +41,7 @@ import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
-import dev.jeka.ide.intellij.extension.JekaConsoleToolWindows;
+import dev.jeka.ide.intellij.extension.JekaConsoleToolWindowFactory;
 import dev.jeka.ide.intellij.extension.action.OpenManageDistributionsAction;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -169,7 +170,7 @@ public final class CmdJekaDoer {
     }
 
     private ConsoleView getView() {
-        return JekaConsoleToolWindows.getConsoleView(project);
+        return JekaConsoleToolWindowFactory.getConsoleView(project);
     }
 
     private void refreshAfterIml(Module existingModule, Path moduleDir, Runnable onFinish) {
@@ -223,7 +224,7 @@ public final class CmdJekaDoer {
         }
         attachView(handler, clear);
         if (ApplicationManager.getApplication().isDispatchThread()) {
-            JekaConsoleToolWindows.getToolWindow(project).show();
+            ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID).show();
         }
     }
 
@@ -233,9 +234,6 @@ public final class CmdJekaDoer {
             getView().clear();
         }
         handler.startNotify();
-        if (JekaConsoleToolWindows.getToolWindow(project) == null) {
-            JekaConsoleToolWindows.registerToolWindow(project);
-        }
     }
 
     private String jekaCmd(Path moduleDir, boolean forceJeka) {
