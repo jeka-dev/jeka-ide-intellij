@@ -73,7 +73,7 @@ public class RunFormPanel {
 
     public void setModule(Module module) {
         this.module = module;
-        behaviorPanel.setKBeanCombo(module);
+        behaviorPanel.fillKBeanCombo(module);
     }
 
     private JPanel panel() {
@@ -301,7 +301,7 @@ public class RunFormPanel {
             kb = new ComboBox<>();
             ListCellRenderer cellRenderer = new KbCellRenderer();
             kb.setRenderer(cellRenderer);
-            setKBeanCombo(module);
+            fillKBeanCombo(module);
             kb.setName("log.style (-ls)");
             kb.setMaximumRowCount(20);
             kb.setMinimumAndPreferredWidth(300);
@@ -343,10 +343,16 @@ public class RunFormPanel {
             this.add(cbPanel);
         }
 
-        private void setKBeanCombo(Module module) {
-            if (module != null) {
-                updateKbeans(module);
+
+
+        private void fillKBeanCombo(Module module) {
+            if (module == null) {
+                return;
             }
+            updateKbeans(module);  // this is for sync only
+
+            // the following code is not async
+            //ProgressManager.getInstance().runProcess(() -> updateKbeans(module), ProgressIndicatorProvider.getGlobalProgressIndicator());
         }
 
         private void updateKbeans(Module module) {
@@ -355,11 +361,13 @@ public class RunFormPanel {
             List<BeanNode> valueList = new LinkedList<>();
 
             JekaToolWindowTreeService treeService = module.getProject().getService(JekaToolWindowTreeService.class);
+            /*
             try {
                 Thread.sleep(1000);  //TODO replace by a listener mechanism.
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            */
             List<BeanNode> kbeans = treeService.getKbeans(module);
             valueList.add(null);
             valueList.addAll(kbeans);

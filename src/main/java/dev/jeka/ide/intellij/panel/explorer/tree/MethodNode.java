@@ -8,7 +8,9 @@ import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.extension.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.extension.action.JekaRunMethodParamAction;
 import icons.JekaIcons;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(of = "name", callSuper = false)
 public class MethodNode extends AbstractNode {
 
     private final PsiMethod psiMethod;

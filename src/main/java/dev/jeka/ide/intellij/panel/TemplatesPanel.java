@@ -26,6 +26,8 @@ public class TemplatesPanel {
 
     private CollectionListModel<JekaTemplate> templateListModel;
 
+    private ActionLink actionLink;
+
     @Getter
     private JComponent component;
 
@@ -38,6 +40,8 @@ public class TemplatesPanel {
 
     public void setEnabled(boolean enabled) {
         templateJBList.setEnabled(enabled);
+        templateDetailPanel.setEnabled(enabled);
+        actionLink.setEnabled(enabled);
     }
 
     public JekaTemplate getSelectedTemplate() {
@@ -78,8 +82,7 @@ public class TemplatesPanel {
         splitter.setProportion(0.2f);
         splitter.setBorder(BorderFactory.createLineBorder(Color.lightGray));
 
-
-        ActionLink actionLink = new ActionLink("Manage templates ...", e -> {
+        actionLink = new ActionLink("Manage templates ...", e -> {
             TemplatesEditPanel templatesEditPanel = new TemplatesEditPanel();
             TemplateEditDialogWrapper dialogWrapper = new TemplateEditDialogWrapper(project, templatesEditPanel, this::reload);
             dialogWrapper.show();

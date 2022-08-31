@@ -53,8 +53,6 @@ public class JekaConsoleToolWindowFactory implements ToolWindowFactory {
         return JekaExplorerToolWindowsFactory.hasJekaModules(project);
     }
 
-    is
-
     public static ConsoleView getConsoleView(Project project) {
         ConsoleView consoleView = project.getService(JekaConsoleViewService.class).getConsoleView();
         if (consoleView == null) {

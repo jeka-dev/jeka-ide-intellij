@@ -15,9 +15,8 @@ import icons.JekaIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
@@ -39,7 +38,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
         super(project);
         this.psiClass = psiClass;
         createFieldNodes(psiClass).forEach(this::add);
-        createMethodNodes(psiClass).forEach(this::add);
+        createMethodNodes2(psiClass).forEach(this::add);
         createNestedBeanNodes(psiClass).forEach(this::add);
         name = JkExternalToolApi.getBeanName(psiClass.getQualifiedName());
         className = psiClass.getQualifiedName();
@@ -89,7 +88,19 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
                 result.add(new MethodNode(project, method));
             }
         }
+
         return result;
+    }
+
+    private List<MethodNode> createMethodNodes2(PsiClass psiClass) {
+        return Arrays.stream(psiClass.getAllMethods())
+                .filter(PsiMethodHelper::isInstancePublicVoidNoArgsNotFromObject)
+                .sorted( (m1,m2) -> m1.getContainingClass().isInheritor(m2.getContainingClass(), true)
+                        ? 1
+                        : 0)
+                .map(psiMethod -> new MethodNode(project, psiMethod))
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private List<FieldNode> createFieldNodes(PsiClass psiClass) {

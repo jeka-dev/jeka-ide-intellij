@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.5.3'
+    id 'org.jetbrains.intellij' version '1.8.0'
     id "io.freefair.lombok" version "5.3.0"
 }
 
@@ -23,7 +23,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = '2022.1.4'
+    version = '2022.2.1'
     plugins = ['com.intellij.java', 'org.jetbrains.kotlin', "org.jetbrains.idea.maven"]
 }
 

@@ -36,6 +36,11 @@ class TemplateDetailPanel {
         panel = panel();
     }
 
+    void setEnabled(boolean enabled) {
+        this.cmdTextField.setEnabled(enabled);
+        this.descTextarea.setEnabled(enabled);
+    }
+
     private JPanel panel() {
         JPanel cmdPanel = UI.PanelFactory.panel(cmdTextField)
                 .withLabel("Cmd Arguments:")
