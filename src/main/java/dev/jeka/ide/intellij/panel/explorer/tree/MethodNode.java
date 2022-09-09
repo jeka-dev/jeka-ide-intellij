@@ -10,8 +10,12 @@ import dev.jeka.ide.intellij.extension.action.JekaRunMethodParamAction;
 import icons.JekaIcons;
 import lombok.EqualsAndHashCode;
 
+import javax.swing.*;
+
 @EqualsAndHashCode(of = "name", callSuper = false)
 public class MethodNode extends AbstractNode {
+
+    public static final Icon ICON = JekaIcons.COMMAND;
 
     private final PsiMethod psiMethod;
 
@@ -29,7 +33,7 @@ public class MethodNode extends AbstractNode {
 
     @Override
     public void customizeCellRenderer(ColoredTreeCellRenderer coloredTreeCellRenderer) {
-        coloredTreeCellRenderer.setIcon(JekaIcons.COMMAND);
+        coloredTreeCellRenderer.setIcon(ICON);
         coloredTreeCellRenderer.setToolTipText(tooltipText);
     }
 

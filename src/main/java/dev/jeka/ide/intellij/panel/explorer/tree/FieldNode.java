@@ -8,18 +8,26 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiFieldHelper;
+import lombok.Getter;
 
+import javax.swing.*;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-class FieldNode extends AbstractNode {
+public class FieldNode extends AbstractNode {
+
+    public static final Icon ICON = AllIcons.Nodes.Parameter;
 
     private final PsiField psiField;
 
@@ -27,12 +35,16 @@ class FieldNode extends AbstractNode {
 
     private final String tooltipText;
 
+    @Getter
+    private List<String> acceptedValues;
+
     public FieldNode(Project project, PsiField psiField) {
         super(project);
         this.psiField = psiField;
         this.name = psiField.getName();
         this.tooltipText = PsiClassHelper.getFormattedJkDoc(psiField);
         this.createChildren().forEach(this::add);
+        this.acceptedValues = acceptedValues(psiField);
     }
 
     @Override
@@ -42,7 +54,7 @@ class FieldNode extends AbstractNode {
 
     @Override
     public void customizeCellRenderer(ColoredTreeCellRenderer coloredTreeCellRenderer) {
-        coloredTreeCellRenderer.setIcon(AllIcons.Nodes.Parameter);
+        coloredTreeCellRenderer.setIcon(ICON);
         coloredTreeCellRenderer.setToolTipText(tooltipText);
     }
 
@@ -103,5 +115,44 @@ class FieldNode extends AbstractNode {
             result.add(fieldNode);
         }
         return result;
+    }
+
+    public List<FieldNode> extend() {
+        if (this.isLeaf()) {
+            return Collections.singletonList(this);
+        }
+        return Collections.list(children()).stream()
+                .filter(FieldNode.class::isInstance)
+                .map(FieldNode.class::cast)
+                .flatMap(fieldNode -> fieldNode.extend().stream())
+                .collect(Collectors.toList());
+    }
+
+    public String prefixedName() {
+        if (this.getParent() instanceof FieldNode) {
+            FieldNode parent = (FieldNode) this.getParent();
+            return parent.prefixedName() + "." + this;
+        } else {
+            return toString();
+        }
+    }
+
+    private static List<String> acceptedValues(PsiField psiField) {
+        if (psiField.getType().getPresentableText().equals("Boolean")
+                || psiField.getType().getPresentableText().equals("boolean")) {
+            return JkUtilsIterable.listOf("true", "false");
+        }
+        if (psiField.getType() instanceof  PsiClassReferenceType) {
+            PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiField.getType();
+            PsiClass psiClass = psiClassReferenceType.resolve();
+            if (psiClass.isEnum()) {
+                return Arrays.stream(psiClass.getAllFields())
+                        .filter(PsiEnumConstant.class::isInstance)
+                        .map(PsiEnumConstant.class::cast)
+                        .map(psiEnumConstant -> psiEnumConstant.getText())
+                        .collect(Collectors.toList());
+            }
+        }
+        return Collections.emptyList();
     }
 }

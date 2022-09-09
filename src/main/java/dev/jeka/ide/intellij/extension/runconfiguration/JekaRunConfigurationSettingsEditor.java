@@ -24,7 +24,7 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
 
     public JekaRunConfigurationSettingsEditor(ApplicationConfiguration configuration) {
         super(configuration);
-        runFormPanel = new RunFormPanel(null, "");
+        runFormPanel = new RunFormPanel(this.getProject(), null, "");
     }
 
     @Override
@@ -84,7 +84,7 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
                         (configuration, jPanel) -> {
                             runFormPanel.setCmd(configuration.getProgramParameters());
                             runFormPanel.setModule(configuration.getConfigurationModule().getModule());
-                            runFormPanel.syncOptionsWithCmdLine();
+                            runFormPanel.syncOptionsWithEditorCmdLine();
                         },
                         (configuration, jPanel) -> {
                             configuration.setProgramParameters(runFormPanel.getCmd());

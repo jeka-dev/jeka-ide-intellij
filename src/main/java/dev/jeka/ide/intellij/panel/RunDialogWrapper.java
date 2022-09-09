@@ -37,7 +37,7 @@ public class RunDialogWrapper extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        runFormPanel = new RunFormPanel(module, originalCommand);
+        runFormPanel = new RunFormPanel(module.getProject(), module, originalCommand);
         return runFormPanel.getPanel();
     }
 

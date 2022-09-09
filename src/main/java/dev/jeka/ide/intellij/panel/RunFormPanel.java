@@ -2,17 +2,24 @@ package dev.jeka.ide.intellij.panel;
 
 import com.google.common.base.Strings;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.DocumentAdapter;
+import com.intellij.ui.EditorTextField;
 import com.intellij.ui.GroupHeaderSeparator;
-import com.intellij.ui.components.*;
-import com.intellij.ui.components.fields.ExpandableTextField;
+import com.intellij.ui.components.ActionLink;
+import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.util.textCompletion.TextCompletionProvider;
+import com.intellij.util.textCompletion.TextFieldWithCompletion;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.CmdJekaDoer;
+import dev.jeka.ide.intellij.extension.autocompletion.JekaCmdCompletionProvider;
 import dev.jeka.ide.intellij.panel.explorer.tree.BeanNode;
 import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
 import lombok.Getter;
@@ -20,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -39,45 +45,71 @@ public class RunFormPanel {
 
     private Module module;
 
-    private final JBTextField cmdTextField = new ExpandableTextField();
+    private final Project project;
+
+    private final EditorTextField cmdEditorTextField;
 
     private volatile boolean updateCmd = true;
 
+    private JekaCmdCompletionProvider completionProvider;
+
     private NoSyncPanel noSyncPanel = new NoSyncPanel();
 
-    public RunFormPanel(Module module, String originalCommand) {
+    public RunFormPanel(Project project, Module module, String originalCommand) {
+        this.project = project;
         this.module = module;
+        completionProvider = new JekaCmdCompletionProvider(project);
+        completionProvider.setModule(module);
+        cmdEditorTextField = textFieldWithCompletion();
+
+        cmdEditorTextField.setText(originalCommand);
         this.panel = panel();
-        cmdTextField.setText(originalCommand);
-        cmdTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                syncOptionsWithCmdLine();
-            }
+        cmdEditorTextField.addDocumentListener(new DocumentListener() {
+               @Override
+               public void documentChanged(com.intellij.openapi.editor.event.@NotNull DocumentEvent event) {
+                   syncOptionsWithEditorCmdLine();
+               }
         });
     }
 
-    public void syncOptionsWithCmdLine() {
-        String txt = cmdTextField.getText();
+    private TextFieldWithCompletion textFieldWithCompletion() {
+
+        TextFieldWithCompletion result = new TextFieldWithCompletion(project, completionProvider, "",
+                true,
+                true,
+                true);
+        return result;
+    }
+
+    public void syncOptionsWithEditorCmdLine() {
+        String txt = cmdEditorTextField.getText();
         optionPanel.sync(txt);
         behaviorPanel.sync(txt);
     }
 
     public String getCmd() {
-        return cmdTextField.getText();
+        return cmdEditorTextField.getText();
     }
 
     public void setCmd(String cmd) {
-        cmdTextField.setText(cmd);
+        cmdEditorTextField.setText(cmd);
     }
 
     public void setModule(Module module) {
         this.module = module;
         behaviorPanel.fillKBeanCombo(module);
+        completionProvider.setModule(module);
     }
 
     private JPanel panel() {
+        /*
         JPanel cmdPanel = UI.PanelFactory.panel(cmdTextField)
+                .withLabel("Cmd Arguments:")
+                .moveLabelOnTop()
+                .createPanel();
+
+         */
+        JPanel cmdPanel = UI.PanelFactory.panel(cmdEditorTextField)
                 .withLabel("Cmd Arguments:")
                 .moveLabelOnTop()
                 .createPanel();
@@ -99,7 +131,7 @@ public class RunFormPanel {
     }
 
     void adaptText(String keyword, Object value) {
-        List<String> tokens = Arrays.stream(cmdTextField.getText().split(" "))
+        List<String> tokens = Arrays.stream(cmdEditorTextField.getText().split(" "))
                 .map(String::trim)
                 .collect(Collectors.toList());
         final List<String> result = new LinkedList<>();
@@ -117,7 +149,7 @@ public class RunFormPanel {
             result.add(toTokenValue(keyword, value));
         }
         String text = String.join(" ", result);
-        cmdTextField.setText(text);
+        cmdEditorTextField.setText(text);
     }
 
     private static String toTokenValue(String keyword, Object value) {
@@ -169,6 +201,11 @@ public class RunFormPanel {
         }
 
         private void update() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             RunFormPanel.this.setModule(module);
             this.link.setEnabled(true);
         }
@@ -361,13 +398,6 @@ public class RunFormPanel {
             List<BeanNode> valueList = new LinkedList<>();
 
             JekaToolWindowTreeService treeService = module.getProject().getService(JekaToolWindowTreeService.class);
-            /*
-            try {
-                Thread.sleep(1000);  //TODO replace by a listener mechanism.
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            */
             List<BeanNode> kbeans = treeService.getKbeans(module);
             valueList.add(null);
             valueList.addAll(kbeans);

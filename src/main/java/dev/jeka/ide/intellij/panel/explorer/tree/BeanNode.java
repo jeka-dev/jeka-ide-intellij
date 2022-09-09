@@ -15,10 +15,13 @@ import icons.JekaIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
+
+    public static final Icon ICON = JekaIcons.KBEAN;
 
     @Getter
     private final PsiClass psiClass;
@@ -58,7 +61,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
     @Override
     public void customizeCellRenderer(ColoredTreeCellRenderer coloredTreeCellRenderer) {
-        coloredTreeCellRenderer.setIcon(JekaIcons.KBEAN);
+        coloredTreeCellRenderer.setIcon(ICON);
         coloredTreeCellRenderer.setToolTipText(tooltipText);
     }
 
