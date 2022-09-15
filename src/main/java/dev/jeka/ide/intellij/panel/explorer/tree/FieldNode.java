@@ -33,6 +33,7 @@ public class FieldNode extends AbstractNode {
 
     private final String name;
 
+    @Getter
     private final String tooltipText;
 
     @Getter

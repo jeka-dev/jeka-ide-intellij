@@ -81,8 +81,23 @@
         <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder"/>
 
         <completion.contributor
-                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.JavaDepCompletionContributor"
+                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.JavaCodeDependenciesCompletionContributor"
                 language="JAVA"
+        />
+
+        <completion.contributor
+                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.DependenciesTxtCompletionContributor"
+                language="TEXT"
+        />
+
+        <completion.contributor
+                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.JekaCmdContributor"
+                language="Properties"
+        />
+
+        <completion.contributor
+                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.ProjectPropertiesContributor"
+                language="Properties"
         />
 
         <configurationType implementation="dev.jeka.ide.intellij.extension.runconfiguration.JekaRunConfigurationType"/>

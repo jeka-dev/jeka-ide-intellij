@@ -1,14 +1,13 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
+import com.google.common.base.Strings;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
-import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.TextFieldCompletionProvider;
-import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.ide.intellij.panel.explorer.tree.BeanNode;
 import dev.jeka.ide.intellij.panel.explorer.tree.FieldNode;
@@ -19,19 +18,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.tree.TreeNode;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
 
-    final JekaToolWindowTreeService treeService;
-
     @Setter
     private Module module;
-
-    public JekaCmdCompletionProvider(Project project) {
-        treeService = project.getService(JekaToolWindowTreeService.class);
-    }
 
     @Override
     protected void addCompletionVariants(@NotNull String text, int offset, @NotNull String prefix,
@@ -57,6 +52,14 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         if (module == null) {
             return Collections.emptyList();
         }
+        return findSuggest(module, prefix);
+    }
+
+    static List<LookupElementBuilder> findSuggest(Module module, String prefix) {
+        if (module == null) {
+            return Collections.emptyList();
+        }
+        final JekaToolWindowTreeService treeService = module.getProject().getService(JekaToolWindowTreeService.class);
         BeanComparator beanComparator = new BeanComparator();
         if (!prefix.contains("#")) {
             List<BeanNode> allBeans = treeService.getKbeans(module);
@@ -70,6 +73,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
                     result.addAll(findSuggestForBean(beanNode));
                 } else {
                     result.add(LookupElementBuilder.create(beanNode.getName() + "#")
+                            .withTailText(" " + Strings.nullToEmpty(beanNode.getDefinition()))
                             .withIcon(BeanNode.ICON));
                 }
             }
@@ -85,7 +89,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         return findSuggestForBean(bean);
     }
 
-    private List<LookupElementBuilder> findSuggestForBean(BeanNode bean) {
+    private static List<LookupElementBuilder> findSuggestForBean(BeanNode bean) {
         String beanName = bean.getName();
         List<LookupElementBuilder> result = new LinkedList<>();
         List<TreeNode> members = Collections.list(bean.children());
@@ -99,6 +103,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
                     for (String value : predefinedValues) {
                         result.add(LookupElementBuilder.create(beanName + "#" + subNode.prefixedName() + "=" + value)
                                 .withBoldness(bean.isLocal())
+                                .withTailText(" " + Strings.nullToEmpty(subNode.getTooltipText()))
                                 .withIcon(FieldNode.ICON));
                     }
 
@@ -107,6 +112,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
                 MethodNode methodNode = (MethodNode) member;
                 result.add(LookupElementBuilder.create(beanName + "#" + methodNode)
                         .withBoldness(bean.isLocal())
+                        .withTailText(" " + Strings.nullToEmpty(methodNode.getTooltipText()))
                         .withIcon(MethodNode.ICON)
                 );
             }
@@ -116,9 +122,6 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
 
     private static class BeanComparator implements Comparator<BeanNode> {
 
-        private static final List<String> UNPRIORIZEDS = JkUtilsIterable.listOf("nexus", "maven", "intellij",
-                "eclipse", "git", "scaffold");
-
         @Override
         public int compare(BeanNode bean1, BeanNode bean2) {
             if (bean1.isLocal() && !bean2.isLocal()) {
@@ -127,10 +130,10 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
             if (!bean1.isLocal() && bean2.isLocal()) {
                 return 1;
             }
-            if (UNPRIORIZEDS.contains(bean1.getName())) {
+            if (BeanNode.UNPRIORIZEDS.contains(bean1.getName())) {
                 return 1;
             }
-            if (UNPRIORIZEDS.contains(bean2.getName())) {
+            if (BeanNode.UNPRIORIZEDS.contains(bean2.getName())) {
                 return -1;
             }
             return 0;

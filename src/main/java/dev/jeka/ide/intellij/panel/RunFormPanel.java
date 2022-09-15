@@ -58,7 +58,7 @@ public class RunFormPanel {
     public RunFormPanel(Project project, Module module, String originalCommand) {
         this.project = project;
         this.module = module;
-        completionProvider = new JekaCmdCompletionProvider(project);
+        completionProvider = new JekaCmdCompletionProvider();
         completionProvider.setModule(module);
         cmdEditorTextField = textFieldWithCompletion();
 
@@ -73,7 +73,6 @@ public class RunFormPanel {
     }
 
     private TextFieldWithCompletion textFieldWithCompletion() {
-
         TextFieldWithCompletion result = new TextFieldWithCompletion(project, completionProvider, "",
                 true,
                 true,

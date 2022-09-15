@@ -7,10 +7,7 @@ import dev.jeka.ide.intellij.common.PsiClassHelper;
 import icons.JekaIcons;
 
 import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanBoxNode extends AbstractNode {
@@ -40,7 +37,7 @@ public class BeanBoxNode extends AbstractNode {
                 .map(className -> PsiClassHelper.getPsiClass(project, className))
                 .filter(Objects::nonNull)
                 .map(psiClass -> new BeanNode(project, psiClass, false))
-                .sorted()
+                .sorted(new BeanComparator())
                 .collect(Collectors.toList());
     }
 
@@ -52,6 +49,20 @@ public class BeanBoxNode extends AbstractNode {
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
                 .collect(Collectors.toList());
+    }
+
+    private static class BeanComparator implements Comparator<BeanNode> {
+
+        @Override
+        public int compare(BeanNode bean1, BeanNode bean2) {
+           if (BeanNode.UNPRIORIZEDS.contains(bean1.getName())) {
+                return 1;
+            }
+            if (BeanNode.UNPRIORIZEDS.contains(bean2.getName())) {
+                return -1;
+            }
+            return 0;
+        }
     }
 
 }

@@ -9,6 +9,7 @@ import dev.jeka.ide.intellij.extension.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.extension.action.JekaRunMethodParamAction;
 import icons.JekaIcons;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import javax.swing.*;
 
@@ -21,6 +22,7 @@ public class MethodNode extends AbstractNode {
 
     private final String name;
 
+    @Getter
     private final String tooltipText;
 
     public MethodNode(Project project, PsiMethod psiMethod) {

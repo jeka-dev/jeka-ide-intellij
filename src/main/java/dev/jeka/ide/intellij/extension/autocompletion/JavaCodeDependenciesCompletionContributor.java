@@ -1,38 +1,25 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.*;
 import com.intellij.util.ProcessingContext;
 import dev.jeka.core.api.depmanagement.JkDepSuggest;
-import dev.jeka.core.api.depmanagement.JkModuleSearch;
-import dev.jeka.core.api.depmanagement.JkRepoSet;
-import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.core.tool.JkInjectClasspath;
-import dev.jeka.ide.intellij.common.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class JavaDepCompletionContributor extends CompletionContributor {
+public class JavaCodeDependenciesCompletionContributor extends CompletionContributor {
 
-    public JavaDepCompletionContributor() {
+    public JavaCodeDependenciesCompletionContributor() {
 
+        // Add completion in Java code
         // see https://www.plugin-dev.com/intellij/custom-language/code-completion/
         CompletionProvider completionProvider = new DependenciesCompletionProvider();
 
-        final PatternCondition<PsiLiteralExpression> condition = new PatternCondition<PsiLiteralExpression>("") {
+        final PatternCondition<PsiLiteralExpression> javaEditCondition = new PatternCondition<PsiLiteralExpression>("") {
 
             @Override
             public boolean accepts(@NotNull PsiLiteralExpression literalExpression, ProcessingContext context) {
@@ -40,7 +27,7 @@ public class JavaDepCompletionContributor extends CompletionContributor {
                 if (!parentIsCandidate(parent)) {
                     return false;
                 }
-                if (parent instanceof PsiMethodCallExpression) {
+                if (parent instanceof PsiExpressionList) {
                     PsiExpressionList expressionList = (PsiExpressionList) parent;
                     parent = expressionList.getParent();
                     PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) parent;
@@ -76,11 +63,10 @@ public class JavaDepCompletionContributor extends CompletionContributor {
             }
         };
 
-        ElementPattern place = psiElement(JavaTokenType.STRING_LITERAL).withParent(
-                psiElement(PsiLiteralExpression.class).with(condition)
+        ElementPattern javaSourcePlace = psiElement(JavaTokenType.STRING_LITERAL).withParent(
+                psiElement(PsiLiteralExpression.class).with(javaEditCondition)
         );
-
-        extend(CompletionType.BASIC, place, completionProvider);
+        extend(CompletionType.BASIC, javaSourcePlace, completionProvider);
     }
 
     private static boolean hasDepSuggestAnnotation(PsiMethod psiMethod) {
@@ -107,23 +93,7 @@ public class JavaDepCompletionContributor extends CompletionContributor {
             if (content.endsWith("\"")) {
                 content = content.substring(0, content.length()-1);
             }
-            Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
-            Path rootDir = ModuleHelper.getModuleDirPath(module);
-            JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
-            List<String> suggests = JkModuleSearch.of(repoSet.getRepos().get(0))
-                    .setGroupOrNameCriteria(content)
-                    .search();
-            List<String> container = new ArrayList<>(suggests);
-            Collections.reverse(container);
-            for (int i=0; i < container.size(); i++ ) {
-                LookupElementBuilder lookupElementBuilder = LookupElementBuilder
-                        .create(container.get(i))
-                        .withIcon(AllIcons.Nodes.PpLibFolder);
-                LookupElement prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
-                        lookupElementBuilder, i);
-                resultSet.addElement(prioritizedLookupElement);
-            }
-
+            resultSet.addAllElements(CompletionHelper.findVariants(parameters, content, resultSet));
         }
     }
 

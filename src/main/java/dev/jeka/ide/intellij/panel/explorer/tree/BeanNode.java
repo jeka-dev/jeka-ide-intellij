@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
@@ -21,6 +22,9 @@ import java.util.stream.Collectors;
 
 public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
+    public static final List<String> UNPRIORIZEDS = JkUtilsIterable.listOf("nexus", "maven", "intellij",
+            "eclipse", "git", "scaffold");
+
     public static final Icon ICON = JekaIcons.KBEAN;
 
     @Getter
@@ -32,7 +36,11 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     @Getter
     private final String className;
 
+    @Getter
     private final String tooltipText;
+
+    @Getter
+    private final String definition;
 
     @Getter
     private final boolean local;
@@ -50,6 +58,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
         if (!JkUtilsString.isBlank(doc)) {
             tooltipContent = tooltipContent + "<br/>" + doc;
         }
+        definition = doc;
         tooltipText = tooltipContent;
         this.local = local;
     }
