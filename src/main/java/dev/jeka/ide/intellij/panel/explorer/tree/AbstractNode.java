@@ -37,7 +37,7 @@ public abstract class AbstractNode extends DefaultMutableTreeNode {
         return null;
     }
 
-    protected final <T> T getCloserParentOfType(Class<T> clazz) {
+    public final <T> T getCloserParentOfType(Class<T> clazz) {
         return getCloserParentOfType(clazz, this);
     }
 

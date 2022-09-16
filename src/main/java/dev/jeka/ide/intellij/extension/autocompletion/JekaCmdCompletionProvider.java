@@ -5,8 +5,8 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.TextFieldCompletionProvider;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.ide.intellij.panel.explorer.tree.BeanNode;
@@ -17,11 +17,13 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import javax.swing.tree.TreeNode;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
 
@@ -70,9 +72,9 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
             List<LookupElementBuilder> result = new LinkedList<>();
             for (BeanNode beanNode : allBeans) {
                 if (beanNode.isLocal()) {
-                    result.addAll(findSuggestForBean(beanNode));
+                    result.addAll(findSuggestForBean(beanNode, prefix));
                 } else {
-                    result.add(LookupElementBuilder.create(beanNode.getName() + "#")
+                    CompletionHelper.addElement(result, 10, LookupElementBuilder.create(beanNode.getName() + "#")
                             .withTailText(" " + Strings.nullToEmpty(beanNode.getDefinition()))
                             .withIcon(BeanNode.ICON));
                 }
@@ -86,10 +88,10 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         if (bean == null) {
             return Collections.emptyList();
         }
-        return findSuggestForBean(bean);
+        return findSuggestForBean(bean, prefix);
     }
 
-    private static List<LookupElementBuilder> findSuggestForBean(BeanNode bean) {
+    private static List<LookupElementBuilder> findSuggestForBean(BeanNode bean, String prefix) {
         String beanName = bean.getName();
         List<LookupElementBuilder> result = new LinkedList<>();
         List<TreeNode> members = Collections.list(bean.children());
@@ -97,27 +99,59 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         for (TreeNode member : members) {
             if (member instanceof FieldNode) {
                 FieldNode fieldNode = (FieldNode) member;
-                fieldNode.extend().forEach(subNode -> {
-                    List<String> predefinedValues = subNode.getAcceptedValues().isEmpty() ? Collections.singletonList("")
-                            : subNode.getAcceptedValues();
-                    for (String value : predefinedValues) {
-                        result.add(LookupElementBuilder.create(beanName + "#" + subNode.prefixedName() + "=" + value)
-                                .withBoldness(bean.isLocal())
-                                .withTailText(" " + Strings.nullToEmpty(subNode.getTooltipText()))
-                                .withIcon(FieldNode.ICON));
-                    }
-
-                });
+                List<LookupElementBuilder> fieldElements = createFieldElements(fieldNode, prefix);
+                CompletionHelper.addElements(result, fieldElements, 20);
             } else if (member instanceof MethodNode) {
                 MethodNode methodNode = (MethodNode) member;
-                result.add(LookupElementBuilder.create(beanName + "#" + methodNode)
+                CompletionHelper.addElement(result, 30, LookupElementBuilder.create(beanName + "#" + methodNode)
                         .withBoldness(bean.isLocal())
+                        .withPresentableText(methodNode.toString())
                         .withTailText(" " + Strings.nullToEmpty(methodNode.getTooltipText()))
                         .withIcon(MethodNode.ICON)
                 );
             }
         }
         return result;
+    }
+
+    private static List<LookupElementBuilder> createFieldElements(FieldNode fieldNode, String prefix) {
+        String fieldPrefix = JkUtilsString.substringAfterLast(prefix, "#");
+        if (fieldNode.isLeaf()) {
+            return fieldElements(fieldNode, prefix);
+        }
+        List<LookupElementBuilder> result = fieldNode.extend().stream()
+                .filter(subNode -> fieldPrefix.startsWith(subNode.getCloserParentOfType(FieldNode.class).prefixedName()) )
+                .flatMap(subnode -> fieldElements(subnode, prefix).stream())
+                .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            return Collections.singletonList(fieldElement(fieldNode, "."));
+        }
+        return result;
+    }
+
+    private static List<LookupElementBuilder> fieldElements(FieldNode fieldNode, String prefix) {
+        List<String> predefinedValues = fieldNode.getAcceptedValues();
+        if (!predefinedValues.isEmpty() && prefix.contains("=")) {
+            return predefinedValues.stream()
+                    .map(value -> fieldElement(fieldNode, "=" + value))
+                    .collect(Collectors.toList());
+        }
+        return Collections.singletonList(fieldElement(fieldNode, "="));
+    }
+
+    private static LookupElementBuilder fieldElement(FieldNode fieldNode, String suffix) {
+        BeanNode beanNode = fieldNode.getCloserParentOfType(BeanNode.class);
+        boolean showValue = suffix.contains("=") && !suffix.endsWith("=");
+        String presentableName =  showValue ?
+                JkUtilsString.substringAfterLast(suffix, "=")
+                : fieldNode + suffix;
+        Icon icon = showValue ? AllIcons.Nodes.Enum : FieldNode.ICON;
+        String tailText = showValue ? "" : " " + Strings.nullToEmpty(fieldNode.getTooltipText());
+        return  LookupElementBuilder.create(beanNode.getName() + "#" + fieldNode.prefixedName() + suffix )
+                .withBoldness(beanNode.isLocal())
+                .withPresentableText(presentableName)
+                .withTailText(tailText)
+                .withIcon(icon);
     }
 
     private static class BeanComparator implements Comparator<BeanNode> {

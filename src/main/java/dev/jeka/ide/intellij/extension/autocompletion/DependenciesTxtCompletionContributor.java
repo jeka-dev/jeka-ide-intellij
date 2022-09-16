@@ -41,7 +41,7 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
             String fullText = element.getText();
             String prefix = CompletionHelper.prefix(fullText, pos);
             resultSet.withPrefixMatcher(prefix)
-                    .addAllElements(CompletionHelper.findVariants(parameters, prefix, resultSet));
+                    .addAllElements(CompletionHelper.findDependeciesVariants(parameters, prefix));
         }
     }
 

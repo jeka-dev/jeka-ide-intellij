@@ -10,8 +10,10 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.*;
 import com.intellij.util.ProcessingContext;
+import dev.jeka.core.api.utils.JkUtilsString;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class JekaCmdContributor extends CompletionContributor {
@@ -47,28 +49,35 @@ public class JekaCmdContributor extends CompletionContributor {
             PsiFile psiFile = parameters.getOriginalFile();
             String fullText = psiFile.getText();
             String lineText = CompletionHelper.fullLine(fullText, pos);
-            if (lineText.startsWith(("_append="))) {
-                result.addElement(LookupElementBuilder.create("@dev.jeka:springboot-plugin")
-                        .withIcon(AllIcons.Nodes.PpLibFolder)
-                        .withTailText(" Add Springboot plugin"));
-                result.addElement(LookupElementBuilder.create("@dev.jeka:sonarqube-plugin")
-                        .withIcon(AllIcons.Nodes.PpLibFolder)
-                        .withTailText(" Add sonarQube plugin"));
-                result.addElement(LookupElementBuilder.create("@dev.jeka:jacoco-plugin")
-                        .withIcon(AllIcons.Nodes.PpLibFolder)
-                        .withTailText(" Add Jacoco plugin"));
-            }
-            if (!lineText.contains("=")) {
-                result.addElement(LookupElementBuilder.create("_append=")
+            List<LookupElementBuilder> elements = new LinkedList<>();
+            if (lineText.trim().isEmpty()) {
+                CompletionHelper.addElement(elements, 100, LookupElementBuilder.create("_append=")
                         .withTailText("append the following text to all commands definined here. Typically used to add plugins in classpath or logging parameters"));
-                result.stopHere();
-                return;
             }
-            String prefix = CompletionHelper.prefix(fullText, pos);
+            CompletionHelper.addElement(elements, 10, LookupElementBuilder.create("@dev.jeka:springboot-plugin")
+                    .withIcon(AllIcons.Nodes.PpLibFolder)
+                    .withTailText(" Add Springboot plugin"));
+            CompletionHelper.addElement(elements, 10,LookupElementBuilder.create("@dev.jeka:sonarqube-plugin")
+                    .withIcon(AllIcons.Nodes.PpLibFolder)
+                    .withTailText(" Add sonarQube plugin"));
+            CompletionHelper.addElement(elements, 10,LookupElementBuilder.create("@dev.jeka:jacoco-plugin")
+                    .withIcon(AllIcons.Nodes.PpLibFolder)
+                    .withTailText(" Add Jacoco plugin"));
+            String rawPrefix = CompletionHelper.prefix(fullText, pos);
+            String prefix = cleanedPrefix(lineText, rawPrefix);
             Module module =  ModuleUtil.findModuleForFile(parameters.getOriginalFile());
-            List<LookupElementBuilder> lookupElementBuilders = JekaCmdCompletionProvider.findSuggest(module, prefix);
-            result.withPrefixMatcher(prefix).addAllElements(lookupElementBuilders);
+            elements.addAll( JekaCmdCompletionProvider.findSuggest(module, prefix));
+            result.withPrefixMatcher(prefix).addAllElements(elements);
             result.stopHere();
+        }
+
+        private String cleanedPrefix(String fullLine, String prefix) {
+            String propName = JkUtilsString.substringBeforeFirst(fullLine, "=");
+            if (propName.isEmpty()) {
+                return prefix;
+            }
+            boolean prefixStartsWithPropName =  prefix.startsWith(propName + "=");
+            return  prefixStartsWithPropName ? JkUtilsString.substringAfterLast(prefix, propName + "=") : prefix;
         }
     }
 }

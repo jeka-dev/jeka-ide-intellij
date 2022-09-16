@@ -41,7 +41,7 @@ public class CompletionHelper {
         return fullText.substring(Math.max(0, i), pos + 1).trim();
     }
 
-    static List<LookupElement> findVariants(CompletionParameters parameters, String item, CompletionResultSet resultSet)  {
+    static List<LookupElement> findDependeciesVariants(CompletionParameters parameters, String item)  {
         Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
@@ -60,5 +60,17 @@ public class CompletionHelper {
             result.add(prioritizedLookupElement);
         }
         return result;
+    }
+
+    static void addElements(List<? extends LookupElement> result, List<? extends LookupElement> elements, int priority) {
+        elements.forEach(lookupElement -> addElement(result, priority, lookupElement));
+    }
+
+    static void addElement(CompletionResultSet resultSet, int priority, LookupElement lookupElement) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, priority));
+    }
+
+    static void addElement(List result, int priority, LookupElement lookupElement) {
+        result.add(PrioritizedLookupElement.withPriority(lookupElement, priority));
     }
 }
