@@ -33,9 +33,9 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
     @Override
     protected void addCompletionVariants(@NotNull String text, int offset, @NotNull String prefix,
                                          @NotNull CompletionResultSet result) {
-        List<LookupElementBuilder> lookupElementBuilders = findFirstSuggest(prefix);
+        List<? extends LookupElement> lookupElementBuilders = findFirstSuggest(prefix);
         int i= lookupElementBuilders.size();
-        for (LookupElementBuilder element : lookupElementBuilders) {
+        for (LookupElement element : lookupElementBuilders) {
             LookupElement prioritizedLookupElement = PrioritizedLookupElement.withPriority(element, i);
             result.addElement(prioritizedLookupElement);
             i--;
