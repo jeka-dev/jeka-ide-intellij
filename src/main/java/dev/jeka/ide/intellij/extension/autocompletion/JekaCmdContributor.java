@@ -49,6 +49,7 @@ public class JekaCmdContributor extends CompletionContributor {
             PsiFile psiFile = parameters.getOriginalFile();
             String fullText = psiFile.getText();
             String lineText = CompletionHelper.fullLine(fullText, pos);
+            String lastCharOfPrevoiusLine = CompletionHelper.lastCharOfPreviousLine(fullText, pos);
             List<LookupElementBuilder> elements = new LinkedList<>();
             if (lineText.trim().isEmpty()) {
                 CompletionHelper.addElement(elements, 100, LookupElementBuilder.create("_append=")
@@ -64,7 +65,8 @@ public class JekaCmdContributor extends CompletionContributor {
                     .withIcon(AllIcons.Nodes.PpLibFolder)
                     .withTailText(" Add Jacoco plugin"));
             String rawPrefix = CompletionHelper.prefix(fullText, pos);
-            String prefix = cleanedPrefix(lineText, rawPrefix);
+            boolean breakingLine = "\\".equals(lastCharOfPrevoiusLine);
+            String prefix = breakingLine ? rawPrefix : cleanedPrefix(lineText, rawPrefix);
             Module module =  ModuleUtil.findModuleForFile(parameters.getOriginalFile());
             elements.addAll( JekaCmdCompletionProvider.findSuggest(module, prefix));
             result.withPrefixMatcher(prefix).addAllElements(elements);
@@ -76,7 +78,7 @@ public class JekaCmdContributor extends CompletionContributor {
             if (propName.isEmpty()) {
                 return prefix;
             }
-            boolean prefixStartsWithPropName =  prefix.startsWith(propName + "=");
+            boolean prefixStartsWithPropName =  prefix.startsWith(propName + "=") && !prefix.startsWith(" ");
             return  prefixStartsWithPropName ? JkUtilsString.substringAfterLast(prefix, propName + "=") : prefix;
         }
     }

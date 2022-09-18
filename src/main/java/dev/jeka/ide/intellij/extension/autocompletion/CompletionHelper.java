@@ -41,6 +41,20 @@ public class CompletionHelper {
         return fullText.substring(Math.max(0, i), pos + 1).trim();
     }
 
+    static String lastCharOfPreviousLine(String fullText, int pos) {
+        int i = pos;
+        for (; i >= 0; i--) {
+            char c = fullText.charAt(i);
+            if ("\n".contains(Character.toString(c))) {
+                break;
+            }
+        }
+        if (i <= 0) {
+            return "";
+        }
+        return fullText.substring(i-1, i);
+    }
+
     static List<LookupElement> findDependeciesVariants(CompletionParameters parameters, String item)  {
         Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
         Path rootDir = ModuleHelper.getModuleDirPath(module);
