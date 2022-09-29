@@ -8,7 +8,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import dev.jeka.core.api.depmanagement.JkModuleSearch;
+import dev.jeka.core.api.depmanagement.JkCoordinateSearch;
 import dev.jeka.core.api.depmanagement.JkRepoSet;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
@@ -59,7 +59,7 @@ public class CompletionHelper {
         Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
-        List<String> suggests = JkModuleSearch.of(repoSet.getRepos().get(0))
+        List<String> suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
                 .setGroupOrNameCriteria(item)
                 .search();
         List<String> container = new ArrayList<>(suggests);

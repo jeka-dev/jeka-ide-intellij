@@ -55,8 +55,8 @@ public class JekaTemplate {
         return JekaTemplate.builder()
                 .name("java project - code.less")
                 .commandArgs("project#scaffold.template=CODE_LESS scaffold#cmdExtraContent=\"_append=@dev.jeka:jacoco-plugin" +
-                        " @dev.jeka:sonarqube-plugin -kb=project\\nbuild=clean project#pack" +
-                        "\\nbuild_quality=clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\" " +
+                        " @dev.jeka:sonarqube-plugin -kb=project\\nbuild=project#clean project#pack" +
+                        "\\nbuild_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\" " +
                         "scaffold#projectPropsExtraContent=\"jeka.java.version=11\"")
                 .description("Template for building Java projects without needing build code.\n" +
                         "\n" +
@@ -70,10 +70,33 @@ public class JekaTemplate {
                 .build();
     }
 
+    public static JekaTemplate springbootCodeLess() {
+        return JekaTemplate.builder()
+                .name("springboot project - code.less")
+                .commandArgs(
+                        "scaffold#projectPropsExtraContent=jeka.java.version=11 " +
+                        "scaffold#cmdExtraContent=" +
+                            "\"" +  // start block for cmd.properties content
+                            "_append=\\" +
+                            "\\n  @dev.jeka:jacoco-plugin \\" +
+                            "\\n  @dev.jeka:sonarqube-plugin \\" +
+                            "\\n  @dev.jeka:springboot-plugin \\" +
+                            "\\n  springboot#springbootVersion=2.7.3" +
+                            "\\n\\nbuild=project#clean project#pack" +
+                            "\\n\\nbuild_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000" +
+                            "\" " +  // end block for cmd.properties content
+                        "project#scaffold.template=CODE_LESS " +
+                        "project#scaffold.dependenciesTxtCompileAndRuntime=org.springframework.boot:spring-boot-starter-web " +
+                        "project#scaffold.dependenciesTxtTest=org.springframework.boot:spring-boot-starter-test " +
+                        "project#scaffold.generateLocalLibsFolders=false ")
+                .description("Template for building Springboot projects without needing build code." )
+                .build();
+    }
+
 
 
     public static final List<JekaTemplate> builtins() {
-        return JkUtilsIterable.listOf(project(), springboot(), plugin(), blank(), projectCodeLess());
+        return JkUtilsIterable.listOf(project(), springboot(), plugin(), blank(), projectCodeLess(), springbootCodeLess());
     }
 
     private static List<String> builtinNames() {

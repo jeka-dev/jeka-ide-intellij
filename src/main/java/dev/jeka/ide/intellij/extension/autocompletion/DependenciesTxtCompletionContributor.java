@@ -6,6 +6,7 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.*;
 import com.intellij.util.ProcessingContext;
+import javaslang.concurrent.Promise;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -42,6 +43,7 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
             String prefix = CompletionHelper.prefix(fullText, pos);
             resultSet.withPrefixMatcher(prefix)
                     .addAllElements(CompletionHelper.findDependeciesVariants(parameters, prefix));
+
         }
     }
 

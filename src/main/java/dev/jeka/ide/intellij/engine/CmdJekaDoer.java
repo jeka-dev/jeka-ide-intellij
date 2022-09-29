@@ -58,8 +58,6 @@ import java.nio.file.Paths;
 @RequiredArgsConstructor
 public final class CmdJekaDoer {
 
-    private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
-
     private final Project project;
 
     public static CmdJekaDoer getInstance(Project project) {
@@ -117,7 +115,6 @@ public final class CmdJekaDoer {
         }
     }
 
-
     public void showRuntimeInformation(Module module) {
         Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
@@ -125,25 +122,6 @@ public final class CmdJekaDoer {
         cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
         start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
-    }
-
-    public void execute(Module module, String command, boolean clearConsole, Runnable onFinish) {
-        Path moduleDir = ModuleHelper.getModuleDirPath(module);
-        String execFile = jekaCmd(moduleDir, false);
-        if (!Files.exists(Paths.get(execFile))) {
-            NotificationGroupManager.getInstance()
-                    .getNotificationGroup("jeka.notifGroup")
-                    .createNotification("Distribution file " + execFile + " is missing. " +
-                            "Please re-install the distro or suppress it.", NotificationType.ERROR)
-                    .addAction(new OpenManageDistributionsAction())
-                    .notify(this.project);
-            return;
-        }
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
-        setJekaJDKEnv(cmd, project, module);
-        cmd.setWorkDirectory(moduleDir.toFile());
-        cmd.addParameters(JkUtilsString.translateCommandline(command));
-        start(cmd, clearConsole, onFinish,  null );
     }
 
     private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
@@ -162,11 +140,15 @@ public final class CmdJekaDoer {
         setJekaJDKEnv(cmd, project, existingModule);
         cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld");
         cmd.setWorkDirectory(moduleDir.toFile());
+        Runnable onfailure = null;
         if (qualifiedClassName != null) {
             cmd.addParameter("-kb=" + qualifiedClassName);
+
+            // if it fails, retry without specifying the kbean
+            onfailure = () -> doGenerateIml(moduleDir, null, clearConsole, existingModule, onFinish);
         }
         Runnable onSuccess = () -> refreshAfterIml(existingModule, moduleDir, onFinish);
-        start(cmd, clearConsole, onSuccess,  null );
+        start(cmd, clearConsole, onSuccess,  onfailure);
     }
 
     private ConsoleView getView() {
@@ -175,7 +157,7 @@ public final class CmdJekaDoer {
 
     private void refreshAfterIml(Module existingModule, Path moduleDir, Runnable onFinish) {
         if (existingModule == null) {
-            addModule(moduleDir);
+           addModule(moduleDir);
         }
         SlowOperations.allowSlowOperations(() -> {
             VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
@@ -192,7 +174,7 @@ public final class CmdJekaDoer {
             Path projectDir = Paths.get(project.getBasePath());
             Path modulesXml = projectDir.resolve(".idea/modules.xml");
             if (Files.exists(modulesXml)) {
-                ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
+                //ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
                 VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
             }
         });

@@ -122,23 +122,12 @@
         />
 
 
-
-
-
-
         <notificationGroup id="jeka.notifGroup"
                            displayType="BALLOON"/>
 
         <!--
 
          <projectStructureDetector implementation="dev.jeka.ide.intellij.extension.JekaProjectStructureDetector"/>
-
-
-
-   
-
-
-
        -->
     </extensions>
     
