@@ -4,12 +4,11 @@ import com.intellij.codeInsight.completion.*;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PlatformPatterns;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiPlainText;
 import com.intellij.util.ProcessingContext;
-import javaslang.concurrent.Promise;
 import org.jetbrains.annotations.NotNull;
-
-import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class DependenciesTxtCompletionContributor extends CompletionContributor {
 

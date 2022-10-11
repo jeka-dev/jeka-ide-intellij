@@ -17,7 +17,10 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class BeanNode extends AbstractNode implements Comparable<BeanNode> {

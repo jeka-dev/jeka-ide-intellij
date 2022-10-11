@@ -36,6 +36,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
+import dev.jeka.core.api.utils.JkUtilsThrowable;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.JekaDistributions;
@@ -47,6 +48,9 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -200,13 +204,27 @@ public final class CmdJekaDoer {
 
             });
         } catch (ExecutionException e) {
+            logError(e);
             throw new RuntimeException(e);
         } catch (RuntimeException e) {
+            logError(e);
             throw e;
         }
         attachView(handler, clear);
         if (ApplicationManager.getApplication().isDispatchThread()) {
             ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID).show();
+        }
+    }
+
+    private void logError(Exception e) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(os);
+        e.printStackTrace(ps);
+        try {
+            String output = os.toString("UTF8");
+            getView().print(output, ConsoleViewContentType.ERROR_OUTPUT);
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -224,13 +242,15 @@ public final class CmdJekaDoer {
                 return jekaScriptPath(true);
             }
             return Files.exists(moduleDir.resolve("jekaw.bat")) ?
-                    moduleDir.toAbsolutePath().resolve("jekaw.bat").toString()
+                    moduleDir.toAbsolutePath().resolve("jekaw.bat").normalize().toString()
                     : jekaScriptPath(true);
         }
         if (forceJeka) {
             return jekaScriptPath(false);
         }
-        return Files.exists(moduleDir.resolve("jekaw")) ? "./jekaw" : jekaScriptPath(false);
+        return Files.exists(moduleDir.resolve("jekaw")) ?
+                moduleDir.toAbsolutePath().resolve("./jekaw").normalize().toString()
+                : jekaScriptPath(false);
     }
 
     private String jekaScriptPath(boolean isWindows) {

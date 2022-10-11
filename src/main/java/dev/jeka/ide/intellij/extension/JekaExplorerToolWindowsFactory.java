@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentManager;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.panel.explorer.JekaExplorerPanel;
 import org.jetbrains.annotations.NotNull;
@@ -18,8 +19,8 @@ public class JekaExplorerToolWindowsFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         JekaExplorerPanel panel = new JekaExplorerPanel(project);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(panel, "", false);
+        final ContentManager contentManager = toolWindow.getContentManager();
+        Content content = contentManager.getFactory().createContent(panel, "", false);
         toolWindow.getContentManager().addContent(content);
     }
 

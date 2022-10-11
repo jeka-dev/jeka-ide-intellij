@@ -1,11 +1,13 @@
 package dev.jeka.ide.intellij.common;
 
 import dev.jeka.core.api.depmanagement.JkModuleId;
-import dev.jeka.core.api.depmanagement.JkRepoFromProperties;
+import dev.jeka.core.api.depmanagement.JkRepoProperties;
 import dev.jeka.core.api.depmanagement.JkVersion;
 import dev.jeka.core.api.depmanagement.resolution.JkDependencyResolver;
 import dev.jeka.core.api.system.JkLocator;
+import dev.jeka.core.api.system.JkProperties;
 import dev.jeka.core.api.utils.JkUtilsPath;
+import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.core.wrapper.Booter;
 
 import java.nio.file.Files;
@@ -34,7 +36,8 @@ public class JekaDistributions {
     }
 
     public static List<String> searchVersionsSortedByDesc() {
-        JkDependencyResolver resolver = JkDependencyResolver.of().addRepos(JkRepoFromProperties.getDownloadRepos());
+        JkProperties props = JkExternalToolApi.getGlobalProperties();
+        JkDependencyResolver resolver = JkDependencyResolver.of().addRepos(JkRepoProperties.of(props).getDownloadRepos());
         List<String> allVersions = resolver.searchVersions(JkModuleId.of("dev.jeka", "jeka-core"));
         return allVersions.stream()
                 .map(JkVersion::of)
