@@ -86,22 +86,22 @@ public class ModuleNode extends AbstractNode {
     }
 
     @Nullable
-    VirtualFile getCmdfile() {
+    VirtualFile getProjectPropFile() {
         VirtualFile moduleDir = ModuleHelper.getModuleDir(module);
         if (moduleDir == null) {
             return null;
         }
-        return moduleDir.findChild(JkConstants.JEKA_DIR).findChild(JkConstants.CMD_PROPERTIES);
+        return moduleDir.findChild(JkConstants.JEKA_DIR).findChild(JkConstants.PROJECT_PROPERTIES);
     }
 
     List<CmdNode> createCmdChildren() {
-        VirtualFile cmdFile = getCmdfile();
+        VirtualFile cmdFile = getProjectPropFile();
         if (cmdFile == null) {
             return Collections.emptyList();
         }
         Document document = FileDocumentManager.getInstance().getDocument(cmdFile);
         return allCommands(document).entrySet().stream()
-                .map(entry -> new CmdNode(project, entry.getKey(), entry.getValue()))
+                .map(entry -> new CmdNode(project, entry.getKey().substring(JkConstants.CMD_PROP_PREFIX.length()), entry.getValue()))
                 .collect(Collectors.toCollection(() -> new LinkedList<>()));
     }
 
@@ -113,7 +113,7 @@ public class ModuleNode extends AbstractNode {
             properties.load(new StringReader(content));
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 String key = (String) entry.getKey();
-                if (!key.startsWith("_")) {
+                if (key.startsWith(JkConstants.CMD_PROP_PREFIX) && !key.equals(JkConstants.CMD_APPEND_PROP)) {
                     String value = (String) entry.getValue();
                     result.put(key, value);
                 }
@@ -159,7 +159,7 @@ public class ModuleNode extends AbstractNode {
         if (!file.startsWith(jekaDir)) {
             return false;
         }
-        if (file.startsWith(jekaDir.resolve(JkConstants.CMD_PROPERTIES))) {
+        if (file.startsWith(jekaDir.resolve(JkConstants.PROJECT_PROPERTIES))) {
             return true;
         }
         if (file.startsWith(jekaDir.getParent().resolve(JkConstants.DEF_DIR))

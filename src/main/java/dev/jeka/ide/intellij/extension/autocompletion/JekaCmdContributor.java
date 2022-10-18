@@ -65,22 +65,18 @@ public class JekaCmdContributor extends CompletionContributor {
             CompletionHelper.addElement(elements, 10,LookupElementBuilder.create("@dev.jeka:jacoco-plugin")
                     .withIcon(AllIcons.Nodes.PpLibFolder)
                     .withTailText(" Add Jacoco plugin"));
+            CompletionHelper.addElement(elements, 9,LookupElementBuilder.create("@dev.jeka:nodejs-plugin")
+                    .withIcon(AllIcons.Nodes.PpLibFolder)
+                    .withTailText(" Add NodeJS plugin"));
             String rawPrefix = CompletionHelper.prefix(fullText, pos);
             boolean breakingLine = "\\".equals(lastCharOfPrevoiusLine);
-            String prefix = breakingLine ? rawPrefix : cleanedPrefix(lineText, rawPrefix);
+            String prefix = breakingLine ? rawPrefix : CompletionHelper.cleanedPrefix(lineText, rawPrefix);
             Module module =  ModuleUtil.findModuleForFile(parameters.getOriginalFile());
-            elements.addAll( JekaCmdCompletionProvider.findSuggest(module, prefix));
+            elements.addAll( JekaCmdCompletionProvider.findSuggest(module, prefix, true));
             result.withPrefixMatcher(prefix).addAllElements(elements);
             result.stopHere();
         }
 
-        private String cleanedPrefix(String fullLine, String prefix) {
-            String propName = JkUtilsString.substringBeforeFirst(fullLine, "=");
-            if (propName.isEmpty()) {
-                return prefix;
-            }
-            boolean prefixStartsWithPropName =  prefix.startsWith(propName + "=") && !prefix.startsWith(" ");
-            return  prefixStartsWithPropName ? JkUtilsString.substringAfterLast(prefix, propName + "=") : prefix;
-        }
+
     }
 }

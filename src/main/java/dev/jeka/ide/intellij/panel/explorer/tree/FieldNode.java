@@ -37,6 +37,9 @@ public class FieldNode extends AbstractNode {
     private final String tooltipText;
 
     @Getter
+    private final String declaration;
+
+    @Getter
     private List<String> acceptedValues;
 
     public FieldNode(Project project, PsiField psiField) {
@@ -46,6 +49,10 @@ public class FieldNode extends AbstractNode {
         this.tooltipText = PsiClassHelper.getFormattedJkDoc(psiField);
         this.createChildren().forEach(this::add);
         this.acceptedValues = acceptedValues(psiField);
+        String fullDeclaration = psiField.getText();
+        String pre = psiField.getFirstChild().getText();
+        String shortDeclaration = fullDeclaration.substring(pre.length());
+        this.declaration = shortDeclaration;
     }
 
     @Override

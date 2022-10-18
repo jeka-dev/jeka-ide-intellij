@@ -10,6 +10,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import dev.jeka.core.api.depmanagement.JkCoordinateSearch;
 import dev.jeka.core.api.depmanagement.JkRepoSet;
+import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 
@@ -55,7 +56,7 @@ public class CompletionHelper {
         return fullText.substring(i-1, i);
     }
 
-    static List<LookupElement> findDependeciesVariants(CompletionParameters parameters, String item)  {
+    static List<LookupElement> findDependenciesVariants(CompletionParameters parameters, String item)  {
         Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
@@ -86,5 +87,14 @@ public class CompletionHelper {
 
     static void addElement(List result, int priority, LookupElement lookupElement) {
         result.add(PrioritizedLookupElement.withPriority(lookupElement, priority));
+    }
+
+    static String cleanedPrefix(String fullLine, String prefix) {
+        String propName = JkUtilsString.substringBeforeFirst(fullLine, "=");
+        if (propName.isEmpty()) {
+            return prefix;
+        }
+        boolean prefixStartsWithPropName =  prefix.startsWith(propName + "=") && !prefix.startsWith(" ");
+        return  prefixStartsWithPropName ? JkUtilsString.substringAfterLast(prefix, propName + "=") : prefix;
     }
 }

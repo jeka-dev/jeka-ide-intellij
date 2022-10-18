@@ -32,6 +32,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
@@ -178,7 +179,7 @@ public final class CmdJekaDoer {
             Path projectDir = Paths.get(project.getBasePath());
             Path modulesXml = projectDir.resolve(".idea/modules.xml");
             if (Files.exists(modulesXml)) {
-                //ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
+                ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
                 VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
             }
         });
@@ -212,7 +213,10 @@ public final class CmdJekaDoer {
         }
         attachView(handler, clear);
         if (ApplicationManager.getApplication().isDispatchThread()) {
-            ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID).show();
+            ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID);
+            if (toolWindow != null) {
+                toolWindow.show();
+            }
         }
     }
 

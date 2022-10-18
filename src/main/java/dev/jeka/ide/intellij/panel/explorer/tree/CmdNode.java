@@ -45,11 +45,11 @@ public class CmdNode extends AbstractNode {
     public Object getActionData(String dataId) {
         if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
             ModuleNode parent = (ModuleNode) getParent();
-            return PsiManager.getInstance(project).findFile(parent.getCmdfile());
+            return PsiManager.getInstance(project).findFile(parent.getProjectPropFile());
         }
         if (JekaRunCmdAction.CmdInfo.KEY.is(dataId)) {
             ModuleNode parent = (ModuleNode) getParent();
-            return new JekaRunCmdAction.CmdInfo(name, parent.getModule());
+            return new JekaRunCmdAction.CmdInfo(name, cmd, parent.getModule());
         }
         return null;
     }

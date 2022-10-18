@@ -63,7 +63,7 @@ public class TemplatesEditPanel {
             }
         });
 
-        // feed back when template neme changed by user
+        // feed back when template name has been changed by user
         templateDetailEditPanel.getNameChangeListener().append(template -> templateListModel.contentsChanged(template));
 
         templateJBList.setSelectedIndex(0);
@@ -122,7 +122,11 @@ public class TemplatesEditPanel {
         }
     }
 
-    private boolean templatesChanged() {
+    List<JekaTemplate> getTemplates() {
+        return templateListModel.getItems();
+    }
+
+    boolean templatesChanged() {
         return !this.originalTemplates.equals(this.templateListModel.getItems());
     }
 

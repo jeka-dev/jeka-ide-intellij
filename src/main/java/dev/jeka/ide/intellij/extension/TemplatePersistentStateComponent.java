@@ -28,12 +28,13 @@ public final class TemplatePersistentStateComponent implements PersistentStateCo
 
     public List<JekaTemplate> getTemplates() {
         if (templates.isEmpty()) {
-            List<JekaTemplate> newList = new LinkedList<>(templates);
+            List<JekaTemplate> newList = new LinkedList<>();
             newList.addAll(JekaTemplate.builtins());
             return newList;
         }
         return templates;
     }
+
 
     @Override
     public Element getState() {

@@ -54,10 +54,10 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         if (module == null) {
             return Collections.emptyList();
         }
-        return findSuggest(module, prefix);
+        return findSuggest(module, prefix, true);
     }
 
-    static List<LookupElementBuilder> findSuggest(Module module, String prefix) {
+    static List<LookupElementBuilder> findSuggest(Module module, String prefix, boolean includeMethods) {
         if (module == null) {
             return Collections.emptyList();
         }
@@ -72,7 +72,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
             List<LookupElementBuilder> result = new LinkedList<>();
             for (BeanNode beanNode : allBeans) {
                 if (beanNode.isLocal()) {
-                    result.addAll(findSuggestForBean(beanNode, prefix));
+                    result.addAll(findSuggestForBean(beanNode, prefix, includeMethods));
                 } else {
                     CompletionHelper.addElement(result, 10, LookupElementBuilder.create(beanNode.getName() + "#")
                             .withTailText(" " + Strings.nullToEmpty(beanNode.getDefinition()))
@@ -88,10 +88,10 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         if (bean == null) {
             return Collections.emptyList();
         }
-        return findSuggestForBean(bean, prefix);
+        return findSuggestForBean(bean, prefix, includeMethods);
     }
 
-    private static List<LookupElementBuilder> findSuggestForBean(BeanNode bean, String prefix) {
+    private static List<LookupElementBuilder> findSuggestForBean(BeanNode bean, String prefix, boolean includeMethods) {
         String beanName = bean.getName();
         List<LookupElementBuilder> result = new LinkedList<>();
         List<TreeNode> members = Collections.list(bean.children());
@@ -101,7 +101,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
                 FieldNode fieldNode = (FieldNode) member;
                 List<LookupElementBuilder> fieldElements = createFieldElements(fieldNode, prefix);
                 CompletionHelper.addElements(result, fieldElements, 20);
-            } else if (member instanceof MethodNode) {
+            } else if (member instanceof MethodNode  && includeMethods) {
                 MethodNode methodNode = (MethodNode) member;
                 CompletionHelper.addElement(result, 30, LookupElementBuilder.create(beanName + "#" + methodNode)
                         .withBoldness(bean.isLocal())
@@ -144,9 +144,10 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         boolean showValue = suffix.contains("=") && !suffix.endsWith("=");
         String presentableName =  showValue ?
                 JkUtilsString.substringAfterLast(suffix, "=")
-                : fieldNode + suffix;
+                : fieldNode + (suffix.equals(".") ? "..." : suffix);
         Icon icon = showValue ? AllIcons.Nodes.Enum : FieldNode.ICON;
-        String tailText = showValue ? "" : " " + Strings.nullToEmpty(fieldNode.getTooltipText());
+        String tailText = showValue ? "" : " " + Strings.nullToEmpty(fieldNode.getTooltipText())
+                + "(" + fieldNode.getDeclaration() + ")";
         return  LookupElementBuilder.create(beanNode.getName() + "#" + fieldNode.prefixedName() + suffix )
                 .withBoldness(beanNode.isLocal())
                 .withPresentableText(presentableName)

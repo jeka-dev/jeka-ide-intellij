@@ -71,8 +71,8 @@ public class PsiClassHelper {
         return result;
     }
 
-    public static String getFormattedJkDoc(PsiJvmModifiersOwner psiClass) {
-        String doc = getJkDoc(psiClass);
+    public static String getFormattedJkDoc(PsiJvmModifiersOwner psiElement) {
+        String doc = getJkDoc(psiElement);
         if (doc == null) {
             return null;
         }

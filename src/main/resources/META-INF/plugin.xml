@@ -78,6 +78,9 @@
         <runLineMarkerContributor language="kotlin"
                                   implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributorForKotlin"/>
 
+        <runLineMarkerContributor language="Properties"
+                                  implementationClass="dev.jeka.ide.intellij.extension.JekaRunLineMarkerContributorForCmdProperties"/>
+
         <moduleBuilder builderClass="dev.jeka.ide.intellij.extension.projectwizard.JekaModuleBuilder"/>
 
         <completion.contributor

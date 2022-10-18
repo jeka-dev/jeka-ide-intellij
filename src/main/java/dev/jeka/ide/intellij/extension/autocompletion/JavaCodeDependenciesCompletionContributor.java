@@ -93,7 +93,7 @@ public class JavaCodeDependenciesCompletionContributor extends CompletionContrib
             if (content.endsWith("\"")) {
                 content = content.substring(0, content.length()-1);
             }
-            resultSet.addAllElements(CompletionHelper.findDependeciesVariants(parameters, content));
+            resultSet.addAllElements(CompletionHelper.findDependenciesVariants(parameters, content));
         }
     }
 

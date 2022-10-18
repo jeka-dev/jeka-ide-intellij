@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import dev.jeka.core.tool.JkConstants;
 import dev.jeka.ide.intellij.panel.RunDialogWrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,15 +29,14 @@ public class JekaRunCmdParamAction extends AnAction {
     private static String configurationName(Module module, String cmdName) {
         boolean multiModule = ModuleManager.getInstance(module.getProject()).getModules().length > 1;
         String prefix = multiModule ? "[" + module.getName() + "] " : "";
-        return prefix + "$" + cmdName;
+        return prefix + JkConstants.CMD_SUBSTITUTE_SYMBOL + cmdName;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        DataContext dataContext = event.getDataContext();
-        JekaRunCmdAction.CmdInfo data = JekaRunCmdAction.CmdInfo.KEY.getData(dataContext);
-        String configurationName = configurationName(data.getModule(),  data.getCmdName());
-        String cmd = "$" + data.getCmdName();
+        JekaRunCmdAction.CmdInfo data = JekaRunCmdAction.getCmdInfo(event);
+        String configurationName = configurationName(data.getModule(),  data.getName());
+        String cmd = data.getCommand();
         RunDialogWrapper runDialogWrapper = new RunDialogWrapper(data.getModule(), debug, cmd, configurationName);
         runDialogWrapper.show();
     }

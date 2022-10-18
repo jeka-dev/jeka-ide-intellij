@@ -84,7 +84,7 @@ public class TemplatesPanel {
 
         actionLink = new ActionLink("Manage templates ...", e -> {
             TemplatesEditPanel templatesEditPanel = new TemplatesEditPanel();
-            TemplateEditDialogWrapper dialogWrapper = new TemplateEditDialogWrapper(project, templatesEditPanel, this::reload);
+            TemplateEditDialogWrapper dialogWrapper = new TemplateEditDialogWrapper(project, templatesEditPanel, this::update);
             dialogWrapper.show();
         });
         actionLink.setText("Manage templates ...");
@@ -95,8 +95,8 @@ public class TemplatesPanel {
         return panel;
     }
 
-    private void reload() {
-        List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
+    private void update(List<JekaTemplate> templates) {
+        this.persistedTemplatesComponent.setTemplates(templates);
         templateListModel.removeAll();
         templateListModel.addAll(0, templates);
         if (templates.size() > 0) {
@@ -108,6 +108,5 @@ public class TemplatesPanel {
         List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
         this.templateListModel = new CollectionListModel<>(templates);
     }
-
 
 }
