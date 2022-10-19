@@ -54,13 +54,12 @@ public class JekaTemplate {
     public static JekaTemplate projectCodeLess() {
         return JekaTemplate.builder()
                 .name("java project - code.less")
-                .commandArgs("project#scaffold.template=CODE_LESS scaffold#projectPropsExtraContent="
+                .commandArgs("project#scaffold.template=CODE_LESS roject#scaffold.generateLocalLibsFolders=false scaffold#projectPropsExtraContent="
                     + "\""
-                    + "jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project"
-                    + "\\n\\njeka.cmd.build=project#clean project#pack"
-                    + "\\njeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000"
-                    + "\\n\\njeka.java.version=11"
-                    + "\\nproject#scaffold.generateLocalLibsFolders=false"
+                    + "jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project\\n\\n"
+                    + "jeka.cmd.build=project#clean project#pack\\n"
+                    + "jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\\n"
+                    + "jeka.java.version=11"
                     + "\""
                 )
                 .description("Template for building Java projects without needing build code.\n" +
@@ -80,18 +79,19 @@ public class JekaTemplate {
                 .name("springboot project - code.less")
                 .commandArgs(
                         "@" + SPRINGBOOT_MODULE + " springboot# " +
-                        "scaffold#projectPropsExtraContent="
-                                + "\""
-                                + "jeka.cmd._append=springboot# @dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin @dev.jeka:springboot-plugin"
-                                + "\\n\\njeka.cmd.build=project#clean project#pack"
-                                + "\\njeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000"
-                                + "\\n\\njeka.java.version=11"
-                                + "\\nspringboot#springbootVersion=2.4.7"
-                                + "\" " +  // end block for cmd.properties content
                         "project#scaffold.template=CODE_LESS " +
                         "project#scaffold.dependenciesTxt.regular=org.springframework.boot:spring-boot-starter-web " +
                         "project#scaffold.dependenciesTxt.test=org.springframework.boot:spring-boot-starter-test " +
-                        "project#scaffold.generateLocalLibsFolders=false ")
+                        "project#scaffold.generateLocalLibsFolders=false " +
+                        "scaffold#projectPropsExtraContent="
+                                + "\""
+                                + "jeka.cmd._append=springboot# @dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin @dev.jeka:springboot-plugin\\n\\n"
+                                + "jeka.cmd.build=project#clean project#pack\\n"
+                                + "jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\\n"
+                                + "jeka.java.version=11\\n"
+                                + "springboot#springbootVersion=2.4.7"
+                                + "\" "
+                        )
                 .description("Template for building Springboot projects without needing build code." )
                 .build();
     }

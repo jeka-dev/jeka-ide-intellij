@@ -13,6 +13,8 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.UIUtil;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +22,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import java.io.File;
+import java.awt.*;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 
 class JekaWizardPanel {
 
@@ -38,50 +42,66 @@ class JekaWizardPanel {
 
     private TextFieldWithBrowseButton locationTextField;
 
+    private JBTextField nameTextField;
+
+    private JBLabel fullPathLabel = new JBLabel();
+
     JekaWizardPanel(@Nullable WizardContext wizardContext) {
         this.wizardContext = wizardContext;
         panel = panel();
     }
 
     private JPanel panel() {
-        JBTextField nameLabel = new JBTextField();
-        nameLabel.setEditable(false);
+        nameTextField = new ExtendableTextField();
         JBTextField locationPathText = new ExtendableTextField();
         locationTextField = new TextFieldWithBrowseButton(locationPathText);
-        if (wizardContext.getProject() != null) {
-            locationTextField.setText(Paths.get(wizardContext.getProject().getBasePath()).resolve(defaultName()).toString());
-        } else {
-            String baseDir = wizardContext.getProjectFileDirectory();
-            String name = ProjectWizardUtil.findNonExistingFileName(baseDir, "untitled", "");
-            locationTextField.setText(baseDir + File.separator + name);
-        }
         locationTextField.addBrowseFolderListener(
                 "Module location",
                 "Select a module location",
                 wizardContext.getProject(),
                 fileChooserDescriptor()
         );
-        locationPathText.getDocument().addDocumentListener(new DocumentAdapter() {
-               @Override
-               protected void textChanged(@NotNull DocumentEvent e) {
-                   nameLabel.setText(getName());
-               }
-        });
-        nameLabel.setText(getName());
-        ComponentValidator componentValidator = new ComponentValidator(locationTextField).withValidator(this::validateLocation)
+        ComponentValidator nameValidator = new ComponentValidator(wizardContext.getDisposable())
+                .withValidator(this::validateName)
+                .installOn(nameTextField);
+        ComponentValidator locationValidator = new ComponentValidator(locationTextField)
+                .withValidator(this::validateLocation)
                 .installOn(locationTextField);
-        componentValidator.enableValidation();
+
+        nameValidator.enableValidation();
+        locationValidator.enableValidation();
+        nameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                nameValidator.revalidate();
+                updateLabel();
+            }
+        });
         locationPathText.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                ComponentValidator.getInstance(locationTextField).ifPresent(v -> v.revalidate());
+                locationValidator.revalidate();
+                updateLabel();
             }
         });
+
+        String baseDir = wizardContext.getProjectFileDirectory();
+        String name = wizardContext.getProject() == null
+                ? ProjectWizardUtil.findNonExistingFileName(baseDir, "untitled", "")
+                : ModuleHelper.findNonExistingModuleName(wizardContext.getProject(), "untitled");
+        nameTextField.setText(name);
+
+        locationTextField.setText(baseDir);
         this.scaffoldPanel = ScaffoldFormPanel.of(wizardContext.getProject(), null, true, false);
 
+        Font font = fullPathLabel.getFont().deriveFont((float) fullPathLabel.getFont().getSize() - 1);
+        fullPathLabel.setFontColor(UIUtil.FontColor.BRIGHTER);
+        this.fullPathLabel.setFont(font);
+        updateLabel();
         JPanel result = FormBuilder.createFormBuilder()
-                .addLabeledComponent(new JBLabel("Name:"), nameLabel)
+                .addLabeledComponent(new JBLabel("Name:"), nameTextField)
                 .addLabeledComponent(new JBLabel("Location:"), locationTextField, 15)
+                .addLabeledComponent("", fullPathLabel)
                 .addComponentFillVertically(this.scaffoldPanel.getPanel(), 20)
                 .getPanel();
         result.setBorder(BorderFactory.createEmptyBorder(MARGIN, MARGIN, 0, MARGIN));
@@ -96,58 +116,87 @@ class JekaWizardPanel {
     }
 
     String getLocation() {
-        return this.locationTextField.getText();
+        return Paths.get(locationTextField.getText()).resolve(this.nameTextField.getText()).toString();
     }
 
     String getName() {
-        return Paths.get(locationTextField.getText().trim()).getFileName().toString();
+        return nameTextField.getText().trim();
     }
 
     private String defaultName() {
         String base = "untitled";
-        if (!nameExist(base)) {
+        if (!nameExistForModule(base)) {
             return base;
         }
         for (int i=2;;i++) {
             String candidate = base + i;
-            if (!nameExist(candidate)) {
+            if (!nameExistForModule(candidate)) {
                 return candidate;
             }
         }
     }
 
-    private boolean nameExist(String candidate) {
+    private boolean nameExistForModule(String candidate) {
+        if (wizardContext.getProject() == null) {
+            return false;
+        }
         Module[] modules = ModuleManager.getInstance(wizardContext.getProject()).getModules();
         return Arrays.stream(modules)
                 .map(Module::getName)
                 .anyMatch(candidate::equals);
     }
 
-    private String validateModuleName() {
-        if (wizardContext.getProject() == null) {
-            return null;
+    String validate() {
+        ValidationInfo validationInfo = validateName();
+        if (validationInfo != null) {
+            return validationInfo.message;
         }
-        String candidate = getName();
-        if (nameExist(candidate)) {
-            return "Module with name '" + candidate + "' already exists.";
+        validationInfo = validateLocation();
+        if (validationInfo != null) {
+            return validationInfo.message;
         }
         return null;
     }
 
-    String validate() {
-        if (wizardContext.getProject() != null) {
-            return validateModuleName();
+    private ValidationInfo validateName() {
+        boolean isNameForModule = wizardContext.getProject() != null;
+        String candidate = this.nameTextField.getText().trim();
+        if (candidate.equals("")) {
+            return new ValidationInfo("Field must be set").forComponent(nameTextField);
         }
-
+        if (isNameForModule) {
+            Optional<String> nameInalid = ModuleHelper.validateName(candidate);
+            if (nameInalid.isPresent()) {
+                return new ValidationInfo("Only Latin characters, digits, '_', '-' and '.' are allowed here.")
+                        .forComponent(nameTextField);
+            }
+            if (nameExistForModule(candidate)) {
+                return new ValidationInfo("Module with name '" + candidate + "' already exists.")
+                        .forComponent(nameTextField);
+            }
+        } else {
+            if (Files.exists(Paths.get(getLocation()))) {
+                return new ValidationInfo("Project with name '" + candidate + "' already exists in "
+                        + locationTextField.getText())
+                        .forComponent(nameTextField);
+            }
+        }
         return null;
     }
 
     private ValidationInfo validateLocation() {
-        String nameValidation = validateModuleName();
-        if (nameValidation != null) {
-            return new ValidationInfo(nameValidation).forComponent(locationTextField);
+        String candidate = this.locationTextField.getText().trim();
+        if (candidate.equals("")) {
+            return new ValidationInfo("Field must be set").forComponent(locationTextField.getChildComponent());
         }
         return null;
     }
+
+    private void updateLabel() {
+        String prefix = wizardContext.getProject() == null ? "Project" : "Module";
+        String text = prefix + " will be created in: " + getLocation();
+        this.fullPathLabel.setText(text);
+    }
+
 
 }

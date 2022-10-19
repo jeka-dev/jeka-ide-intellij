@@ -13,6 +13,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.tool.JkConstants;
+import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.extension.action.ScaffoldAction;
@@ -91,37 +92,15 @@ public class ModuleNode extends AbstractNode {
         if (moduleDir == null) {
             return null;
         }
-        return moduleDir.findChild(JkConstants.JEKA_DIR).findChild(JkConstants.PROJECT_PROPERTIES);
+        return moduleDir.findChild(JkConstants.JEKA_DIR).findChild(JkConstants.PROPERTIES_FILE);
     }
 
     List<CmdNode> createCmdChildren() {
-        VirtualFile cmdFile = getProjectPropFile();
-        if (cmdFile == null) {
-            return Collections.emptyList();
-        }
-        Document document = FileDocumentManager.getInstance().getDocument(cmdFile);
-        return allCommands(document).entrySet().stream()
+        Path baseDir = ModuleHelper.getModuleDirPath(module);
+        Map<String, String> commands = JkExternalToolApi.getCmdShortcutsProperties(baseDir);
+        return commands.entrySet().stream()
                 .map(entry -> new CmdNode(project, entry.getKey().substring(JkConstants.CMD_PROP_PREFIX.length()), entry.getValue()))
                 .collect(Collectors.toCollection(() -> new LinkedList<>()));
-    }
-
-    private static Map<String, String> allCommands(Document document) {
-        String content = document.getText();
-        Map<String, String> result = new TreeMap<>();
-        Properties properties = new Properties();
-        try {
-            properties.load(new StringReader(content));
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                String key = (String) entry.getKey();
-                if (key.startsWith(JkConstants.CMD_PROP_PREFIX) && !key.equals(JkConstants.CMD_APPEND_PROP)) {
-                    String value = (String) entry.getValue();
-                    result.put(key, value);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return result;
     }
 
     @Override
@@ -159,7 +138,7 @@ public class ModuleNode extends AbstractNode {
         if (!file.startsWith(jekaDir)) {
             return false;
         }
-        if (file.startsWith(jekaDir.resolve(JkConstants.PROJECT_PROPERTIES))) {
+        if (file.startsWith(jekaDir.resolve(JkConstants.PROPERTIES_FILE))) {
             return true;
         }
         if (file.startsWith(jekaDir.getParent().resolve(JkConstants.DEF_DIR))

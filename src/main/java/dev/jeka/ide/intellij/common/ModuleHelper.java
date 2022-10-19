@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -17,13 +18,12 @@ import dev.jeka.core.api.marshalling.xml.JkDomElement;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModuleHelper {
+
+    private static final String ALLOWED_CHARS = "_-. 0123456789azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN";
 
     public static Module getModule(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -137,8 +137,30 @@ public class ModuleHelper {
         result.addAll(deps);
         deps.forEach(dep -> result.addAll(getModuleDependencies(moduleManager, dep)));
         return new LinkedList<>(result);
+    }
 
+    public static Optional<String> validateName(String candidate) {
+        for (int i= 0; i<candidate.length(); i++) {
+            String charat = candidate.substring(i, i+1);
+            if (!ALLOWED_CHARS.contains(charat)) {
+                return Optional.of("'" + charat + "' is not legal.");
+            }
+        }
+        return Optional.empty();
+    }
 
+    public static String findNonExistingModuleName(Project project, String prefix) {
+        ModuleManager moduleManager = ModuleManager.getInstance(project);
+        if (moduleManager.findModuleByName(prefix) == null) {
+            return prefix;
+        }
+        for (int i=1; i<10000; i++) {
+            String candidate = prefix + i;
+            if (moduleManager.findModuleByName(candidate) == null) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException("Haven't got a suggestion for a module name.");
     }
 
 }

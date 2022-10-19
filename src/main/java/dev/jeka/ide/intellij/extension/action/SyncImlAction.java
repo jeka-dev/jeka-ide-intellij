@@ -51,7 +51,7 @@ public class SyncImlAction extends AnAction {
         return ActionManager.getInstance().getAction(ID);
     }
 
-    private static final List<String> RESYNC_FILES = JkUtilsIterable.listOf(JkConstants.PROJECT_PROPERTIES, "dependencies.txt");
+    private static final List<String> RESYNC_FILES = JkUtilsIterable.listOf(JkConstants.PROPERTIES_FILE, "dependencies.txt");
 
     @Override
     public void actionPerformed(AnActionEvent event) {
