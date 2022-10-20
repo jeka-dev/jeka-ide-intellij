@@ -10,9 +10,15 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
+import dev.jeka.core.api.system.JkProperties;
+import dev.jeka.core.tool.JkConstants;
+import dev.jeka.core.tool.JkExternalToolApi;
+import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.engine.ConfigurationRunner;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Path;
 
 
 public class JekaRunCmdAction extends AnAction {
@@ -33,7 +39,7 @@ public class JekaRunCmdAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         CmdInfo data = getCmdInfo(event);
-        String cmd = data.command;
+        String cmd = data.getInterpolatedCommand();
         ConfigurationRunner.run(data.module, null, cmd, debug);
     }
 
@@ -46,6 +52,12 @@ public class JekaRunCmdAction extends AnAction {
         String command;
 
         Module module;
+
+        public String getInterpolatedCommand() {
+            Path baseDir = ModuleHelper.getModuleDirPath(module);
+            JkProperties props = JkExternalToolApi.getProperties(baseDir);
+            return props.get(JkConstants.CMD_PROP_PREFIX + name);
+        }
 
     }
 
@@ -60,7 +72,8 @@ public class JekaRunCmdAction extends AnAction {
             PsiElement namePsiEl = location.getPsiElement();
             PsiElement equals = namePsiEl.getNextSibling();
             String value = equals.getNextSibling().getText();
-            return new CmdInfo(namePsiEl.getText(), value, location.getModule());
+            String name = namePsiEl.getText().trim().substring(JkConstants.CMD_PROP_PREFIX.length());
+            return new CmdInfo(name, value, location.getModule());
         }
         throw new IllegalStateException("Can not find info from PsiElement " + location.getPsiElement());
     }

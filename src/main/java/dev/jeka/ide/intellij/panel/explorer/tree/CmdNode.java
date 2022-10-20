@@ -7,8 +7,9 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdParamAction;
 import icons.JekaIcons;
+import org.jetbrains.annotations.NotNull;
 
-public class CmdNode extends AbstractNode {
+public class CmdNode extends AbstractNode implements Comparable<CmdNode> {
 
     private final String name;
 
@@ -59,5 +60,10 @@ public class CmdNode extends AbstractNode {
         AnActionEvent actionEvent = new AnActionEvent(null, dataContext,
                 ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
         JekaRunCmdAction.RUN_JEKA_INSTANCE.actionPerformed(actionEvent);
+    }
+
+    @Override
+    public int compareTo(@NotNull CmdNode o) {
+        return this.name.compareTo(o.name);
     }
 }

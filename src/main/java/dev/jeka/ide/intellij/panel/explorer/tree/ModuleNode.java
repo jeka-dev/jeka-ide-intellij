@@ -3,8 +3,6 @@ package dev.jeka.ide.intellij.panel.explorer.tree;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,10 +20,6 @@ import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
-import javax.swing.tree.TreeNode;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -98,7 +92,9 @@ public class ModuleNode extends AbstractNode {
     List<CmdNode> createCmdChildren() {
         Path baseDir = ModuleHelper.getModuleDirPath(module);
         Map<String, String> commands = JkExternalToolApi.getCmdShortcutsProperties(baseDir);
-        return commands.entrySet().stream()
+        Map<String, String> sortedMap = new TreeMap<>(commands);
+
+        return sortedMap.entrySet().stream()
                 .map(entry -> new CmdNode(project, entry.getKey().substring(JkConstants.CMD_PROP_PREFIX.length()), entry.getValue()))
                 .collect(Collectors.toCollection(() -> new LinkedList<>()));
     }
@@ -153,21 +149,21 @@ public class ModuleNode extends AbstractNode {
         if (children == null) {
             return new LinkedList<>();
         }
-        List<BeanNode> defBeans = this.children.stream()
+        List<BeanNode> defBeans = (List<BeanNode>) this.children.stream()
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
                 .collect(Collectors.toList());
-        List<BeanNode> classpathBeans = this.children.stream()
+        List<BeanNode> classpathBeans = (List<BeanNode>) this.children.stream()
                 .filter(BeanBoxNode.class::isInstance)
                 .map(BeanBoxNode.class::cast)
-                .flatMap(beanBoxNode -> beanBoxNode.kbeans().stream())
+                .flatMap(beanBoxNode -> ((BeanBoxNode)beanBoxNode).kbeans().stream())
                 .collect(Collectors.toList());
         return JkUtilsIterable.concatLists(defBeans, classpathBeans);
     }
 
     List<ModuleNode> getDescendantModuleNodes() {
         List<ModuleNode> result = new LinkedList<>();
-        for (TreeNode treeNode : children) {
+        for (Object treeNode : children) {
             if (treeNode instanceof ModuleNode) {
                 ModuleNode moduleNode = (ModuleNode) treeNode;
                 result.add(moduleNode);

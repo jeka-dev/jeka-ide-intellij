@@ -3,11 +3,10 @@
 ## Features
 
 * Jeka distribution management : user don't need to install Jeka manually.
-* Project/Module creation from scratch
-* Synchronize module with Intellij according build class
-* right-side tool panel Jeka explorer
-* Launch Jeka methods directly from the editor
-* RunConfiguration 
+* Project/Module creation and synchronization
+* Window tool explorer
+* Launching from contextual editors (Java, Kotlin, Properties)
+* Autocompletion for commands and dependencies
 
 ## How to use it ?
 

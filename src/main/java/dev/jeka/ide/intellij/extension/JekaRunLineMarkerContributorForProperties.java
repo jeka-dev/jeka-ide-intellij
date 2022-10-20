@@ -2,28 +2,25 @@ package dev.jeka.ide.intellij.extension;
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.lang.properties.psi.impl.PropertyKeyImpl;
-import com.intellij.lang.properties.psi.impl.PropertyValueImpl;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.psi.*;
-import dev.jeka.core.api.utils.JkUtilsString;
-import dev.jeka.ide.intellij.common.PsiClassHelper;
+import dev.jeka.core.tool.JkConstants;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdParamAction;
-import dev.jeka.ide.intellij.extension.action.JekaRunMethodAction;
-import dev.jeka.ide.intellij.extension.action.JekaRunMethodParamAction;
 import icons.JekaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-public class JekaRunLineMarkerContributorForCmdProperties extends RunLineMarkerContributor {
+public class JekaRunLineMarkerContributorForProperties extends RunLineMarkerContributor {
 
     @Nullable
     @Override
     public Info getInfo(@NotNull PsiElement psiEl) {
         PsiFile psiFile = psiEl.getContainingFile();
-        if (!psiFile.getName().equals("cmd.properties") || !psiFile.getParent().getName().equals("jeka")) {
+        if (!psiFile.getName().equals(JkConstants.PROPERTIES_FILE)
+                || !psiFile.getParent().getName().equals(JkConstants.JEKA_DIR)) {
             return null;
         }
         if (! (psiEl instanceof PropertyKeyImpl)) {
@@ -34,7 +31,7 @@ public class JekaRunLineMarkerContributorForCmdProperties extends RunLineMarkerC
         if (keyName == null) {
             return null;
         }
-        if (keyName.startsWith("_")) {
+        if (!keyName.startsWith(JkConstants.CMD_PROP_PREFIX) || keyName.equals(JkConstants.CMD_APPEND_PROP)) {
             return null;
         }
         final AnAction[] actions = new AnAction[] {

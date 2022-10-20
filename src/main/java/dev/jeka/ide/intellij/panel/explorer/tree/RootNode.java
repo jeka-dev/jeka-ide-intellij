@@ -48,7 +48,7 @@ public class RootNode extends AbstractNode {
     }
 
     void addModule(Module module) {
-        List<ModuleNode> addedModuleNodes = Optional.ofNullable(children).orElse(new Vector<>()).stream()
+        List<ModuleNode> addedModuleNodes = (List<ModuleNode>) Optional.ofNullable(children).orElse(new Vector<>()).stream()
                 .filter(ModuleNode.class::isInstance)
                 .map(ModuleNode.class::cast)
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -98,23 +98,23 @@ public class RootNode extends AbstractNode {
         }
         children.stream()
                 .map(AbstractNode.class::cast)
-                .forEach(child -> child.onFileEvents(fileEvents));
+                .forEach(child -> ((AbstractNode)child).onFileEvents(fileEvents));
     }
 
     ModuleNode getModuleNode(Module module) {
         if (children == null) {
             return null;
         }
-        return children.stream()
+        return (ModuleNode) children.stream()
                 .filter(ModuleNode.class::isInstance)
                 .map(ModuleNode.class::cast)
                 .flatMap(moduleNode -> {
                     List<ModuleNode> moduleNodes = new LinkedList<>();
-                    moduleNodes.add(moduleNode);
-                    moduleNodes.addAll(moduleNode.getDescendantModuleNodes());
+                    moduleNodes.add((ModuleNode) moduleNode);
+                    moduleNodes.addAll(((ModuleNode)moduleNode).getDescendantModuleNodes());
                     return moduleNodes.stream();
                 })
-                .filter(moduleNode -> moduleNode.getModule().equals(module))
+                .filter(moduleNode -> ((ModuleNode)moduleNode).getModule().equals(module))
                 .findFirst().orElse(null);
     }
 

@@ -36,7 +36,8 @@ public class JekaRunCmdParamAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         JekaRunCmdAction.CmdInfo data = JekaRunCmdAction.getCmdInfo(event);
         String configurationName = configurationName(data.getModule(),  data.getName());
-        String cmd = data.getCommand();
+        String cmd = data.getInterpolatedCommand();
+
         RunDialogWrapper runDialogWrapper = new RunDialogWrapper(data.getModule(), debug, cmd, configurationName);
         runDialogWrapper.show();
     }
