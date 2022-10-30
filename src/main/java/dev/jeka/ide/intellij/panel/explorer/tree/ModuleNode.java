@@ -41,7 +41,7 @@ public class ModuleNode extends AbstractNode {
         List<BeanNode> beanNodes = createBeanNodes();
         beanNodes.forEach(this::add);
         Set<String> names = beanNodes.stream()
-                .map(beanNode -> beanNode.getPsiClass().getQualifiedName())
+                .map(beanNode -> beanNode.getClassName())
                 .collect(Collectors.toSet());
         this.add(new BeanBoxNode(project, ModuleHelper.getModuleDirPath(module), names));
     }
@@ -92,10 +92,8 @@ public class ModuleNode extends AbstractNode {
     List<CmdNode> createCmdChildren() {
         Path baseDir = ModuleHelper.getModuleDirPath(module);
         Map<String, String> commands = JkExternalToolApi.getCmdShortcutsProperties(baseDir);
-        Map<String, String> sortedMap = new TreeMap<>(commands);
-
-        return sortedMap.entrySet().stream()
-                .map(entry -> new CmdNode(project, entry.getKey().substring(JkConstants.CMD_PROP_PREFIX.length()), entry.getValue()))
+        return commands.entrySet().stream()
+                .map(entry -> new CmdNode(project, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toCollection(() -> new LinkedList<>()));
     }
 

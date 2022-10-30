@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiPlainText;
 import com.intellij.util.ProcessingContext;
+import dev.jeka.core.tool.JkExternalToolApi;
 import org.jetbrains.annotations.NotNull;
 
 public class DependenciesTxtCompletionContributor extends CompletionContributor {
@@ -22,7 +23,7 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
                 if (psiFile == null) {
                     return false;
                 }
-                return psiFile.getName().equals("dependencies.txt");
+                return psiFile.getName().equals("project-dependencies.txt");
             }
 
 

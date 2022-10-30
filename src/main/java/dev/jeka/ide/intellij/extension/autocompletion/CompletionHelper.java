@@ -10,6 +10,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import dev.jeka.core.api.depmanagement.JkCoordinateSearch;
 import dev.jeka.core.api.depmanagement.JkRepoSet;
+import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.ModuleHelper;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CompletionHelper {
     static String prefix(String fullText, int pos) {
@@ -60,9 +62,14 @@ public class CompletionHelper {
         Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
-        List<String> suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
-                .setGroupOrNameCriteria(item)
-                .search();
+        final List<String> suggests;
+        if (JkUtilsString.isBlank(item)) {
+            suggests = popularGroups();
+        } else {
+            suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
+                    .setGroupOrNameCriteria(item)
+                    .search();
+        }
         List<String> container = new ArrayList<>(suggests);
         Collections.reverse(container);
         List<LookupElement> result = new LinkedList<>();
@@ -96,5 +103,15 @@ public class CompletionHelper {
         }
         boolean prefixStartsWithPropName =  prefix.startsWith(propName + "=") && !prefix.startsWith(" ");
         return  prefixStartsWithPropName ? JkUtilsString.substringAfterLast(prefix, propName + "=") : prefix;
+    }
+
+    private static List<String> popularGroups() {
+        return JkUtilsIterable.listOf("org.slf4j:", "com.google.guava:", "org.mockito:", "commons-io:",
+                "ch.qos.logback:", "org.apache.commons:", "com.fasterxml.jackson.core:", "org.jetbrain.kotlin:",
+                "com.google.code.gson:", "log4j:", "org.projectlombok:", "javax.servlet:", "org.assertj:",
+                "commons-lang:", "org.springframework:", "commons-codec:", "org.junit.jupiter:", "commons-logging:",
+                "org.springframework.boot:", "com.h2database:", "org.junit:")
+
+                .stream().sorted().collect(Collectors.toList());
     }
 }

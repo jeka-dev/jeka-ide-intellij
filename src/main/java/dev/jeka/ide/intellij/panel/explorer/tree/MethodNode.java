@@ -63,7 +63,7 @@ public class MethodNode extends AbstractNode {
             String beanName = parent.getName();
             ModuleNode moduleNode = getCloserParentOfType(ModuleNode.class);
             return new JekaRunMethodAction.MethodInfo(moduleNode.getModule(),
-                    parent.getPsiClass(), beanName, name);
+                    parent.getClassName(), beanName, name);
         }
         return null;
     }

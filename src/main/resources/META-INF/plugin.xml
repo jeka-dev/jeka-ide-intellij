@@ -99,7 +99,7 @@
         />
 
         <completion.contributor
-                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.ProjectPropertiesContributor"
+                implementationClass="dev.jeka.ide.intellij.extension.autocompletion.LocalPropertiesContributor"
                 language="Properties"
         />
 

@@ -45,7 +45,7 @@ public class BeanBoxNode extends AbstractNode {
         if (children == null) {
             return new LinkedList<>();
         }
-        return this.children.stream()
+        return (List<BeanNode>) this.children.stream()
                 .filter(BeanNode.class::isInstance)
                 .map(BeanNode.class::cast)
                 .collect(Collectors.toList());

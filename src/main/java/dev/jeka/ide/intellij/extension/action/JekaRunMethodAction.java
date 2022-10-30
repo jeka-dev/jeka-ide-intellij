@@ -74,7 +74,7 @@ public class JekaRunMethodAction extends AnAction {
                 throw new IllegalStateException("Can not find reference to Psi method");
             }
             methodName = methodInfo.getMethodName();
-            className = methodInfo.getBeanClass().getQualifiedName();
+            className = methodInfo.qualifiedClassName;
             module = methodInfo.getModule();;
         }
         boolean multiModule = ModuleManager.getInstance(module.getProject()).getModules().length > 1;
@@ -89,7 +89,7 @@ public class JekaRunMethodAction extends AnAction {
 
         Module module;
 
-        PsiClass beanClass;
+        String qualifiedClassName;
 
         String beanName;
 

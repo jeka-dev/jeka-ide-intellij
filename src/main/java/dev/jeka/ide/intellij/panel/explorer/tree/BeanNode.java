@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.resolve.reference.impl.providers.JavaClassReference;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
@@ -31,7 +32,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     public static final Icon ICON = JekaIcons.KBEAN;
 
     @Getter
-    private final PsiClass psiClass;
+    private final JavaClassReference psiClass;
 
     @Getter
     private final String name;
@@ -50,7 +51,7 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
 
     public BeanNode(Project project, PsiClass psiClass, boolean local) {
         super(project);
-        this.psiClass = psiClass;
+        this.psiClass = (JavaClassReference) psiClass.getReference();
         createFieldNodes(psiClass).forEach(this::add);
         createMethodNodes2(psiClass).forEach(this::add);
         createNestedBeanNodes(psiClass).forEach(this::add);
