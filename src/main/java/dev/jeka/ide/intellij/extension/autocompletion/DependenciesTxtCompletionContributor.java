@@ -41,6 +41,13 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
             PsiElement element = parameters.getOriginalPosition();
             String fullText = element.getText();
             String prefix = CompletionHelper.prefix(fullText, pos);
+            if (prefix.trim().startsWith("-")) {
+                prefix = prefix.substring(1).trim();
+            } else if (prefix.trim().startsWith("@")) {
+                prefix = prefix.substring(1).trim();
+            } else if (prefix.trim().startsWith("@@")) {
+                prefix = prefix.substring(2).trim();
+            }
             resultSet.withPrefixMatcher(prefix)
                     .addAllElements(CompletionHelper.findDependenciesVariants(parameters, prefix));
 

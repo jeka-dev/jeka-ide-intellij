@@ -98,7 +98,7 @@ public final class CmdJekaDoer {
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
             setJekaJDKEnv(structureCmd, project, existingModule);
-            structureCmd.addParameters("scaffold#run");
+            structureCmd.addParameters("scaffold#run", "intellij#");
             structureCmd.setWorkDirectory(moduleDir.toFile());
             structureCmd.addParameters(JkUtilsString.translateCommandline(extraArgs));
             structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld", "-wc", "-kb=scaffold");

@@ -98,23 +98,23 @@ public class RootNode extends AbstractNode {
         }
         children.stream()
                 .map(AbstractNode.class::cast)
-                .forEach(child -> ((AbstractNode)child).onFileEvents(fileEvents));
+                .forEach(child -> child.onFileEvents(fileEvents));
     }
 
     ModuleNode getModuleNode(Module module) {
         if (children == null) {
             return null;
         }
-        return (ModuleNode) children.stream()
+        return children.stream()
                 .filter(ModuleNode.class::isInstance)
                 .map(ModuleNode.class::cast)
                 .flatMap(moduleNode -> {
                     List<ModuleNode> moduleNodes = new LinkedList<>();
-                    moduleNodes.add((ModuleNode) moduleNode);
-                    moduleNodes.addAll(((ModuleNode)moduleNode).getDescendantModuleNodes());
+                    moduleNodes.add(moduleNode);
+                    moduleNodes.addAll((moduleNode).getDescendantModuleNodes());
                     return moduleNodes.stream();
                 })
-                .filter(moduleNode -> ((ModuleNode)moduleNode).getModule().equals(module))
+                .filter(moduleNode -> (moduleNode).getModule().equals(module))
                 .findFirst().orElse(null);
     }
 

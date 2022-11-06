@@ -29,7 +29,7 @@
 
     <depends>org.jetbrains.kotlin</depends>
 
-    <idea-version since-build="221"/>
+    <idea-version since-build="222"/>
 
     <actions>
         <action
