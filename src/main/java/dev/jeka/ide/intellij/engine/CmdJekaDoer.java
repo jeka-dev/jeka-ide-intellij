@@ -96,7 +96,7 @@ public final class CmdJekaDoer {
         //StoreReloadManager.getInstance().blockReloadingProjectOnExternalChanges();
 
         if (createStructure) {
-            GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
+            GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(moduleDir, false, jekaVersion));
             setJekaJDKEnv(structureCmd, project, existingModule);
             structureCmd.addParameters("scaffold#run", "intellij#");
             structureCmd.setWorkDirectory(moduleDir.toFile());
@@ -105,7 +105,7 @@ public final class CmdJekaDoer {
             doCreateStructure = () -> start(structureCmd, !createWrapper, afterScaffold, null);
         }
         if (createWrapper) {
-            GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true));
+            GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true, jekaVersion));
             cmd.addParameter("scaffold#wrapper");
             if (wrapDelegate != null) {
                 cmd.addParameters("scaffold#wrapDelegatePath=" + wrapDelegate);
@@ -122,7 +122,7 @@ public final class CmdJekaDoer {
 
     public void showRuntimeInformation(Module module) {
         Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false));
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false, null));
         setJekaJDKEnv(cmd, module.getProject(), module);
         cmd.addParameters("-lri");
         cmd.setWorkDirectory(modulePath.toFile());
@@ -131,7 +131,7 @@ public final class CmdJekaDoer {
 
     private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                                @Nullable  Module existingModule, Runnable onFinish) {
-        String execFile = jekaCmd(moduleDir, false);
+        String execFile = jekaCmd(moduleDir, false, null);
         if (!Files.exists(Paths.get(execFile))) {
             NotificationGroupManager.getInstance()
                     .getNotificationGroup("jeka.notifGroup")
@@ -141,7 +141,7 @@ public final class CmdJekaDoer {
                     .notify(this.project);
             return;
         }
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false));
+        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
         cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld");
         cmd.setWorkDirectory(moduleDir.toFile());
@@ -240,29 +240,30 @@ public final class CmdJekaDoer {
         handler.startNotify();
     }
 
-    private String jekaCmd(Path moduleDir, boolean forceJeka) {
+    private String jekaCmd(Path moduleDir, boolean forceJeka, String version) {
         if (JkUtilsSystem.IS_WINDOWS) {
             if (forceJeka) {
-                return jekaScriptPath(true);
+                return jekaScriptPath(true, version);
             }
             return Files.exists(moduleDir.resolve("jekaw.bat")) ?
                     moduleDir.toAbsolutePath().resolve("jekaw.bat").normalize().toString()
-                    : jekaScriptPath(true);
+                    : jekaScriptPath(true, version);
         }
         if (forceJeka) {
-            return jekaScriptPath(false);
+            return jekaScriptPath(false, version);
         }
         return Files.exists(moduleDir.resolve("jekaw")) ?
                 moduleDir.toAbsolutePath().resolve("./jekaw").normalize().toString()
-                : jekaScriptPath(false);
+                : jekaScriptPath(false, version);
     }
 
-    private String jekaScriptPath(boolean isWindows) {
+    private String jekaScriptPath(boolean isWindows, String version) {
         String scriptName = isWindows ? "jeka.bat" : "jeka";
         String settingDistrib = JekaApplicationSettingsConfigurable.State.getInstance().distributionDirPath;
         final Path distributionPath;
         if (JkUtilsString.isBlank(settingDistrib)) {
-            distributionPath = JekaDistributions.getDefault();
+            distributionPath = version == null ? JekaDistributions.getDefault()
+                    : JekaDistributions.fetchDistributionForVersion(version);
         } else {
             distributionPath = Paths.get(settingDistrib);
         }

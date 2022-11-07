@@ -4,9 +4,12 @@ import dev.jeka.core.api.depmanagement.JkModuleId;
 import dev.jeka.core.api.depmanagement.JkRepoProperties;
 import dev.jeka.core.api.depmanagement.JkVersion;
 import dev.jeka.core.api.depmanagement.resolution.JkDependencyResolver;
+import dev.jeka.core.api.file.JkPathFile;
+import dev.jeka.core.api.file.JkPathTree;
 import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.core.api.system.JkProperties;
 import dev.jeka.core.api.utils.JkUtilsPath;
+import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.core.wrapper.Booter;
 
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class JekaDistributions {
 
-    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.9.20.RC13");
+    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.9.20.RC42");
 
     private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
 
@@ -29,6 +32,30 @@ public class JekaDistributions {
             result = Booter.install(MAVEN_CENTRAL_URL, version);
         }
         return result;
+    }
+
+    public static Path fetchDistributionForVersion(String version) {
+        Path path = getDistributionsDir().resolve(version);
+        if (!Files.exists(path)) {
+            Booter.install(MAVEN_CENTRAL_URL, version);
+        } else {
+            String missingFile = missingFileInDistrib(path);
+            if (missingFile != null) {
+                System.err.println("File " + missingFile + " is missing in distrib " + path +
+                        ". This distrib will be reinstalled.");
+                JkPathTree.of(path).deleteRoot();
+                Booter.install(MAVEN_CENTRAL_URL, version);
+            }
+        }
+        return path;
+    }
+
+    private static String missingFileInDistrib(Path distrib) {
+        String cmd = JkUtilsSystem.IS_WINDOWS ? "jeka.bat" : "jeka";
+        if (!Files.exists(distrib.resolve(cmd))) {
+            return cmd;
+        }
+        return null;
     }
 
     public static Path getDistributionsDir() {
@@ -51,7 +78,24 @@ public class JekaDistributions {
         return Booter.install(MAVEN_CENTRAL_URL, version);
     }
 
+    private static void removeCorruptedDistrib() {
+
+        Path wrapperCacheDir = getDistributionsDir();
+        if (!Files.exists(wrapperCacheDir)) {
+            return;
+        }
+        for (Path path : JkUtilsPath.listDirectChildren(wrapperCacheDir)) {
+            String missingFile = missingFileInDistrib(path);
+            if (missingFile != null) {
+                System.err.println("File " + missingFile + " is missing in distrib " + path +
+                        ". This distrib will be removed.");
+                JkPathTree.of(path).deleteRoot();
+            }
+        }
+    }
+
     private static Path getLatestInstalled() {
+
         Path wrapperCacheDir = getDistributionsDir();
         if (!Files.exists(wrapperCacheDir)) {
             return null;
@@ -65,8 +109,6 @@ public class JekaDistributions {
         }
         return distribRoots.get(distribRoots.size() -1);
     }
-
-
 
     private static String getLatestPublishedVersion() {
         return searchVersionsSortedByDesc().get(0);
