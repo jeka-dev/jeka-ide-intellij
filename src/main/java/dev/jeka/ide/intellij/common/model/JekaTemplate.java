@@ -54,7 +54,7 @@ public class JekaTemplate {
     public static JekaTemplate projectCodeLess() {
         return JekaTemplate.builder()
                 .name("java project - code.less")
-                .commandArgs("project#scaffold.template=CODE_LESS roject#scaffold.generateLocalLibsFolders=false scaffold#projectPropsExtraContent="
+                .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#projectPropsExtraContent="
                     + "\""
                     + "jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project\\n\\n"
                     + "jeka.cmd.build=project#clean project#pack\\n"
