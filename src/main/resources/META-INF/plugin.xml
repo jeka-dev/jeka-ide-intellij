@@ -6,20 +6,21 @@
     <description><![CDATA[
       Integrates with <a href="https://jeka.dev">Jeka Build Tool</a> by providing :
       <ul>
-        <li>Scaffolding capabilities to create Jeka projects from scratch</li>
+        <li>Project Wizaerd</li>
         <li>Synchronize Intellij module dependencies on Jeka definition</li>
+        <li>Settings for managing Jeka distributions</li>
         <li>Run/Debug Jeka methods from Java editor</li>
         <li>Jeka explorer as right-side window tool</li>
-        <li>Settings for managing Jeka distributions</li>
+        <li>Code auto-completion</li>
       </ul>
       See <a href="https://github.com/jerkar/jeka-ide-intellij">GitHub Page</a>
       ]]>
     </description>
 
     <change-notes>
-        <![CDATA[
+    <![CDATA[
       <ul>
-        <li><b>0.9.20.0/b> Adapt to Jeka 0.9.20 release</li>
+        <li><b>0.9.20.0</b> Adapt to Jeka 0.9.20 release</li>
       </ul>
     ]]>
     </change-notes>
