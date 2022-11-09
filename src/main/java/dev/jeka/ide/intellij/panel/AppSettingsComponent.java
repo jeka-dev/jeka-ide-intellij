@@ -1,9 +1,11 @@
 package dev.jeka.ide.intellij.panel;
 
+import com.intellij.notification.Notification;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -108,6 +110,7 @@ public class AppSettingsComponent {
                     () -> {
                         Path result = JekaDistributions.install(combo.getItem());
                         resultPath.set(result);
+
                     },
                     "Install Jeka Distribution",
                     true,
