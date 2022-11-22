@@ -9,6 +9,7 @@ import dev.jeka.core.api.file.JkPathTree;
 import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.core.api.system.JkProperties;
 import dev.jeka.core.api.utils.JkUtilsPath;
+import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.core.wrapper.Booter;
@@ -16,12 +17,14 @@ import dev.jeka.core.wrapper.Booter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 public class JekaDistributions {
 
-    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.9.20.RC42");
+    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.9.15");
 
     private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
 
@@ -66,12 +69,24 @@ public class JekaDistributions {
         JkProperties props = JkExternalToolApi.getGlobalProperties();
         JkDependencyResolver resolver = JkDependencyResolver.of().addRepos(JkRepoProperties.of(props).getDownloadRepos());
         List<String> allVersions = resolver.searchVersions(JkModuleId.of("dev.jeka", "jeka-core"));
-        return allVersions.stream()
+        List<String> sorted = allVersions.stream()
                 .map(JkVersion::of)
                 .filter(version -> version.isGreaterThan(LOWEST_VERSION) || version.equals(LOWEST_VERSION))
                 .sorted(Comparator.reverseOrder())
                 .map(JkVersion::toString)
                 .collect(Collectors.toList());
+        List<String> result = new LinkedList<>(sorted);
+        boolean modifierFound = false;
+        for (ListIterator<String> li = result.listIterator(); li.hasNext();) {
+            String ver = li.next();
+            if (ver.contains("-") || JkUtilsString.countOccurrence(ver, '.') > 2) {
+                if (modifierFound) {
+                    li.remove();
+                }
+                modifierFound = true;
+            }
+        }
+        return result;
     }
 
     public static Path install(String version) {

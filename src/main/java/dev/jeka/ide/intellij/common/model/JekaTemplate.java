@@ -54,7 +54,7 @@ public class JekaTemplate {
     public static JekaTemplate projectCodeLess() {
         return JekaTemplate.builder()
                 .name("java project - code.less")
-                .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#projectPropsExtraContent="
+                .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
                     + "\""
                     + "jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project\\n\\n"
                     + "jeka.cmd.build=project#clean project#pack\\n"
@@ -68,9 +68,8 @@ public class JekaTemplate {
                         "any code to configure builds.\n" +
                         "\n" +
                         "You can configure the build by editing :\n" +
-                        "  - cmd.properties file\n" +
-                        "  - project.properties file\n" +
-                        "  - dependencies.txt file")
+                        "  - local.properties file\n" +
+                        "  - project-dependencies.txt file")
                 .build();
     }
 
@@ -83,7 +82,7 @@ public class JekaTemplate {
                         "project#scaffold.dependenciesTxt.compile=org.springframework.boot:spring-boot-starter-web " +
                         "project#scaffold.dependenciesTxt.test=org.springframework.boot:spring-boot-starter-test " +
                         "project#scaffold.generateLocalLibsFolders=false " +
-                        "scaffold#projectPropsExtraContent="
+                        "scaffold#localPropsExtraContent="
                                 + "\""
                                 + "jeka.cmd._append=springboot# @dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin @dev.jeka:springboot-plugin\\n\\n"
                                 + "jeka.cmd.build=project#clean project#pack\\n"

@@ -101,7 +101,7 @@ public final class CmdJekaDoer {
             structureCmd.addParameters("scaffold#run", "intellij#");
             structureCmd.setWorkDirectory(moduleDir.toFile());
             structureCmd.addParameters(JkUtilsString.translateCommandline(extraArgs));
-            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld", "-wc", "-kb=scaffold");
+            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld", "-wc", "-lst", "-kb=scaffold");
             doCreateStructure = () -> start(structureCmd, !createWrapper, afterScaffold, null);
         }
         if (createWrapper) {
