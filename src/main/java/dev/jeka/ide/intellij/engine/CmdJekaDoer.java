@@ -37,7 +37,6 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
-import dev.jeka.core.api.utils.JkUtilsThrowable;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.JekaDistributions;

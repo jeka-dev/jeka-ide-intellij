@@ -1,11 +1,9 @@
 package dev.jeka.ide.intellij.panel;
 
-import com.intellij.notification.Notification;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -62,7 +60,7 @@ public class AppSettingsComponent {
         FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, true,
                 true, true, false, false) {
 
-            public void validateSelectedFiles(VirtualFile[] files) throws Exception {
+            public void validateSelectedFiles(VirtualFile[] files) {
                 for (VirtualFile virtualFile : files) {
                     Path dir = virtualFile.toNioPath();
                     if (!Files.isDirectory(dir)) {

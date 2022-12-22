@@ -71,7 +71,6 @@ public class ScaffoldFormPanel {
         formBuilder.addVerticalGap(15);
         templatesPanel = new TemplatesPanel(project);
         JComponent templatesComponent = templatesPanel.getComponent();
-        templatesComponent.setPreferredSize(new Dimension(700, 300));
         if (showCreateStructure) {
             generateStructureCheckBox = new JCheckBox();
             generateStructureCheckBox.addItemListener(item ->
@@ -81,9 +80,15 @@ public class ScaffoldFormPanel {
             formBuilder.addComponentFillVertically( templatesComponent, 5);
         } else {
             JPanel templateLabel = UI.PanelFactory.panel(new JLabel("Template"))
-                    .withTooltip("<b>Template</b><br/>Pre-configured command-line arguments to generate a customised Jeka project.<br/><br/>" +
-                            "The special things generated here can be added later by using <i>scaffold...</i> from project contextual menu or manually.<br/>"
-                            )
+                    .withTooltip("""
+                            <b>Template</b><br/>Pre-configured command-line arguments to generate a customised Jeka project.<br/><br/>
+                            The special things generated here can be added later by using <i>scaffold...</i> from project contextual menu or manually.<br/>
+                            """)
+                    .withTooltipLink("Manage templates", () -> {
+                        TemplatesEditPanel templatesEditPanel = new TemplatesEditPanel();
+                        TemplateEditDialogWrapper dialogWrapper = new TemplateEditDialogWrapper(project, templatesEditPanel, templatesPanel::update);
+                        dialogWrapper.show();
+                    })
                     .createPanel();
             formBuilder.addComponent(templateLabel);
             formBuilder.addComponentFillVertically(templatesComponent, 5);

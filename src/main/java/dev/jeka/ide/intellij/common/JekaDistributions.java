@@ -4,7 +4,6 @@ import dev.jeka.core.api.depmanagement.JkModuleId;
 import dev.jeka.core.api.depmanagement.JkRepoProperties;
 import dev.jeka.core.api.depmanagement.JkVersion;
 import dev.jeka.core.api.depmanagement.resolution.JkDependencyResolver;
-import dev.jeka.core.api.file.JkPathFile;
 import dev.jeka.core.api.file.JkPathTree;
 import dev.jeka.core.api.system.JkLocator;
 import dev.jeka.core.api.system.JkProperties;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class JekaDistributions {
 
-    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.9.15");
+    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.10.1");
 
     private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
 

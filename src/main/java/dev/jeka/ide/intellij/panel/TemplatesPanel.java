@@ -1,11 +1,11 @@
 package dev.jeka.ide.intellij.panel;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.ActionLink;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBTextArea;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
 import lombok.Getter;
@@ -20,42 +20,38 @@ public class TemplatesPanel {
 
     private final TemplatePersistentStateComponent persistedTemplatesComponent = TemplatePersistentStateComponent.getInstance();
 
-    private JBList<JekaTemplate> templateJBList;
+    private final ComboBox<JekaTemplate> templateComboBox = new ComboBox<>();
 
-    private TemplateDetailPanel templateDetailPanel;
-
-    private CollectionListModel<JekaTemplate> templateListModel;
-
-    private ActionLink actionLink;
+    private final JBTextArea descTextarea = new JBTextArea();
 
     @Getter
     private JComponent component;
-
 
     public TemplatesPanel(Project project) {
         init();
         this.component = component();
         this.project = project;
+        this.descTextarea.setOpaque(false);
+        this.descTextarea.setLineWrap(true);
+        this.descTextarea.setWrapStyleWord(true);
     }
 
     public void setEnabled(boolean enabled) {
-        templateJBList.setEnabled(enabled);
-        templateDetailPanel.setEnabled(enabled);
-        actionLink.setEnabled(enabled);
+        templateComboBox.setEnabled(enabled);
     }
 
     public JekaTemplate getSelectedTemplate() {
-        return templateJBList.getSelectedValue();
+        return templateComboBox.getItem();
     }
 
     public String getTemplateCmd() {
-        return templateDetailPanel.getCmd();
+        return templateComboBox.getItem().getCommandArgs();
     }
 
     private JComponent component() {
-        templateJBList = new JBList<>(templateListModel);
-        templateJBList.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-        templateJBList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+        templateComboBox.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+        /*
+        templateComboBox.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel label = new JBLabel(value.getName());
             label.setBorder(BorderFactory.createEmptyBorder(2, 5, 5 , 0));
             if (cellHasFocus) {
@@ -63,50 +59,36 @@ public class TemplatesPanel {
             }
             return label;
         });
-        templateDetailPanel = new TemplateDetailPanel();
-        templateJBList.addListSelectionListener(event -> {
-            if (templateJBList.getSelectedValue() != null) {
-                templateDetailPanel.fill(templateJBList.getSelectedValue());
+        */
+        templateComboBox.addItemListener(event -> {
+            if (templateComboBox.getItem() != null) {
+                this.descTextarea.setText(templateComboBox.getItem().getDescription());
             }
         });
-
-        // feed back when template neme changed by user
-        templateDetailPanel.getNameChangeListener().append(template -> templateListModel.contentsChanged(template));
-
-        templateJBList.setSelectedIndex(0);
-
-        templateJBList.setMinimumSize(new Dimension(200, 0));
-        JBSplitter splitter = new JBSplitter();
-        splitter.setFirstComponent(templateJBList);
-        splitter.setSecondComponent(templateDetailPanel.getPanel());
-        splitter.setProportion(0.2f);
-        splitter.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-
-        actionLink = new ActionLink("Manage templates ...", e -> {
-            TemplatesEditPanel templatesEditPanel = new TemplatesEditPanel();
-            TemplateEditDialogWrapper dialogWrapper = new TemplateEditDialogWrapper(project, templatesEditPanel, this::update);
-            dialogWrapper.show();
-        });
-        actionLink.setText("Manage templates ...");
+        templateComboBox.setSelectedIndex(0);
+        this.descTextarea.setText(templateComboBox.getItem().getDescription());
         JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.add(splitter, BorderLayout.CENTER);
-        panel.add(actionLink, BorderLayout.SOUTH);
+        BorderLayout borderLayout = new BorderLayout();
+        borderLayout.setVgap(15);
+        panel.setLayout(borderLayout);
+        panel.add(templateComboBox, BorderLayout.NORTH);
+        panel.add(descTextarea, BorderLayout.CENTER);
         return panel;
     }
 
-    private void update(List<JekaTemplate> templates) {
+    void update(List<JekaTemplate> templates) {
         this.persistedTemplatesComponent.setTemplates(templates);
-        templateListModel.removeAll();
-        templateListModel.addAll(0, templates);
+        templateComboBox.removeAll();
+        templates.forEach(template -> this.templateComboBox.addItem(template));
         if (templates.size() > 0) {
-            templateJBList.setSelectedIndex(0);
+            templateComboBox.setSelectedIndex(0);
         }
     }
 
     private void init() {
         List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
-        this.templateListModel = new CollectionListModel<>(templates);
+        templateComboBox.removeAll();
+        templates.forEach(template -> this.templateComboBox.addItem(template));
     }
 
 }

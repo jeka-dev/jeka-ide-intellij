@@ -6,7 +6,6 @@ import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;

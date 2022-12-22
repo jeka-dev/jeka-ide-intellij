@@ -1,13 +1,14 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.9.0'
-    id "io.freefair.lombok" version "5.3.0"
+    id 'org.jetbrains.intellij' version '1.11.0'
+    id 'org.jetbrains.changelog' version '2.0.0'
+    id "io.freefair.lombok" version "6.6.1"
 }
 
 group 'dev.jeka.ide'
-version '0.9.20-RC4'
+version '0.10.0-RC1'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 17
 
 repositories {
     mavenCentral()
@@ -23,7 +24,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = '2022.2.3'
+    version = '2022.3.1'
     plugins = ['com.intellij.java', 'org.jetbrains.kotlin', "org.jetbrains.idea.maven"]
 }
 

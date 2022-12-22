@@ -11,7 +11,6 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
-import dev.jeka.core.api.utils.JkUtilsString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
