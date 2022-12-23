@@ -59,7 +59,9 @@ public class TemplatesEditPanel {
         templateDetailEditPanel = new TemplateDetailEditPanel();
         templateJBList.addListSelectionListener(event -> {
             if (templateJBList.getSelectedValue() != null) {
-                templateDetailEditPanel.fill(templateJBList.getSelectedValue());
+                JekaTemplate template = templateJBList.getSelectedValue();
+                templateDetailEditPanel.fill(template);
+                templateDetailEditPanel.setEnabled(!template.isBuiltin());
             }
         });
 
@@ -103,8 +105,7 @@ public class TemplatesEditPanel {
 
 
 
-                })
-                ;
+                });
 
         JPanel decoratorPanel = toolbarDecorator.createPanel();
         decoratorPanel.setMinimumSize(new Dimension(200, 0));

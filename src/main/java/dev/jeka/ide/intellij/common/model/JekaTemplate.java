@@ -19,6 +19,15 @@ public class JekaTemplate {
 
     private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
 
+    private static final String CODELESS_MENTION = """
+            Use this template if your project is standard enough to not require
+            configuration code. You can still add it later.
+            
+            You can configure the build by editing :
+              - local.properties file
+              - project-dependencies.txt file
+            """;
+
     @EqualsAndHashCode.Include
     String name;
 
@@ -71,23 +80,27 @@ public class JekaTemplate {
                 .name("java project - code.less")
                 .builtin(true)
                 .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
-                    + "\""
-                    + "jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project\\n\\n"
-                    + "jeka.cmd.build=project#clean project#pack\\n"
-                    + "jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\\n"
-                    + "jeka.java.version=11"
-                    + "\""
+                    + "\"" + """
+                    jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project
+                    
+                    jeka.cmd.build=project#clean project#pack
+                    jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true
+                    
+                    jeka.java.version=17
+                    
+                    sonar.host.url=http://localhost:9000
+                    sonar.login=admin
+                    sonar.password=admin
+                    """ + "\""
                 )
-                .description("Template for building Java projects without needing build code.\n" +
-                        "\n" +
-                        "Use this template if your project is standard enough to not require " +
-                        "any code to configure builds.\n" +
-                        "\n" +
-                        "You can configure the build by editing :\n" +
-                        "  - local.properties file\n" +
-                        "  - project-dependencies.txt file")
+                .description("""
+                        Template for building Java projects without needing build code.
+                       
+                        """ + CODELESS_MENTION)
                 .build();
     }
+
+
 
     public static JekaTemplate springbootCodeLess() {
         return JekaTemplate.builder()
@@ -100,15 +113,24 @@ public class JekaTemplate {
                         "project#scaffold.dependenciesTxt.test=org.springframework.boot:spring-boot-starter-test " +
                         "project#scaffold.generateLocalLibsFolders=false " +
                         "scaffold#localPropsExtraContent="
-                                + "\""
-                                + "jeka.cmd._append=springboot# @dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin @dev.jeka:springboot-plugin\\n\\n"
-                                + "jeka.cmd.build=project#clean project#pack\\n"
-                                + "jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true -Dsonar.host.url=http://localhost:9000\\n\\n"
-                                + "jeka.java.version=17\\n"
-                                + "springboot#springbootVersion=2.7.5\\n"
-                                + "\" "
+                                + "\"" + """
+                                jeka.cmd._append=springboot# @dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin @dev.jeka:springboot-plugin
+                                
+                                jeka.cmd.build=project#clean project#pack
+                                jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true
+                                
+                                jeka.java.version=17
+                                springboot#springbootVersion=3.0.1
+                                
+                                sonar.host.url=http://localhost:9000
+                                sonar.login=admin
+                                sonar.password=admin
+                                """ + "\" "
                         )
-                .description("Template for building Springboot projects without needing build code." )
+                .description("""
+                    Template for building Springboot projects without needing build code.
+                    
+                    """ + CODELESS_MENTION )
                 .build();
     }
 

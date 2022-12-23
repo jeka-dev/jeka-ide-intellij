@@ -29,7 +29,7 @@ public class TemplateEditDialogWrapper extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         JComponent component = templatesEditPanel.getComponent();
-        component.setPreferredSize(new Dimension(700, 400));
+        component.setPreferredSize(new Dimension(1000, 600));
         return component;
     }
 

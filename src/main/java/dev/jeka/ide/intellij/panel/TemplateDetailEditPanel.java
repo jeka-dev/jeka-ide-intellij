@@ -1,9 +1,10 @@
 package dev.jeka.ide.intellij.panel;
 
+import com.google.common.escape.CharEscaper;
+import com.google.common.escape.Escaper;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UI;
 import dev.jeka.core.api.function.JkConsumers;
@@ -20,7 +21,7 @@ class TemplateDetailEditPanel {
 
     private final JBTextField nameTextField = new JBTextField();
 
-    private final JBTextField cmdTextField = new ExpandableTextField();
+    private final JBTextArea cmdTextArea = new JBTextArea();
 
     private final JBTextArea descTextarea = new JBTextArea();
 
@@ -45,11 +46,11 @@ class TemplateDetailEditPanel {
                 }
             }
         });
-        cmdTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+        cmdTextArea.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 if (listenerOn.get()) {
-                    editedTemplate.setCommandArgs(cmdTextField.getText());
+                    editedTemplate.setCommandArgs(cmdTextArea.getText());
                 }
             }
         });
@@ -61,27 +62,26 @@ class TemplateDetailEditPanel {
                 }
             }
         });
-        descTextarea.setFont(cmdTextField.getFont());
+        descTextarea.setFont(cmdTextArea.getFont());
         descTextarea.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+        cmdTextArea.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         descTextarea.setLineWrap(true);
         descTextarea.setWrapStyleWord(true);
+        cmdTextArea.setLineWrap(true);
+        cmdTextArea.setWrapStyleWord(true);
         panel = panel();
     }
 
     void setEnabled(boolean enabled) {
         this.nameTextField.setEnabled(enabled);
-        this.cmdTextField.setEnabled(enabled);
+        this.cmdTextArea.setEnabled(enabled);
         this.descTextarea.setEnabled(enabled);
     }
 
     private JPanel panel() {
-        JPanel cmdPanel = UI.PanelFactory.panel(cmdTextField)
-                .withLabel("Cmd Arguments:")
-                .moveLabelOnTop()
-                .createPanel();
         return FormBuilder.createFormBuilder()
                 .addLabeledComponent("Name:", nameTextField, false)
-                .addComponent(cmdPanel)
+                .addLabeledComponentFillVertically("Command:", cmdTextArea)
                 .addLabeledComponentFillVertically("Description:", descTextarea)
                 .getPanel();
     }
@@ -90,7 +90,7 @@ class TemplateDetailEditPanel {
         editedTemplate = template;
         listenerOn.set(false);
         nameTextField.setText(template.getName());
-        cmdTextField.setText(template.getCommandArgs());
+        cmdTextArea.setText(template.getCommandArgs());
         descTextarea.setText(template.getDescription());
         listenerOn.set(true);
 
