@@ -19,11 +19,23 @@ public class JekaTemplate {
 
     private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
 
+    @EqualsAndHashCode.Include
+    String name;
+
+    String commandArgs;
+
+    String description;
+
+    @Setter(AccessLevel.NONE)
+    boolean builtin;
+
+
     public static final JekaTemplate blank() {
         return JekaTemplate.builder()
                 .name("blank")
                 .commandArgs("")
                 .description("Template for automation tasks that does not need to build projects.")
+                .builtin(true)
                 .build();
     }
 
@@ -32,6 +44,7 @@ public class JekaTemplate {
                 .name("java project")
                 .commandArgs("project#")
                 .description("Template for building Java projects.")
+                .builtin(true)
                 .build();
     }
 
@@ -40,6 +53,7 @@ public class JekaTemplate {
                 .name("springboot project")
                 .commandArgs("@" + SPRINGBOOT_MODULE + " springboot#")
                 .description("Template for building SpringBoot projects written in Java.")
+                .builtin(true)
                 .build();
     }
 
@@ -48,12 +62,14 @@ public class JekaTemplate {
                 .name("plugin project")
                 .commandArgs("project#scaffold.template=PLUGIN")
                 .description("Template for creating Jeka plugins.")
+                .builtin(true)
                 .build();
     }
 
     public static JekaTemplate projectCodeLess() {
         return JekaTemplate.builder()
                 .name("java project - code.less")
+                .builtin(true)
                 .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
                     + "\""
                     + "jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project\\n\\n"
@@ -76,6 +92,7 @@ public class JekaTemplate {
     public static JekaTemplate springbootCodeLess() {
         return JekaTemplate.builder()
                 .name("springboot project - code.less")
+                .builtin(true)
                 .commandArgs(
                         "@" + SPRINGBOOT_MODULE + " springboot# " +
                         "project#scaffold.template=CODE_LESS " +
@@ -105,12 +122,6 @@ public class JekaTemplate {
         return builtins().stream().map(JekaTemplate::getName).collect(Collectors.toList());
     }
 
-    @EqualsAndHashCode.Include
-    String name;
-
-    String commandArgs;
-
-    String description;
 
     @Override
     public String toString() {
