@@ -33,8 +33,6 @@ public class TemplatesEditPanel {
 
     private CollectionListModel<JekaTemplate> templateListModel;
 
-    private Consumer<List<JekaTemplate>> saveAction;
-
     @Getter
     private JComponent component;
 
@@ -42,7 +40,6 @@ public class TemplatesEditPanel {
         List<JekaTemplate> templates = persistedTemplatesComponent.getTemplates();
         this.templateListModel = new CollectionListModel<>(templates);
         this.originalTemplates = Collections.unmodifiableList(new LinkedList<>(templates));
-        this.saveAction = saveAction;
         this.component = component();
     }
 
@@ -51,6 +48,9 @@ public class TemplatesEditPanel {
         templateJBList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel label = new JBLabel(value.getName());
             label.setBorder(BorderFactory.createEmptyBorder(2, 5, 5 , 0));
+            if (value.isBuiltin()) {
+                label.setFont(label.getFont().deriveFont(Font.ITALIC));
+            }
             if (cellHasFocus) {
                 label.setForeground(Color.white);
             }
@@ -115,12 +115,6 @@ public class TemplatesEditPanel {
         splitter.setProportion(0.2f);
         splitter.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         return splitter;
-    }
-
-    void save() {
-        if (templatesChanged()) {
-            this.persistedTemplatesComponent.setTemplates(templateListModel.getItems());
-        }
     }
 
     List<JekaTemplate> getTemplates() {

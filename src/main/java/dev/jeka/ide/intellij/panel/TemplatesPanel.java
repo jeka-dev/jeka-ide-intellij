@@ -2,9 +2,6 @@ package dev.jeka.ide.intellij.panel;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.CollectionListModel;
-import com.intellij.ui.JBSplitter;
-import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.components.JBTextArea;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
@@ -24,11 +21,13 @@ public class TemplatesPanel {
 
     private final JBTextArea descTextarea = new JBTextArea();
 
+    private volatile boolean skipChange;
+
     @Getter
     private JComponent component;
 
     public TemplatesPanel(Project project) {
-        init();
+
         this.component = component();
         this.project = project;
         this.descTextarea.setOpaque(false);
@@ -49,18 +48,13 @@ public class TemplatesPanel {
     }
 
     private JComponent component() {
+        List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
+        templates.forEach(template -> this.templateComboBox.addItem(template));
         templateComboBox.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-        /*
-        templateComboBox.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
-            JLabel label = new JBLabel(value.getName());
-            label.setBorder(BorderFactory.createEmptyBorder(2, 5, 5 , 0));
-            if (cellHasFocus) {
-                label.setForeground(Color.white);
-            }
-            return label;
-        });
-        */
         templateComboBox.addItemListener(event -> {
+            if (skipChange) {
+                return;
+            }
             if (templateComboBox.getItem() != null) {
                 this.descTextarea.setText(templateComboBox.getItem().getDescription());
             }
@@ -77,18 +71,15 @@ public class TemplatesPanel {
     }
 
     void update(List<JekaTemplate> templates) {
-        this.persistedTemplatesComponent.setTemplates(templates);
-        templateComboBox.removeAll();
+        skipChange = true;
+        this.templateComboBox.removeAllItems();
         templates.forEach(template -> this.templateComboBox.addItem(template));
+        skipChange = false;
         if (templates.size() > 0) {
             templateComboBox.setSelectedIndex(0);
         }
     }
 
-    private void init() {
-        List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
-        templateComboBox.removeAll();
-        templates.forEach(template -> this.templateComboBox.addItem(template));
-    }
+
 
 }

@@ -8,6 +8,7 @@ import lombok.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -140,9 +141,16 @@ public class JekaTemplate {
         return JkUtilsIterable.listOf(blank(), project(), projectCodeLess(), springboot(), springbootCodeLess(), plugin() );
     }
 
+    public static final Optional<JekaTemplate> getBuiltin(String name) {
+        return builtins().stream()
+                .filter(jekaTemplate -> name.equals(jekaTemplate.name))
+                .findFirst();
+    }
+
     private static List<String> builtinNames() {
         return builtins().stream().map(JekaTemplate::getName).collect(Collectors.toList());
     }
+
 
 
     @Override

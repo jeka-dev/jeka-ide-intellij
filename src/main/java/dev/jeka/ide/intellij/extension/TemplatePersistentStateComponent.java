@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 @com.intellij.openapi.components.State(
         name = "dev.jeka.ide.templates",
@@ -63,6 +64,19 @@ public final class TemplatePersistentStateComponent implements PersistentStateCo
         }
         templates.clear();
         templates.addAll(result);
+        replaceByBuiltIn(templates);
+    }
+
+    private static void replaceByBuiltIn(List<JekaTemplate> templates) {
+        ListIterator<JekaTemplate> it = templates.listIterator();
+        while (it.hasNext()) {
+            JekaTemplate jekaTemplate = it.next();
+            JekaTemplate builtin = JekaTemplate.getBuiltin(jekaTemplate.getName()).orElse(null);
+            if (builtin != null) {
+                it.remove();
+                it.add(builtin);
+            }
+        }
     }
 
 }
