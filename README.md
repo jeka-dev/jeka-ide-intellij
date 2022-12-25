@@ -1,4 +1,4 @@
-# Visual Jeka plugin for Intellij
+# Visual JeKa plugin for Intellij
 
 ## Features
 
