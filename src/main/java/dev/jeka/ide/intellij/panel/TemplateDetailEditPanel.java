@@ -54,6 +54,7 @@ class TemplateDetailEditPanel {
                 }
             }
         });
+        descTextarea.setFont(Font.getFont("Arial"));
         descTextarea.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {

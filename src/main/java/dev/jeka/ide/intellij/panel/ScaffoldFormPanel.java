@@ -81,7 +81,7 @@ public class ScaffoldFormPanel {
         } else {
             JPanel templateLabel = UI.PanelFactory.panel(new JLabel("Template"))
                     .withTooltip("""
-                            <b>Template</b><br/>Pre-configured command-line arguments to generate a customised Jeka project.<br/><br/>
+                            <b>Template</b><br/>Pre-configured command-line arguments to generate a customized Jeka project.<br/><br/>
                             The special things generated here can be added later by using <i>scaffold...</i> from project contextual menu or manually.<br/>
                             """)
                     .withTooltipLink("Manage templates", () -> {

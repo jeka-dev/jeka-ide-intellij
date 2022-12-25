@@ -125,4 +125,8 @@ public class TemplatesEditPanel {
         return !this.originalTemplates.equals(this.templateListModel.getItems());
     }
 
+    JekaTemplate getEditedTemplate() {
+        return this.templateJBList.getSelectedValue();
+    }
+
 }

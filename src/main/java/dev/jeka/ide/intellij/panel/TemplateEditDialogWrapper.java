@@ -3,21 +3,23 @@ package dev.jeka.ide.intellij.panel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
+import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class TemplateEditDialogWrapper extends DialogWrapper {
 
     private TemplatesEditPanel templatesEditPanel;
 
-    private Consumer<java.util.List<JekaTemplate>> onOk;
+    private BiConsumer<List<JekaTemplate>, JekaTemplate> onOk;
 
     public TemplateEditDialogWrapper(Project project, TemplatesEditPanel templatesEditPanel,
-                                     Consumer<List<JekaTemplate>> onOk) {
+                                     BiConsumer<List<JekaTemplate>, JekaTemplate> onOk) {
         super(project, true);
         this.templatesEditPanel = templatesEditPanel;
         this.init();
@@ -35,9 +37,11 @@ public class TemplateEditDialogWrapper extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        if (templatesEditPanel.templatesChanged()) {
-            onOk.accept(templatesEditPanel.getTemplates());
-        }
+        onOk.accept(templatesEditPanel.getTemplates(), templatesEditPanel.getEditedTemplate());
+        TemplatePersistentStateComponent persistedTemplatesComponent =
+                TemplatePersistentStateComponent.getInstance();
+        persistedTemplatesComponent.getTemplates().clear();
+        persistedTemplatesComponent.getTemplates().addAll(templatesEditPanel.getTemplates());
         close(OK_EXIT_CODE);
     }
 }

@@ -2,6 +2,7 @@ package dev.jeka.ide.intellij.panel;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextArea;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import dev.jeka.ide.intellij.extension.TemplatePersistentStateComponent;
@@ -33,6 +34,8 @@ public class TemplatesPanel {
         this.descTextarea.setOpaque(false);
         this.descTextarea.setLineWrap(true);
         this.descTextarea.setWrapStyleWord(true);
+        Font font = Font.getFont("Arial");
+        this.descTextarea.setFont(font);
     }
 
     public void setEnabled(boolean enabled) {
@@ -59,6 +62,18 @@ public class TemplatesPanel {
                 this.descTextarea.setText(templateComboBox.getItem().getDescription());
             }
         });
+        templateComboBox.setRenderer(new ListCellRenderer<JekaTemplate>() {
+            @Override
+            public Component getListCellRendererComponent(JList<? extends JekaTemplate> list, JekaTemplate value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = new JBLabel(value.getName());
+                Font font = label.getFont();
+                if (value.isBuiltin()) {
+                    font = font.deriveFont(Font.ITALIC);
+                    label.setFont(font);
+                }
+                return label;
+            }
+        });
         templateComboBox.setSelectedIndex(0);
         this.descTextarea.setText(templateComboBox.getItem().getDescription());
         JPanel panel = new JPanel();
@@ -70,13 +85,17 @@ public class TemplatesPanel {
         return panel;
     }
 
-    void update(List<JekaTemplate> templates) {
+    void update(List<JekaTemplate> templates, JekaTemplate selectedTemplate) {
         skipChange = true;
         this.templateComboBox.removeAllItems();
         templates.forEach(template -> this.templateComboBox.addItem(template));
         skipChange = false;
         if (templates.size() > 0) {
-            templateComboBox.setSelectedIndex(0);
+            if (selectedTemplate == null) {
+                templateComboBox.setSelectedIndex(0);
+            } else {
+                templateComboBox.setSelectedItem(selectedTemplate);
+            }
         }
     }
 

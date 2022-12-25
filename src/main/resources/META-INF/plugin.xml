@@ -19,7 +19,8 @@
     <change-notes>
     <![CDATA[
       <ul>
-        <li><b>0.9.20.0</b> Adapt to Jeka 0.9.20 release</li>
+        <li>Reworked project wizard and template management</li>
+        <li>Compatibility with 2022.3.1</li>
       </ul>
     ]]>
     </change-notes>
@@ -29,7 +30,7 @@
 
     <depends>org.jetbrains.kotlin</depends>
 
-    <idea-version since-build="222"/>
+    <idea-version since-build="223"/>
 
     <actions>
         <action
