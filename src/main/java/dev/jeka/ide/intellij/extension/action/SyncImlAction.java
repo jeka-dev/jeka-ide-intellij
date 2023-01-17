@@ -147,6 +147,9 @@ public class SyncImlAction extends AnAction {
     }
 
     private static boolean isResyncFile(VirtualFile file) {
+        if (file == null || file.getParent() == null) {
+            return false;
+        }
         if (file.getParent().getName().equals(JkConstants.JEKA_DIR)) {
             return false;
         }

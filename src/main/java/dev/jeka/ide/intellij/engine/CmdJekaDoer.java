@@ -142,7 +142,7 @@ public final class CmdJekaDoer {
         }
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld");
+        cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld", "-cw");
         cmd.setWorkDirectory(moduleDir.toFile());
         Runnable onfailure = null;
         if (qualifiedClassName != null) {

@@ -48,7 +48,6 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
             this.runFormPanel.setModule(selectedModule);
             List<ModuleBasedConfigurationOptions.ClasspathModification> cpModifications =
                     RunConfigurationHelper.computeIntellijCompiledClassExclusions(selectedModule);
-            System.out.println("------------" + selectedModule + "---------" + cpModifications);
            //this.mySettings.setClasspathModifications(cpModifications);
 
         });

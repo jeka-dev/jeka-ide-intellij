@@ -133,12 +133,13 @@ public class LocalPropertiesContributor extends CompletionContributor {
             suggestKey("jeka.repos.", "download=", "Comma separated repository urls (or repo reference) to download artefacts (default is Maven central)." );
             suggestKey("jeka.repos.", "download.username=", "Username credential to connect to download repo." );
             suggestKey("jeka.repos.", "download.password=", "Password credential to connect to download repo." );
-            suggestKey("jeka.repos.", "publish=", "Comma separated repository urls for publish repos" );
+            suggestKey("jeka.repos.", "publish=", "Comma separated repository urls for publish repos." );
             suggestKey("jeka.repos.", "publish.username=", "Username credential to connect to publish repo." );
             suggestKey("jeka.repos.", "publish.password=", "Password credential to connect to publish repo." );
-            suggestKey("jeka.repos.", "xxx=", "Comma separated repository urls for repos referenced as 'xxx'" );
-            suggestKey("jeka.repos.", "xxx.username=", "Username credential to connect to repo referenced as 'xxx'." );
-            suggestKey("jeka.repos.", "xxx.password=", "Password credential to connect to repo referenced as 'xxx'." );
+            suggestKey("jeka.repos.", "[repoName]=", "Comma separated of repository names to be used as a set for the named repo." );
+            suggestKey("jeka.repos.", "[repoName].username=", "Username credential to connect to repo." );
+            suggestKey("jeka.repos.", "[repoName].password=", "Password credential to connect to repo." );
+            suggestKey("jeka.repos.", "[repoName].headers.[httpHeaderName]=", "HTTP header to include in request towards the repo." );
 
             suggestValues("jeka.java.version", "17", "11", "8", "19");
             suggestValuesWithVersions("jeka.kotlin.version", module, "org.jetbrains.kotlin:kotlin-stdlib");
