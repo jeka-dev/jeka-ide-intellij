@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class JekaDistributions {
 
-    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.10.1");
+    private static final JkVersion LOWEST_VERSION = JkVersion.of("0.10.5");
 
     private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
 

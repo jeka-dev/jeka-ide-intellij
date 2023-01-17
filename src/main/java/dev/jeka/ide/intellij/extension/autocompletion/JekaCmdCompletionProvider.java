@@ -146,8 +146,10 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
                 JkUtilsString.substringAfterLast(suffix, "=")
                 : fieldNode + (suffix.equals(".") ? "..." : suffix);
         Icon icon = showValue ? AllIcons.Nodes.Enum : FieldNode.ICON;
-        String tailText = showValue ? "" : " " + Strings.nullToEmpty(fieldNode.getTooltipText())
-                + "(" + fieldNode.getDeclaration() + ")";
+        String tailText = showValue ? "" : " " + Strings.nullToEmpty(fieldNode.getTooltipText());
+        if (fieldNode.getDeclaration() != null) {
+            tailText = tailText + "(" + fieldNode.getDeclaration() + ")";
+        }
         return  LookupElementBuilder.create(beanNode.getName() + "#" + fieldNode.prefixedName() + suffix )
                 .withBoldness(beanNode.isLocal())
                 .withPresentableText(presentableName)

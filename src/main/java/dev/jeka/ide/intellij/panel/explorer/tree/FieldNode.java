@@ -50,9 +50,13 @@ public class FieldNode extends AbstractNode {
         this.createChildren().forEach(this::add);
         this.acceptedValues = acceptedValues(psiField);
         String fullDeclaration = psiField.getText();
-        String pre = psiField.getFirstChild().getText();
-        String shortDeclaration = fullDeclaration.substring(pre.length());
-        this.declaration = shortDeclaration;
+        if (psiField.getFirstChild() != null) {
+            String pre = psiField.getFirstChild().getText();
+            String shortDeclaration = fullDeclaration.substring(pre.length());
+            this.declaration = shortDeclaration;
+        } else {
+            this.declaration = null;
+        }
     }
 
     @Override
