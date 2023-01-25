@@ -69,7 +69,7 @@ public class ScaffoldFormPanel {
         wrapperPanel = new WrapperPanel(modules, wrapperSelected);
         formBuilder.addComponent(wrapperPanel.getPanel());
         formBuilder.addVerticalGap(15);
-        templatesPanel = new TemplatesPanel(project);
+        templatesPanel = new TemplatesPanel();
         JComponent templatesComponent = templatesPanel.getComponent();
         if (showCreateStructure) {
             generateStructureCheckBox = new JCheckBox();
@@ -78,7 +78,7 @@ public class ScaffoldFormPanel {
             generateStructureCheckBox.setSelected(true);
             formBuilder.addLabeledComponent("Generate structure and Build class", generateStructureCheckBox);
             formBuilder.addComponentFillVertically( templatesComponent, 5);
-        } else {
+        }
             JPanel templateLabel = UI.PanelFactory.panel(new JLabel("Template"))
                     .withTooltip("""
                             <b>Template</b><br/>Pre-configured command-line arguments to generate a customized Jeka project.<br/><br/>
@@ -92,7 +92,7 @@ public class ScaffoldFormPanel {
                     .createPanel();
             formBuilder.addComponent(templateLabel);
             formBuilder.addComponentFillVertically(templatesComponent, 5);
-        }
+
         JPanel panel = formBuilder.getPanel();
         panel.setMinimumSize(new Dimension(600, 0));
         return panel;

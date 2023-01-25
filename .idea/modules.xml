@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/dev.jeka.ide.intellij.iml" filepath="$PROJECT_DIR$/dev.jeka.ide.intellij.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/jeka-ide-intellij.main.iml" filepath="$PROJECT_DIR$/.idea/modules/jeka-ide-intellij.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jeka-ide-intellij.test.iml" filepath="$PROJECT_DIR$/.idea/modules/jeka-ide-intellij.test.iml" />
     </modules>
   </component>
 </project>

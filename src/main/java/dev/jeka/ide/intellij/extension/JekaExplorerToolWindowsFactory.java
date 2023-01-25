@@ -35,9 +35,8 @@ public class JekaExplorerToolWindowsFactory implements ToolWindowFactory {
 
     static boolean hasJekaModules(@NotNull Project project) {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
-        return DumbService.getInstance(project).runReadActionInSmartMode(() -> {
-            return Arrays.stream(moduleManager.getModules())
-                    .anyMatch(ModuleHelper::isJekaModule);
-        });
+        return DumbService.getInstance(project).runReadActionInSmartMode(
+                () -> Arrays.stream(moduleManager.getModules()).anyMatch(ModuleHelper::isJekaModule)
+        );
     }
 }

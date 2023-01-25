@@ -19,8 +19,7 @@
     <change-notes>
     <![CDATA[
       <ul>
-        <li>Adopt <a href="https://calver.org">CalVer</a> versioning</li>
-        <li>Fix NPE bugs</li>
+        <li>Fix issues with user custom templates</li>
       </ul>
     ]]>
     </change-notes>

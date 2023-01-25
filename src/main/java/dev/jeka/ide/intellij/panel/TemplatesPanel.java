@@ -14,8 +14,6 @@ import java.util.List;
 
 public class TemplatesPanel {
 
-    private final Project project;
-
     private final TemplatePersistentStateComponent persistedTemplatesComponent = TemplatePersistentStateComponent.getInstance();
 
     private final ComboBox<JekaTemplate> templateComboBox = new ComboBox<>();
@@ -27,10 +25,8 @@ public class TemplatesPanel {
     @Getter
     private JComponent component;
 
-    public TemplatesPanel(Project project) {
-
+    public TemplatesPanel() {
         this.component = component();
-        this.project = project;
         this.descTextarea.setOpaque(false);
         this.descTextarea.setLineWrap(true);
         this.descTextarea.setWrapStyleWord(true);
