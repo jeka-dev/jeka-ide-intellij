@@ -258,13 +258,11 @@ public final class CmdJekaDoer {
 
     private String jekaScriptPath(boolean isWindows, String version) {
         String scriptName = isWindows ? "jeka.bat" : "jeka";
-        String settingDistrib = JekaApplicationSettingsConfigurable.State.getInstance().distributionDirPath;
         final Path distributionPath;
-        if (JkUtilsString.isBlank(settingDistrib)) {
-            distributionPath = version == null ? JekaDistributions.getDefault()
-                    : JekaDistributions.fetchDistributionForVersion(version);
+        if (version == null) {
+            distributionPath = JekaDistributions.getDefault();
         } else {
-            distributionPath = Paths.get(settingDistrib);
+            distributionPath = JekaDistributions.fetchDistributionForVersion(version);
         }
         String result = distributionPath.resolve(scriptName).toAbsolutePath().toString();
         return result;

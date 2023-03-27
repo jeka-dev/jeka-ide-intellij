@@ -67,6 +67,14 @@ public class JekaCmdContributor extends CompletionContributor {
             CompletionHelper.addElement(elements, 9,LookupElementBuilder.create("@dev.jeka:nodejs-plugin")
                     .withIcon(AllIcons.Nodes.PpLibFolder)
                     .withTailText(" Add NodeJS plugin"));
+            CompletionHelper.addElement(elements, 10, LookupElementBuilder.create("@dev.jeka:kotlin-plugin")
+                    .withIcon(AllIcons.Nodes.PpLibFolder)
+                    .withTailText(" Add Kotlin plugin"));
+            CompletionHelper.addElement(elements, 8, LookupElementBuilder.create("@dev.jeka:protobuf-plugin")
+                    .withIcon(AllIcons.Nodes.PpLibFolder)
+                    .withTailText(" Add Protobuf plugin"));
+
+
             String rawPrefix = CompletionHelper.prefix(fullText, pos);
             boolean breakingLine = "\\".equals(lastCharOfPrevoiusLine);
             String prefix = breakingLine ? rawPrefix : CompletionHelper.cleanedPrefix(lineText, rawPrefix);

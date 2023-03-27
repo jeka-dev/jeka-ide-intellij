@@ -131,6 +131,7 @@ public class ModuleHelper {
     public static List<Module> getModuleDependencies(ModuleManager moduleManager, Module module) {
         List<Module> deps = Arrays.stream(moduleManager.getModules())
                 .filter(mod -> moduleManager.isModuleDependent(module, mod))
+                .filter(mod -> !mod.equals(module))  // BUGFIX : deps should not contain module itself
                 .collect(Collectors.toList());
         LinkedHashSet<Module> result = new LinkedHashSet<>();
         result.addAll(deps);
