@@ -19,7 +19,6 @@ import dev.jeka.ide.intellij.panel.ScaffoldFormPanel;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
@@ -46,7 +45,7 @@ class JekaWizardPanel {
 
     private JBLabel fullPathLabel = new JBLabel();
 
-    JekaWizardPanel(@Nullable WizardContext wizardContext) {
+    JekaWizardPanel(WizardContext wizardContext) {
         this.wizardContext = wizardContext;
         panel = panel();
     }

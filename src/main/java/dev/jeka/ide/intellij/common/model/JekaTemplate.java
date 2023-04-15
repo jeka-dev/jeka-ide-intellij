@@ -78,7 +78,7 @@ public class JekaTemplate {
 
     public static JekaTemplate projectCodeLess() {
         return JekaTemplate.builder()
-                .name("java project - code.less")
+                .name("java project - no-build-code")
                 .builtin(true)
                 .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
                     + "\"" + """
@@ -105,7 +105,7 @@ public class JekaTemplate {
 
     public static JekaTemplate springbootCodeLess() {
         return JekaTemplate.builder()
-                .name("springboot project - code.less")
+                .name("springboot project - no-build-code")
                 .builtin(true)
                 .commandArgs(
                         "@" + SPRINGBOOT_MODULE + " springboot# " +

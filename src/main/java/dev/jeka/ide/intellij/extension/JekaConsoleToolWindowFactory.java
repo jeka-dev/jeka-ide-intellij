@@ -21,6 +21,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -33,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Jerome Angibaud
  */
-public class JekaConsoleToolWindowFactory implements ToolWindowFactory {
+public class JekaConsoleToolWindowFactory implements ToolWindowFactory, DumbAware {
 
     public static final String ID = "Jeka console";
 

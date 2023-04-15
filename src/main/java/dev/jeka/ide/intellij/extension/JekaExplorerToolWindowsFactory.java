@@ -1,6 +1,8 @@
 package dev.jeka.ide.intellij.extension;
 
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -13,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public class JekaExplorerToolWindowsFactory implements ToolWindowFactory {
+public class JekaExplorerToolWindowsFactory implements ToolWindowFactory, DumbAware {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -35,8 +37,7 @@ public class JekaExplorerToolWindowsFactory implements ToolWindowFactory {
 
     static boolean hasJekaModules(@NotNull Project project) {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
-        return DumbService.getInstance(project).runReadActionInSmartMode(
-                () -> Arrays.stream(moduleManager.getModules()).anyMatch(ModuleHelper::isJekaModule)
-        );
+        return Arrays.stream(moduleManager.getModules()).anyMatch(ModuleHelper::isJekaModule);
     }
+
 }

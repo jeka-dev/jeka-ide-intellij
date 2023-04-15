@@ -6,11 +6,7 @@
     <description><![CDATA[
       Integrates with <a href="https://jeka.dev">Jeka Build Tool</a> by providing :
       <ul>
-        <li>Project Wizard</li>
-        <li>Run/Debug of Jeka commands from IDE</li>
-        <li>Tool window explorer</li>
-        <li>Auto-completion for coordinate dependencies and Jeka commands</li>
-        <li>Settings for managing Jeka distributions</li>
+        <li>Fix fatal issue with IntelliJ 2023.1</li>
       </ul>
       See <a href="https://github.com/jerkar/jeka-ide-intellij">GitHub Page</a>
       ]]>
@@ -29,7 +25,7 @@
 
     <depends>org.jetbrains.kotlin</depends>
 
-    <idea-version since-build="223"/>
+    <idea-version since-build="223"  />
 
     <actions>
         <action

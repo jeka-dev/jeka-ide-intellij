@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.util.SlowOperations;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.extension.action.JekaRunMethodAction;
 import dev.jeka.ide.intellij.extension.action.JekaRunMethodParamAction;
@@ -55,6 +56,10 @@ public class MethodNode extends AbstractNode {
 
     @Override
     public Object getActionData(String dataId) {
+        return SlowOperations.allowSlowOperations(() -> getActionDataSlow(dataId));
+    }
+
+    private Object getActionDataSlow(String dataId) {
         if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
             return psiMethod;
         }
@@ -67,6 +72,8 @@ public class MethodNode extends AbstractNode {
         }
         return null;
     }
+
+
 
     @Override
     public void onDoubleClick(DataContext dataContext) {

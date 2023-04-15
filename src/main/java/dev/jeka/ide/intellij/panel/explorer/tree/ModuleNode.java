@@ -18,8 +18,8 @@ import dev.jeka.ide.intellij.extension.action.ScaffoldAction;
 import dev.jeka.ide.intellij.extension.action.SyncImlAction;
 import dev.jeka.ide.intellij.panel.explorer.action.ShowRuntimeInformationAction;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;

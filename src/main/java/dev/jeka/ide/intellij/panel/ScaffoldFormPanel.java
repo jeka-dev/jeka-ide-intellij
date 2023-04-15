@@ -12,8 +12,8 @@ import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.common.model.JekaTemplate;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class ScaffoldFormPanel {
     @Getter
     private JPanel panel;
 
-    public ScaffoldFormPanel(Project project, Module[] allModules, @Nullable Module currentModule, boolean wrapperSelected,
+    public ScaffoldFormPanel(Project project, Module[] allModules, Module currentModule, boolean wrapperSelected,
                              boolean showCreateStructure) {
         this.modules = allModules;
         this.wrapperSelected = wrapperSelected;
