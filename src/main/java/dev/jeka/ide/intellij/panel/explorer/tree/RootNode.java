@@ -7,13 +7,16 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.SlowOperations;
+import com.intellij.util.ui.tree.TreeUtil;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,12 +72,20 @@ public class RootNode extends AbstractNode {
         }
     }
 
-    void reloadModules() {
+    void reloadModules(Tree tree) {
         DumbService.getInstance(project).smartInvokeLater(() -> {
             SlowOperations.allowSlowOperations(() -> {
+                List<TreePath> treePaths = null;
+                if (tree != null) {
+                    treePaths = this.getExpandedTreePath(tree);
+                }
                 this.removeAllChildren();
                 load();
                 refresh();
+                if (tree != null) {
+                    treePaths.forEach(treePath -> TreeUtil.promiseExpand(tree, treePath));
+                }
+
             });
         });
     }
@@ -117,5 +128,7 @@ public class RootNode extends AbstractNode {
                 .filter(moduleNode -> (moduleNode).getModule().equals(module))
                 .findFirst().orElse(null);
     }
+
+
 
 }

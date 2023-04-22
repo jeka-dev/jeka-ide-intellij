@@ -16,6 +16,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiFieldHelper;
+import dev.jeka.ide.intellij.common.model.NavigableProxy;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -78,7 +79,7 @@ public class FieldNode extends AbstractNode {
     @Override
     public Object getActionData(String dataId) {
         if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-            return psiField;
+            return new NavigableProxy(psiField);
         }
         return null;
     }

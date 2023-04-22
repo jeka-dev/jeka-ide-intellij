@@ -16,17 +16,21 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.Function;
 import com.intellij.util.SlowOperations;
+import com.intellij.util.ui.tree.TreeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.plaf.TreeUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -87,10 +91,10 @@ public final class JekaToolWindowTreeService {
 
                 @Override
                 public void after(@NotNull List<? extends @NotNull VFileEvent> events) {
-                    if (!listen) {
-                        return;
-                    }
-                    SlowOperations.allowSlowOperations(() -> rootNode.onFileEvents(events));
+                if (!listen) {
+                    return;
+                }
+                SlowOperations.allowSlowOperations(() -> rootNode.onFileEvents(events));
 
                 }
         });
@@ -123,14 +127,32 @@ public final class JekaToolWindowTreeService {
             }
         });
 
-        rootNode.reloadModules();
+        rootNode.reloadModules(null);
         return tree;
     }
 
     public void reloadAndRefresh() {
        RootNode rootNode = (RootNode) getTree().getModel().getRoot();
-       rootNode.reloadModules();
-       rootNode.refresh();
+       rootNode.reloadModules(getTree());
+
+        //tree.validate();
+
+       // rootNode = (RootNode) getTree().getModel().getRoot();
+        /*
+       Enumeration<TreeNode> directChildren = rootNode.children();
+       while (directChildren.hasMoreElements()) {
+           DefaultMutableTreeNode node = (DefaultMutableTreeNode) directChildren.nextElement();
+           TreePath treePath = new TreePath(node.getPath());
+           TreeUtil.promiseExpand(tree, treePath);
+           tree.expandPath(treePath);
+       }
+
+         */
+
+        //rootNode.refresh();
+
+
+       //expandedNodes.forEach(treePath -> tree.expandPath(treePath));
     }
 
     public List<BeanNode> getKbeans(Module module) {

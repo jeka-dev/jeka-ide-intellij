@@ -31,7 +31,7 @@ class TemplateDetailEditPanel {
     private JekaTemplate editedTemplate;
 
     @Getter
-    private JkConsumers<JekaTemplate, Void> nameChangeListener = JkConsumers.of();
+    private JkConsumers<JekaTemplate> nameChangeListener = JkConsumers.of();
 
     @Getter
     private JPanel panel;

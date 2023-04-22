@@ -32,7 +32,7 @@ public class JekaRunLineMarkerContributorForProperties extends RunLineMarkerCont
         if (keyName == null) {
             return null;
         }
-        if (!keyName.startsWith(JkConstants.CMD_PROP_PREFIX) || keyName.equals(JkConstants.CMD_APPEND_PROP)) {
+        if (!keyName.startsWith(JkConstants.CMD_PROP_PREFIX) || keyName.startsWith(JkConstants.CMD_APPEND_PROP)) {
             return null;
         }
         final AnAction[] actions = new AnAction[] {

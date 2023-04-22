@@ -82,16 +82,17 @@ public class JekaTemplate {
                 .builtin(true)
                 .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
                     + "\"" + """
-                    jeka.cmd._append=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin -kb=project
+                    jeka.cmd._append.0=-kb=project
+                    jeka.cmd._append.1=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin
                     
-                    jeka.cmd.build=project#clean project#pack
-                    jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true
+                    jeka.cmd.build=project#cleanPack
+                    jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
                     
                     jeka.java.version=17
                     
                     sonar.host.url=http://localhost:9000
                     sonar.login=admin
-                    sonar.password=admin
+                    sonar.password=admin2
                     """ + "\""
                 )
                 .description("""
@@ -115,17 +116,18 @@ public class JekaTemplate {
                         "project#scaffold.generateLocalLibsFolders=false " +
                         "scaffold#localPropsExtraContent="
                                 + "\"" + """
-                                jeka.cmd._append=springboot# @dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin @dev.jeka:springboot-plugin
+                                jeka.cmd._append.0=springboot# @dev.jeka:springboot-plugin
+                                jeka.cmd._append.1=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin
                                 
-                                jeka.cmd.build=project#clean project#pack
-                                jeka.cmd.build_quality=project#clean project#pack sonarqube#run jacoco# sonarqube#logOutput=true
+                                jeka.cmd.build=project#cleanPack
+                                jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
                                 
                                 jeka.java.version=17
-                                springboot#springbootVersion=3.0.1
+                                springboot#springbootVersion=3.0.5
                                 
                                 sonar.host.url=http://localhost:9000
                                 sonar.login=admin
-                                sonar.password=admin
+                                sonar.password=admin2
                                 """ + "\" "
                         )
                 .description("""

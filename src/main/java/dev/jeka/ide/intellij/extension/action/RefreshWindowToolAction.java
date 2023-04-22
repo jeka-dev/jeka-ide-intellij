@@ -31,7 +31,7 @@ public class RefreshWindowToolAction extends AnAction {
     public static final RefreshWindowToolAction INSTANCE = new RefreshWindowToolAction();
 
     private RefreshWindowToolAction() {
-        super("Refresh view", "Refresh view", AllIcons.Actions.SwapPanels);
+        super("Refresh view", "Refresh view", AllIcons.Actions.ShowAsTree);
     }
 
     @Override

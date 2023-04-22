@@ -2,8 +2,10 @@ package dev.jeka.ide.intellij.panel.explorer.tree;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import dev.jeka.ide.intellij.common.model.NavigableProxy;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdAction;
 import dev.jeka.ide.intellij.extension.action.JekaRunCmdParamAction;
 import icons.JekaIcons;
@@ -46,7 +48,8 @@ public class CmdNode extends AbstractNode implements Comparable<CmdNode> {
     public Object getActionData(String dataId) {
         if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
             ModuleNode parent = (ModuleNode) getParent();
-            return PsiManager.getInstance(project).findFile(parent.getProjectPropFile());
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(parent.getProjectPropFile());
+            return new NavigableProxy(psiFile);
         }
         if (JekaRunCmdAction.CmdInfo.KEY.is(dataId)) {
             ModuleNode parent = (ModuleNode) getParent();

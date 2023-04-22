@@ -12,6 +12,7 @@ import dev.jeka.ide.intellij.engine.CmdJekaDoer;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,6 +40,7 @@ public class ScaffoldDialogWrapper extends DialogWrapper {
     protected JComponent createCenterPanel() {
         boolean hasWrapperFiles = JekaWrapperInfo.hasWrapperShellFiles(moduleDir.toNioPath());
         scaffoldFormPanel = ScaffoldFormPanel.of(project, exisitingModule, !hasWrapperFiles, true);
+        scaffoldFormPanel.getPanel().setPreferredSize(new Dimension(0, 400));
         return scaffoldFormPanel.getPanel();
     }
 

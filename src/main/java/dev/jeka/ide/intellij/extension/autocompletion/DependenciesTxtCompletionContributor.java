@@ -1,6 +1,7 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PlatformPatterns;
@@ -9,6 +10,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiPlainText;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class DependenciesTxtCompletionContributor extends CompletionContributor {
 
@@ -32,6 +35,8 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
 
     private static class TxtDependenciesCompletionProvider extends CompletionProvider {
 
+
+
         @Override
         protected void addCompletions(@NotNull CompletionParameters parameters,
                                       @NotNull ProcessingContext context,
@@ -47,9 +52,8 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
             } else if (prefix.trim().startsWith("@@")) {
                 prefix = prefix.substring(2).trim();
             }
-            resultSet.withPrefixMatcher(prefix)
-                    .addAllElements(CompletionHelper.findDependenciesVariants(parameters, prefix));
-
+            List<LookupElement> lookupElements = CompletionHelper.findDependenciesVariants(parameters, prefix);
+            resultSet.withPrefixMatcher(prefix).addAllElements(lookupElements);
         }
     }
 

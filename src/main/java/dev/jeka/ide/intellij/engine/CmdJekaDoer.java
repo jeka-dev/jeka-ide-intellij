@@ -25,15 +25,15 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
@@ -41,7 +41,6 @@ import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
-import dev.jeka.ide.intellij.extension.JekaApplicationSettingsConfigurable;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindowFactory;
 import dev.jeka.ide.intellij.extension.action.OpenManageDistributionsAction;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +61,10 @@ import java.nio.file.Paths;
 @RequiredArgsConstructor
 public final class CmdJekaDoer {
 
+    private enum Stage {
+        first, retry
+    }
+
     private final Project project;
 
     public static CmdJekaDoer getInstance(Project project) {
@@ -70,7 +73,16 @@ public final class CmdJekaDoer {
 
     public void generateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
-        doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish);
+        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
+
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                indicator.setIndeterminate(true);
+                indicator.setText("JeKa : synchronizing " + moduleDir.getFileName() + "...");
+                doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish, Stage.first);
+            }
+        };
+        ProgressManager.getInstance().run(task);
     }
 
     public void scaffoldModule(Path moduleDir,
@@ -80,10 +92,31 @@ public final class CmdJekaDoer {
                                String jekaVersion,
                                Module existingModule,
                                String extraArgs) {
+        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
+
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                indicator.setIndeterminate(true);
+                indicator.setText("JeKa :  Scaffoldingk " + moduleDir.getFileName() + "...");
+                scaffoldModuleInternal(moduleDir, createStructure, createWrapper, wrapDelegate, jekaVersion,
+                        existingModule, extraArgs);
+            }
+        };
+        ProgressManager.getInstance().run(task);
+
+    }
+
+    private void scaffoldModuleInternal(Path moduleDir,
+                                       boolean createStructure,
+                                       boolean createWrapper,
+                                       Path wrapDelegate,
+                                       String jekaVersion,
+                                       Module existingModule,
+                                       String extraArgs) {
         Runnable afterScaffold = () -> {
             //Runnable afterGenerateIml = () -> refreshAfterIml(existingModule, moduleDir, null);
             Runnable afterGenerateIml = () -> {};
-            doGenerateIml(moduleDir, null, false, existingModule, afterGenerateIml);
+            doGenerateIml(moduleDir, null, false, existingModule, afterGenerateIml, Stage.first);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(moduleDir.resolve("jeka/wrapper"));
             }
@@ -128,8 +161,13 @@ public final class CmdJekaDoer {
         start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
     }
 
-    private void doGenerateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
-                               @Nullable  Module existingModule, Runnable onFinish) {
+    private void doGenerateIml(Path moduleDir,
+                               String qualifiedClassName,
+                               boolean clearConsole,
+                               @Nullable  Module existingModule,
+                               Runnable onFinish,
+                               Stage stage) {
+
         String execFile = jekaCmd(moduleDir, false, null);
         if (!Files.exists(Paths.get(execFile))) {
             NotificationGroupManager.getInstance()
@@ -142,17 +180,34 @@ public final class CmdJekaDoer {
         }
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-dci", "-lri", "-ld", "-cw");
+        cmd.addParameters("intellij#iml", "-dci", "-ld");
+        if (stage == Stage.retry) {
+            cmd.addParameters("-lri", "-cw");
+        }
         cmd.setWorkDirectory(moduleDir.toFile());
-        Runnable onfailure = null;
+
         if (qualifiedClassName != null) {
             cmd.addParameter("-kb=" + qualifiedClassName);
-
-            // if it fails, retry without specifying the kbean
-            onfailure = () -> doGenerateIml(moduleDir, null, clearConsole, existingModule, onFinish);
         }
+
+        Runnable onFail = null;
+        if (stage == Stage.first) {
+
+            // if it fails, retry in safe mode (cleaning cache)
+            onFail = () -> doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish,
+                    Stage.retry);
+        } else if (stage == Stage.retry) {
+            onFail = () -> {
+                NotificationGroupManager.getInstance()
+                        .getNotificationGroup("jeka.notifGroup")
+                        .createNotification("Jeka sync failed on " + moduleDir + ".\nOpen Jeka Console to see details."
+                                , NotificationType.ERROR)
+                        .notify(this.project);
+            };
+        }
+
         Runnable onSuccess = () -> refreshAfterIml(existingModule, moduleDir, onFinish);
-        start(cmd, clearConsole, onSuccess,  onfailure);
+        start(cmd, clearConsole, onSuccess, onFail);
     }
 
     private ConsoleView getView() {
@@ -198,6 +253,7 @@ public final class CmdJekaDoer {
                                 ConsoleViewContentType.ERROR_OUTPUT);
                         onFailure.run();
                     } else if (event.getExitCode() == 0 && onSuccess != null) {
+                        getView().print("\n", ConsoleViewContentType.NORMAL_OUTPUT);
                         onSuccess.run();
                     }
                 }
@@ -211,12 +267,7 @@ public final class CmdJekaDoer {
             throw e;
         }
         attachView(handler, clear);
-        if (ApplicationManager.getApplication().isDispatchThread()) {
-            ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID);
-            if (toolWindow != null) {
-                toolWindow.show();
-            }
-        }
+        handler.waitFor();
     }
 
     private void logError(Exception e) {

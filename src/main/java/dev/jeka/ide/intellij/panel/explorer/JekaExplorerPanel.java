@@ -82,8 +82,8 @@ public class JekaExplorerPanel extends SimpleToolWindowPanel {
             return super.getData(dataId);
         }
         AbstractNode abstractNode = (AbstractNode) node;
-        return Optional.ofNullable(abstractNode.getActionData(dataId)).orElseGet(() -> super.getData(dataId));
+        Object nodeActionData = abstractNode.getActionData(dataId);
+        return Optional.ofNullable(nodeActionData).orElseGet(() -> super.getData(dataId));
     }
-
 
 }

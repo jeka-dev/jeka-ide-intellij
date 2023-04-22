@@ -45,6 +45,10 @@ public class SyncAllImlAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getProject();
+        exec(project);
+    }
+
+    public static void exec(Project project) {
         Module[] modules = ModuleManager.getInstance(project).getSortedModules();
         Runnable nextStep = null;
         CmdJekaDoer jekaDoer = CmdJekaDoer.getInstance(project);

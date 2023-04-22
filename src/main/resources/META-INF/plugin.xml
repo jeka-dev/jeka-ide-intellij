@@ -124,6 +124,16 @@
         <notificationGroup id="jeka.notifGroup"
                            displayType="BALLOON"/>
 
+        <postStartupActivity
+                implementation="dev.jeka.ide.intellij.extension.JekaProjectPostStartupActivity" />
+
+        <fileType
+                name="Jeka project dependencies txt"
+                implementationClass="dev.jeka.ide.intellij.extension.ProjectDependenciesFileType"
+                patterns="project-dependencies.txt"
+        />
+
+
         <!--
 
          <projectStructureDetector implementation="dev.jeka.ide.intellij.extension.JekaProjectStructureDetector"/>

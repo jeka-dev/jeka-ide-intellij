@@ -13,6 +13,7 @@ import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
 import dev.jeka.ide.intellij.common.PsiMethodHelper;
+import dev.jeka.ide.intellij.common.model.NavigableProxy;
 import icons.JekaIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -81,31 +82,6 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     @Override
     public void fillPopupMenu(DefaultActionGroup group) {
         group.add(ActionManager.getInstance().getAction(IdeActions.ACTION_EDIT_SOURCE));
-    }
-
-    @Override
-    public Object getActionData(String dataId) {
-        if (CommonDataKeys.NAVIGATABLE.is(dataId)) {
-            return psiClass;
-        }
-        return null;
-    }
-
-    private List<MethodNode> createMethodNodes(PsiClass psiClass) {
-        List<MethodNode> result = new LinkedList<>();
-        PsiMethod[] methods;
-        try {
-            methods = psiClass.getAllMethods();
-        } catch (PsiInvalidElementAccessException e) {
-            return Collections.emptyList();
-        }
-        for (PsiMethod method : methods) {
-            if (PsiMethodHelper.isInstancePublicVoidNoArgsNotFromObject(method)) {
-                result.add(new MethodNode(project, method));
-            }
-        }
-
-        return result;
     }
 
     private List<MethodNode> createMethodNodes2(PsiClass psiClass) {
