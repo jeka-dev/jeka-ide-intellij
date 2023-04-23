@@ -30,6 +30,8 @@ public class ProjectDependenciesFileType extends AbstractFileType {
         return "txt";
     }
 
+
+
     @Override
     public Icon getIcon() {
         return AllIcons.General.TreeHovered;

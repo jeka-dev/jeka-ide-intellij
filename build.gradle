@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'dev.jeka.ide'
-version '2023.04.15'
+version '2023.04.23'
 
 sourceCompatibility = 17
 
@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    implementation files('/Users/jerome/IdeaProjects/jeka/dev.jeka.core/jeka/output/distrib/dev.jeka.jeka-core.jar')
-    //implementation group: 'dev.jeka', name: 'jeka-core', version: '0.10.0'
+    //implementation files('/Users/jerome/IdeaProjects/jeka/dev.jeka.core/jeka/output/distrib/dev.jeka.jeka-core.jar')
+    implementation group: 'dev.jeka', name: 'jeka-core', version: '0.10.20'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'

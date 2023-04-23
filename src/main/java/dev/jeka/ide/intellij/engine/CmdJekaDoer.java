@@ -35,6 +35,8 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.SlowOperations;
+import dev.jeka.core.api.utils.JkUtilsFile;
+import dev.jeka.core.api.utils.JkUtilsPath;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkExternalToolApi;
@@ -42,6 +44,7 @@ import dev.jeka.ide.intellij.common.FileHelper;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindowFactory;
+import dev.jeka.ide.intellij.extension.action.OpenJekaConsoleAction;
 import dev.jeka.ide.intellij.extension.action.OpenManageDistributionsAction;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -180,9 +183,9 @@ public final class CmdJekaDoer {
         }
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-dci", "-ld");
+        cmd.addParameters("intellij#iml", "-ld");
         if (stage == Stage.retry) {
-            cmd.addParameters("-lri", "-cw");
+            cmd.addParameters("-lri", "-cw", "-dci", "-lv", "-lsu");  // clean cache when retrying
         }
         cmd.setWorkDirectory(moduleDir.toFile());
 
@@ -194,14 +197,24 @@ public final class CmdJekaDoer {
         if (stage == Stage.first) {
 
             // if it fails, retry in safe mode (cleaning cache)
-            onFail = () -> doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish,
-                    Stage.retry);
+            onFail = () -> {
+                NotificationGroupManager.getInstance()
+                        .getNotificationGroup("jeka.notifGroup")
+                        .createNotification("Jeka sync first attempt failed on " + moduleDir.getFileName()
+                                        + ".\n\nJeka has rerun sync by ignoring compilation error."
+                                , NotificationType.WARNING)
+                        .addAction(new OpenJekaConsoleAction())
+                        .notify(this.project);
+                doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish,
+                        Stage.retry);
+            };
         } else if (stage == Stage.retry) {
             onFail = () -> {
                 NotificationGroupManager.getInstance()
                         .getNotificationGroup("jeka.notifGroup")
-                        .createNotification("Jeka sync failed on " + moduleDir + ".\nOpen Jeka Console to see details."
+                        .createNotification("Jeka sync failed on " + moduleDir.getFileName() + ".\nOpen Jeka Console to see details."
                                 , NotificationType.ERROR)
+                        .addAction(new OpenJekaConsoleAction())
                         .notify(this.project);
             };
         }

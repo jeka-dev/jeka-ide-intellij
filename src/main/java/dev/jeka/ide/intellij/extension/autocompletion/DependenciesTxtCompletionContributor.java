@@ -54,6 +54,7 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
             }
             List<LookupElement> lookupElements = CompletionHelper.findDependenciesVariants(parameters, prefix);
             resultSet.withPrefixMatcher(prefix).addAllElements(lookupElements);
+            resultSet.stopHere();
         }
     }
 
