@@ -55,7 +55,7 @@ public class SyncAllImlAction extends AnAction {
         for (int i = modules.length-1; i >=0; i--) {
             Module module = modules[i];
             VirtualFile moduleDir = ModuleHelper.getModuleDir(module);
-            if (!FileHelper.containsJekaDir(moduleDir)) {
+            if (moduleDir == null || !FileHelper.containsJekaDir(moduleDir)) {
                 continue;
             }
             final Runnable next = nextStep;
