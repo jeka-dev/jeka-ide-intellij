@@ -11,6 +11,7 @@
         <li>Syntax color added to project-dependencies.txt file</li>
         <li>Fix: EDT PSI element related errors</li>
         <li>Fix: Tool window was collapsing on view refresh</li>
+        <li>Fix : NPE on JeKa project discovery at startup</li>
       </ul>
       See <a href="https://github.com/jerkar/jeka-ide-intellij">GitHub Page</a>
       ]]>
