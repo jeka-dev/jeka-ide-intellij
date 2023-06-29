@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import dev.jeka.core.api.utils.JkUtilsString;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ public class RunConfigurationHelper {
             Module module) {
         LinkedHashSet<ModuleBasedConfigurationOptions.ClasspathModification> excludes = new LinkedHashSet<>();
         excludes.addAll(findExclusions(module));
+        excludes.addAll(findEDepExclusions(module));
         ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
         List<Module> depModules = ModuleHelper.getModuleDependencies(moduleManager, module);
         depModules.forEach(mod -> excludes.addAll(findExclusions(mod)));
@@ -36,4 +38,19 @@ public class RunConfigurationHelper {
                         new ModuleBasedConfigurationOptions.ClasspathModification(path.toString(), true))
                 .collect(Collectors.toList());
     }
+
+    private static List<ModuleBasedConfigurationOptions.ClasspathModification> findEDepExclusions(Module module) {
+        VirtualFile[] roots = ModuleRootManager.getInstance(module).orderEntries().classes().getRoots();
+        return Arrays.stream(roots)
+                .filter(virtualFile -> "jar".equals(virtualFile.getFileSystem().getProtocol()))
+                .filter(virtualFile -> !virtualFile.getPath().endsWith("dev.jeka.jeka-core.jar!/"))
+                .map(VirtualFile::getPath)
+                .map(path -> JkUtilsString.substringBeforeLast(path, "!/"))
+                .map(sanitizedPath ->
+                        new ModuleBasedConfigurationOptions.ClasspathModification(sanitizedPath, true))
+                .collect(Collectors.toList());
+    }
+
+
+
 }

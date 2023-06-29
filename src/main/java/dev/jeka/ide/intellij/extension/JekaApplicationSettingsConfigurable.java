@@ -19,7 +19,7 @@ public class JekaApplicationSettingsConfigurable implements Configurable {
 
     @Override
     public @NlsContexts.ConfigurableName String getDisplayName() {
-        return "Jeka";
+        return "JeKa";
     }
 
     @Override

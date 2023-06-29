@@ -33,21 +33,25 @@ public class JekaRunConfigurationSettingsEditor extends JavaSettingsEditorBase<A
     }
 
     @Override
-    protected void customizeFragments(List<SettingsEditorFragment<ApplicationConfiguration, ?>> fragments,
-                                      SettingsEditorFragment<ApplicationConfiguration, ModuleClasspathCombo> moduleClasspath,
-                                      CommonParameterFragments<ApplicationConfiguration> commonParameterFragments) {
+    protected void customizeFragments(
+            List<SettingsEditorFragment<ApplicationConfiguration, ?>> fragments,
+            SettingsEditorFragment<ApplicationConfiguration, ModuleClasspathCombo> moduleClasspath,
+            CommonParameterFragments<ApplicationConfiguration> commonParameterFragments) {
 
         fragments.add(createJekaFormFragment());
-        SettingsEditorFragment<ApplicationConfiguration, EditorTextField> mainClassFragment = createMainClass(moduleClasspath.component());
+        SettingsEditorFragment<ApplicationConfiguration, EditorTextField> mainClassFragment =
+                createMainClass(moduleClasspath.component());
         fragments.add(mainClassFragment);
-        DefaultJreSelector jreSelector = DefaultJreSelector.fromSourceRootsDependencies(moduleClasspath.component(), mainClassFragment.component());
-        SettingsEditorFragment<ApplicationConfiguration, JrePathEditor> jrePath = CommonJavaFragments.createJrePath(jreSelector);
+        DefaultJreSelector jreSelector = DefaultJreSelector.fromSourceRootsDependencies(moduleClasspath.component(),
+                mainClassFragment.component());
+        SettingsEditorFragment<ApplicationConfiguration, JrePathEditor> jrePath =
+                CommonJavaFragments.createJrePath(jreSelector);
         moduleClasspath.addSettingsEditorListener(editor -> {
             ModuleClasspathCombo moduleClasspathCombo = (ModuleClasspathCombo) moduleClasspath.getComponent();
             Module selectedModule = moduleClasspathCombo.getSelectedModule();
             this.runFormPanel.setModule(selectedModule);
-            List<ModuleBasedConfigurationOptions.ClasspathModification> cpModifications =
-                    RunConfigurationHelper.computeIntellijCompiledClassExclusions(selectedModule);
+            //List<ModuleBasedConfigurationOptions.ClasspathModification> cpModifications =
+             //      RunConfigurationHelper.computeIntellijCompiledClassExclusions(selectedModule);
            //this.mySettings.setClasspathModifications(cpModifications);
 
         });

@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'dev.jeka.ide'
-version '2023.04.30'
+version '2023.06.29'
 
 sourceCompatibility = 17
 

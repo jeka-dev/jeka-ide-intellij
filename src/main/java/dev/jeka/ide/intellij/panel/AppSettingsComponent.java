@@ -1,5 +1,7 @@
 package dev.jeka.ide.intellij.panel;
 
+import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.ComboBox;
@@ -36,12 +38,12 @@ public class AppSettingsComponent {
         TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton(distributionPathText);
         JPanel distributionPanel = UI.PanelFactory.panel(textFieldWithBrowseButton)
                 .withLabel("Jeka distribution:")
-                .withComment("The location of the distribution for running Jeka when no wrapper is used." +
+                .withComment("The location of the distribution for running JeKa when no wrapper is used." +
                         "<br/>This distribution is also used to generate Jeka modules from scratch.")
                 .createPanel();
         textFieldWithBrowseButton.addBrowseFolderListener(
-                "Choose Jeka Distribution",
-                "Jeka version picked from Maven central repository.",
+                "Choose JeKa Distribution",
+                "JeKa version picked from Maven central repository.",
                 null,
                 fileChooserDescriptor()
                 );
@@ -108,9 +110,14 @@ public class AppSettingsComponent {
                     () -> {
                         Path result = JekaDistributions.install(combo.getItem());
                         resultPath.set(result);
+                        NotificationGroupManager.getInstance()
+                                .getNotificationGroup("jeka.notifGroup")
+                                .createNotification("Distribution  " + combo.getItem() + " installed. ",
+                                        NotificationType.INFORMATION)
+                                .notify(null);
 
                     },
-                    "Install Jeka Distribution",
+                    "Installing JeKa " + combo.getItem(),
                     true,
                     null
             );

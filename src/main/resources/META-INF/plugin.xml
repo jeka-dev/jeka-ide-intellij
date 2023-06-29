@@ -20,7 +20,7 @@
     <change-notes>
     <![CDATA[
       <ul>
-        <li>Fix issues with user custom templates</li>
+        <li>Fix classloader issue</li>
       </ul>
     ]]>
     </change-notes>
