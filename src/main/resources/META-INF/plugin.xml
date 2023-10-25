@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>dev.jeka.ide</id>
+    <id>dev.jeka.ide.intellij</id>
     <name>Jeka</name>
     <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
