@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>dev.jeka.ide.intellij</id>
+    <id>dev.jeka.ide</id>
     <name>Jeka</name>
     <vendor email="djeangdev@yahoo.fr" url="https://jeka.dev">Jeka</vendor>
 
@@ -20,7 +20,9 @@
     <change-notes>
     <![CDATA[
       <ul>
-        <li>Fix classloader issue</li>
+        <li>Minor bug fixes</li>
+        <li>Minor UI enhancement</li>
+        <li>Upgrade to IC 2023.2</li>
       </ul>
     ]]>
     </change-notes>
@@ -30,7 +32,7 @@
 
     <depends>org.jetbrains.kotlin</depends>
 
-    <idea-version since-build="231"  />
+    <idea-version since-build="232"  />
 
     <actions>
         <action

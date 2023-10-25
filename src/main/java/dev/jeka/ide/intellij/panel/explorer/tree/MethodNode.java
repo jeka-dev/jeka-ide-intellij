@@ -67,6 +67,9 @@ public class MethodNode extends AbstractNode {
             BeanNode parent = (BeanNode) this.getParent();
             String beanName = parent.getName();
             ModuleNode moduleNode = getCloserParentOfType(ModuleNode.class);
+            if (moduleNode == null) {
+                throw new IllegalStateException("No ancestor of type ModuleNode found for " + this.getTreePath());
+            }
             return new JekaRunMethodAction.MethodInfo(moduleNode.getModule(),
                     parent.getClassName(), beanName, name);
         }

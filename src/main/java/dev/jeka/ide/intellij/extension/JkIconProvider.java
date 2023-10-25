@@ -33,7 +33,8 @@ public class JkIconProvider extends IconProvider {
             }
             return null;
         }
-        if (!element.getContainingFile().getVirtualFile().toString().contains(JkConstants.DEF_DIR)) {
+        VirtualFile virtualFile = element.getContainingFile().getVirtualFile();
+        if (virtualFile != null && !virtualFile.toString().contains(JkConstants.DEF_DIR)) {
             return null;
         }
         if (element instanceof KtClass) {

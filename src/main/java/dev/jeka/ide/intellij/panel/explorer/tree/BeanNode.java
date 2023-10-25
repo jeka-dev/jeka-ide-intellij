@@ -53,8 +53,8 @@ public class BeanNode extends AbstractNode implements Comparable<BeanNode> {
     public BeanNode(Project project, PsiClass psiClass, boolean local) {
         super(project);
         this.psiClass = (JavaClassReference) psiClass.getReference();
-        createFieldNodes(psiClass).forEach(this::add);
         createMethodNodes2(psiClass).forEach(this::add);
+        createFieldNodes(psiClass).forEach(this::add);
         createNestedBeanNodes(psiClass).forEach(this::add);
         name = JkExternalToolApi.getBeanName(psiClass.getQualifiedName());
         className = psiClass.getQualifiedName();

@@ -34,6 +34,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
 import dev.jeka.core.api.utils.JkUtilsFile;
 import dev.jeka.core.api.utils.JkUtilsPath;
@@ -156,12 +157,20 @@ public final class CmdJekaDoer {
     }
 
     public void showRuntimeInformation(Module module) {
-        Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
-        GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false, null));
-        setJekaJDKEnv(cmd, module.getProject(), module);
-        cmd.addParameters("-lri");
-        cmd.setWorkDirectory(modulePath.toFile());
-        start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
+        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
+
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
+                GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false, null));
+                setJekaJDKEnv(cmd, module.getProject(), module);
+                cmd.addParameters("-lri");
+                cmd.setWorkDirectory(modulePath.toFile());
+                start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
+            }
+        };
+        ProgressManager.getInstance().run(task);
+        ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID).show(null);
     }
 
     private void doGenerateIml(Path moduleDir,
@@ -189,8 +198,8 @@ public final class CmdJekaDoer {
         }
         cmd.setWorkDirectory(moduleDir.toFile());
 
-        if (qualifiedClassName != null) {
-            cmd.addParameter("-kb=" + qualifiedClassName);
+        if (qualifiedClassName != null && stage == Stage.first) {
+            cmd.addParameter("-kb=" + qualifiedClassName);  // if can not compile, the bean main not  e available cause not compiled
         }
 
         Runnable onFail = null;
