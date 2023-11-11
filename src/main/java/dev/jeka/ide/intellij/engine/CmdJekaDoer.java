@@ -26,22 +26,24 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.SlowOperations;
-import dev.jeka.core.api.utils.JkUtilsFile;
-import dev.jeka.core.api.utils.JkUtilsPath;
+import dev.jeka.core.api.system.JkProperties;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.api.utils.JkUtilsSystem;
 import dev.jeka.core.tool.JkExternalToolApi;
 import dev.jeka.ide.intellij.common.FileHelper;
+import dev.jeka.ide.intellij.common.JdksHelper;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import dev.jeka.ide.intellij.extension.JekaConsoleToolWindowFactory;
@@ -64,6 +66,8 @@ import java.nio.file.Paths;
 @Service
 @RequiredArgsConstructor
 public final class CmdJekaDoer {
+
+    private static final Logger LOGGER = Logger.getInstance(CmdJekaDoer.class);
 
     private enum Stage {
         first, retry
@@ -193,6 +197,19 @@ public final class CmdJekaDoer {
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
         cmd.addParameters("intellij#iml", "-ld");
+        Sdk sdk = getSuggestedSdk(moduleDir);
+        if (sdk != null) {
+            if (sdk.getName().contains(" ")) {
+                NotificationGroupManager.getInstance()
+                        .getNotificationGroup("jeka.notifGroup")
+                        .createNotification("The selected JDK '" + sdk.getName() + "' contains spaces (' ') "
+                                        + " This leads in sync failure. "
+                                        + ". Please rename this JDK in IntelliJ platform setting."
+                                , NotificationType.WARNING)
+                        .notify(this.project);
+            }
+            cmd.addParameters("intellij#suggestedJdkName=" + sdk.getName());
+        }
         if (stage == Stage.retry) {
             cmd.addParameters("-lri", "-cw", "-dci", "-lv", "-lsu");  // clean cache when retrying
         }
@@ -240,10 +257,11 @@ public final class CmdJekaDoer {
         if (existingModule == null) {
            addModule(moduleDir);
         }
-        SlowOperations.allowSlowOperations(() -> {
-            VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
-            VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
-        });
+
+        VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
+        VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
+
+
         if (onFinish != null) {
             onFinish.run();
         }
@@ -346,6 +364,39 @@ public final class CmdJekaDoer {
         if (sdkRoot != null && sdkRoot.exists()) {
             cmd.withEnvironment("JEKA_JDK", sdkRoot.getCanonicalPath());
         }
+    }
+
+    private Sdk getSuggestedSdk(Path moduleDir) {
+        JkProperties jkProperties = JkExternalToolApi.getProperties(moduleDir);
+        String javaVersion = jkProperties.get("jeka.java.version");
+        String specifiedJdkName = jkProperties.get("intellij#jdkName");
+        if (!JkUtilsString.isBlank(specifiedJdkName)) {
+            specifiedJdkName = specifiedJdkName.trim();
+            if (JdksHelper.findSdkHavingName(specifiedJdkName) == null && !"inheritedJdk".equals(specifiedJdkName)) {
+                NotificationGroupManager.getInstance()
+                        .getNotificationGroup("jeka.notifGroup")
+                        .createNotification("Cannot find a installed JDK called " + specifiedJdkName + " declared in  module "
+                                        + moduleDir.getFileName()
+                                        + ". Please install this JDK using Intellij platform settings."
+                                , NotificationType.WARNING)
+                        .notify(this.project);
+            }
+            return null;  // JdkName is specified so we don't need to guess one.
+        }
+        if (javaVersion != null) {
+            Sdk sdk = JdksHelper.suggestJdkForMajorVersion(javaVersion.trim());
+            if (sdk == null) {
+                NotificationGroupManager.getInstance()
+                        .getNotificationGroup("jeka.notifGroup")
+                        .createNotification("Cannot find a installed JDK " + javaVersion + " for module "
+                                        + moduleDir.getFileName()
+                                        + ". Please install such JDK using Intellij platform settings."
+                                , NotificationType.WARNING)
+                        .notify(this.project);
+            }
+            return sdk;
+        }
+        return null;
     }
 
 }

@@ -33,8 +33,10 @@ public class JkIconProvider extends IconProvider {
             }
             return null;
         }
-        VirtualFile virtualFile = element.getContainingFile().getVirtualFile();
+        VirtualFile virtualFile = element.getContainingFile() == null ? null :
+            element.getContainingFile().getVirtualFile();  // avoid NPE
         if (virtualFile != null && !virtualFile.toString().contains(JkConstants.DEF_DIR)) {
+            // TODO log which element has no icon
             return null;
         }
         if (element instanceof KtClass) {

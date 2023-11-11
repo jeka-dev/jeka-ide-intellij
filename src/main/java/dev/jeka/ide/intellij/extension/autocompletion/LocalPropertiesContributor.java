@@ -16,6 +16,7 @@ import dev.jeka.core.api.depmanagement.JkRepoSet;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkConstants;
 import dev.jeka.core.tool.JkExternalToolApi;
+import dev.jeka.ide.intellij.common.JdksHelper;
 import dev.jeka.ide.intellij.common.ModuleHelper;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,7 @@ public class LocalPropertiesContributor extends CompletionContributor {
         // see https://www.plugin-dev.com/intellij/custom-language/code-completion/
 
 
-        // Add completion in dependencies.txt files
+        // Add completion in local.properties files
         ElementPattern cmdPropertyPlace = PlatformPatterns.psiElement(PsiElement.class)
                 .with(new PatternCondition<PsiElement>("") {
                     @Override
@@ -64,21 +65,21 @@ public class LocalPropertiesContributor extends CompletionContributor {
             String lineText = CompletionHelper.fullLine(fullText, pos);
             Module module = ModuleUtil.findModuleForFile(psiFile);
             String rawPrefix = CompletionHelper.prefix(fullText, pos);
-            String lastCharOfPrevoiusLine = CompletionHelper.lastCharOfPreviousLine(fullText, pos);
-            boolean breakingLine = "\\".equals(lastCharOfPrevoiusLine);
+            String lastCharOfPreviousLine = CompletionHelper.lastCharOfPreviousLine(fullText, pos);
+            boolean breakingLine = "\\".equals(lastCharOfPreviousLine);
             String prefix = breakingLine ? rawPrefix : CompletionHelper.cleanedPrefix(lineText, rawPrefix);
             int index = 1000;
             init(module);
             if (lineText.trim().isEmpty()) {
 
-                // Add suggest for toplevel keys a jeka.java.version
+                // Add suggest for toplevel keys as jeka.java.version
                 for (Entry entry : keySuggests.getOrDefault("", new LinkedList<>())) {
                     CompletionHelper.addElement(result, index, LookupElementBuilder.create(entry.name)
                             .withTailText(entry.desc));
                     index--;
                 }
 
-                // Add suggest for first level keys as jeka.repos....
+                // Add suggest for first level keys as jeka.repos...
                 for (String keyPrefix : keySuggests.keySet()) {
                     if (keyPrefix.isEmpty()) {
                         continue;
@@ -121,6 +122,12 @@ public class LocalPropertiesContributor extends CompletionContributor {
                 }
             }
 
+            // suggest for -kb=
+            if ("-kb=".equals(prefix)) {
+                List<LookupElementBuilder> suggests = JekaCmdCompletionProvider.findSuggest(module, prefix, true);
+                result.withPrefixMatcher("-kb=").addAllElements(suggests);
+            }
+
             addValuesCompletions(parameters, lineText, result);
         }
 
@@ -141,9 +148,10 @@ public class LocalPropertiesContributor extends CompletionContributor {
             suggestKey("jeka.repos.", "[repoName].password=", "Password credential to connect to repo." );
             suggestKey("jeka.repos.", "[repoName].headers.[httpHeaderName]=", "HTTP header to include in request towards the repo." );
 
-            suggestValues("jeka.java.version", "17", "11", "8", "19");
+            suggestValues("jeka.java.version", "17", "11", "8", "19", "21");
             suggestValuesWithVersions("jeka.kotlin.version", module, "org.jetbrains.kotlin:kotlin-stdlib");
             suggestValuesWithVersions("springboot#springbootVersion", module, "org.springframework.boot:spring-boot-starter-parent");
+            valueSuggests.put("intellij#jdkName", module1 -> JdksHelper.availableSdkNames());
         }
 
         private void suggestKey(String prefix, String name, String desc) {
@@ -183,7 +191,7 @@ public class LocalPropertiesContributor extends CompletionContributor {
             final int pos = parameters.getOffset() -1;
             PsiFile psiFile = parameters.getOriginalFile();
             String fullText = psiFile.getText();
-            String lastCharOfPrevoiusLine = CompletionHelper.lastCharOfPreviousLine(fullText, pos);
+            String lastCharOfPreviousLine = CompletionHelper.lastCharOfPreviousLine(fullText, pos);
 
             List<LookupElementBuilder> elements = new LinkedList<>();
             if (lineText.trim().startsWith("jeka.cmd.")) {
@@ -200,7 +208,7 @@ public class LocalPropertiesContributor extends CompletionContributor {
                         .withIcon(AllIcons.Nodes.PpLibFolder)
                         .withTailText(" Add NodeJS plugin"));
                 String rawPrefix = CompletionHelper.prefix(fullText, pos);
-                boolean breakingLine = "\\".equals(lastCharOfPrevoiusLine);
+                boolean breakingLine = "\\".equals(lastCharOfPreviousLine);
                 String prefix = breakingLine ? rawPrefix : CompletionHelper.cleanedPrefix(lineText, rawPrefix);
                 Module module =  ModuleUtil.findModuleForFile(parameters.getOriginalFile());
                 elements.addAll( JekaCmdCompletionProvider.findSuggest(module, prefix, true));

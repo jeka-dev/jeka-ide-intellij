@@ -8,6 +8,7 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -161,6 +162,10 @@ public class ModuleHelper {
             }
         }
         throw new IllegalStateException("Haven't got a suggestion for a module name.");
+    }
+
+    public static void setSdk(Module module, Sdk sdk) {
+        ModuleRootModificationUtil.setModuleSdk(module, sdk);
     }
 
 }

@@ -111,7 +111,7 @@ public class FieldNode extends AbstractNode {
 
     static List<FieldNode> createFieldNodes(Project project, PsiClass containingClass) {
         List<FieldNode> result = new LinkedList<>();
-        if (!containingClass.isValid()) {
+        if (containingClass == null || !containingClass.isValid()) {
             return Collections.emptyList();
         }
         for (PsiField psiField : containingClass.getAllFields()) {
