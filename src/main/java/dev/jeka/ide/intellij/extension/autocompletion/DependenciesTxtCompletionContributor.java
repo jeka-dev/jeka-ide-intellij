@@ -2,6 +2,8 @@ package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PlatformPatterns;
@@ -52,7 +54,8 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
             } else if (prefix.trim().startsWith("@@")) {
                 prefix = prefix.substring(2).trim();
             }
-            List<LookupElement> lookupElements = CompletionHelper.findDependenciesVariants(parameters, prefix);
+            Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
+            List<LookupElement> lookupElements = CompletionHelper.findDependenciesVariants(module, prefix, false);
             resultSet.withPrefixMatcher(prefix).addAllElements(lookupElements);
             resultSet.stopHere();
         }

@@ -197,5 +197,4 @@ class JekaWizardPanel {
         this.fullPathLabel.setText(text);
     }
 
-
 }

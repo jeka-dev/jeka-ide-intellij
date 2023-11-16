@@ -91,6 +91,26 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
         return findSuggestForBean(bean, prefix, includeMethods);
     }
 
+    static List<LookupElementBuilder> findKBeanSuggests(Module module, String prefix) {
+        List<LookupElementBuilder> result = new LinkedList<>();
+        for (BeanNode beanNode : allKBeans(module)) {
+            CompletionHelper.addElement(result, 10, LookupElementBuilder.create(prefix + beanNode.getClassName())
+                        .withPresentableText(beanNode.getName())
+                        .withTailText(" " + Strings.nullToEmpty(beanNode.getDefinition()))
+                        .withIcon(BeanNode.ICON));
+        }
+        return result;
+    }
+
+    private static List<BeanNode> allKBeans(Module module) {
+        if (module == null) {
+            return Collections.emptyList();
+        }
+        final JekaToolWindowTreeService treeService = module.getProject().getService(JekaToolWindowTreeService.class);
+        BeanComparator beanComparator = new BeanComparator();
+        return treeService.getKbeans(module).stream().sorted(beanComparator).toList();
+    }
+
     private static List<LookupElementBuilder> findSuggestForBean(BeanNode bean, String prefix, boolean includeMethods) {
         String beanName = bean.getName();
         List<LookupElementBuilder> result = new LinkedList<>();

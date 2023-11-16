@@ -112,6 +112,7 @@ public class JekaModuleBuilder extends ModuleBuilder {
         Module module = model.loadModule(imlFile);
         setupModule(module);
         return module;
+
     }
 
     private void moduleCreated(@NotNull Module module) {

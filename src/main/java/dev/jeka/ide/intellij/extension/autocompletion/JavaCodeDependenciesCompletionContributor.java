@@ -1,6 +1,8 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.*;
@@ -93,7 +95,8 @@ public class JavaCodeDependenciesCompletionContributor extends CompletionContrib
             if (content.endsWith("\"")) {
                 content = content.substring(0, content.length()-1);
             }
-            resultSet.addAllElements(CompletionHelper.findDependenciesVariants(parameters, content));
+            Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
+            resultSet.addAllElements(CompletionHelper.findDependenciesVariants(module, content, false));
         }
     }
 

@@ -21,9 +21,6 @@ public class JekaTemplate {
     private static final String SPRINGBOOT_MODULE = "dev.jeka:springboot-plugin";
 
     private static final String CODELESS_MENTION = """
-            Use this template if your project is standard enough to not require
-            configuration code. You can still add it later.
-            
             You can configure the build by editing :
               - local.properties file
               - project-dependencies.txt file
@@ -42,53 +39,54 @@ public class JekaTemplate {
 
     public static final JekaTemplate blank() {
         return JekaTemplate.builder()
-                .name("blank")
+                .name("Blank")
                 .commandArgs("")
                 .description("Template for automation tasks that does not need to build projects.")
                 .builtin(true)
                 .build();
     }
 
-    public static final JekaTemplate project() {
+    public static final JekaTemplate projectPureApi() {
         return JekaTemplate.builder()
-                .name("java project")
+                .name("Java project - Pure Api")
+                .commandArgs("project#scaffold.template=PURE_API" )
+                .description("""
+                        Build Java Projects Using Basic API
+                                                
+                        Use simple APIs and skip the KBean mechanism. Simpler, but may require extra typing.
+                                                
+                        Recommended for beginners.
+                        """)
+                .builtin(true)
+                .build();
+    }
+
+    public static final JekaTemplate projectKBean() {
+        return JekaTemplate.builder()
+                .name("Java project - KBean")
                 .commandArgs("project#")
-                .description("Template for building Java projects.")
+                .description("""
+                       Build Java Projects Using KBean and Basic API.
+                                                
+                       Leverage of methods and configuration options provided out-of-the-box by KBean mechanism.
+                       """)
                 .builtin(true)
                 .build();
     }
 
-    public static JekaTemplate springboot() {
+    public static JekaTemplate projectPropsOnly() {
         return JekaTemplate.builder()
-                .name("springboot project")
-                .commandArgs("@" + SPRINGBOOT_MODULE + " springboot#")
-                .description("Template for building SpringBoot projects written in Java.")
-                .builtin(true)
-                .build();
-    }
-
-    public static JekaTemplate plugin() {
-        return JekaTemplate.builder()
-                .name("plugin project")
-                .commandArgs("project#scaffold.template=PLUGIN")
-                .description("Template for creating Jeka plugins.")
-                .builtin(true)
-                .build();
-    }
-
-    public static JekaTemplate projectCodeLess() {
-        return JekaTemplate.builder()
-                .name("java project - no-build-code")
+                .name("Java project - Properties only")
                 .builtin(true)
                 .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
-                    + "\"" + """
-                    jeka.cmd._append.0=-kb=project
-                    jeka.cmd._append.1=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin
+                        + "\"" + """
+                    jeka.classpath.inject=dev.jeka:sonarqube-plugin dev.jeka:jacoco-plugin
+                    jeka.default.kbean=project
                     
-                    jeka.cmd.build=project#cleanPack
+                    jeka.cmd.build=#cleanPack
                     jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
                     
-                    jeka.java.version=17
+                    jeka.java.version=21
                     
                     sonar.host.url=http://localhost:9000
                     sonar.login=admin
@@ -96,51 +94,69 @@ public class JekaTemplate {
                     """ + "\""
                 )
                 .description("""
-                        Template for building Java projects without needing build code.
-                       
+                        Build Java Projects Using single Property File.
+                                                
+                        Use the KBean mechanism with just a simple property file.
+                        No need for Java code to build projects, but you can still add code for extra settings if you want.
+                                                  
                         """ + CODELESS_MENTION)
                 .build();
     }
 
-
-
-    public static JekaTemplate springbootCodeLess() {
+    public static JekaTemplate springboot() {
         return JekaTemplate.builder()
-                .name("springboot project - no-build-code")
+                .name("Springboot project - KBean")
+                .commandArgs("@" + SPRINGBOOT_MODULE + " springboot#")
+                .description("Build SpringBoot projects.")
+                .builtin(true)
+                .build();
+    }
+
+    public static JekaTemplate springbootPropsOnly() {
+        return JekaTemplate.builder()
+                .name("Spring-Boot project - Properties only")
                 .builtin(true)
                 .commandArgs(
                         "@" + SPRINGBOOT_MODULE + " springboot# " +
-                        "project#scaffold.template=CODE_LESS " +
-                        "project#scaffold.dependenciesTxt.compile=org.springframework.boot:spring-boot-starter-web " +
-                        "project#scaffold.dependenciesTxt.test=org.springframework.boot:spring-boot-starter-test " +
-                        "project#scaffold.generateLocalLibsFolders=false " +
-                        "scaffold#localPropsExtraContent="
+                                "project#scaffold.template=CODE_LESS " +
+                                "project#scaffold.dependenciesTxt.compile=org.springframework.boot:spring-boot-starter-web " +
+                                "project#scaffold.dependenciesTxt.test=org.springframework.boot:spring-boot-starter-test " +
+                                "project#scaffold.generateLocalLibsFolders=false " +
+                                "scaffold#localPropsExtraContent="
                                 + "\"" + """
-                                jeka.cmd._append.0=springboot# @dev.jeka:springboot-plugin
-                                jeka.cmd._append.1=@dev.jeka:jacoco-plugin @dev.jeka:sonarqube-plugin
-                                
+                                jeka.classpath.inject=dev.jeka:springboot-plugin dev.jeka:sonarqube-plugin dev.jeka:jacoco-plugin
+                                jeka.default.kbean=dev.jeka.plugins.springboot.SpringbootJkBean
+                                                                
                                 jeka.cmd.build=project#cleanPack
                                 jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
-                                
-                                jeka.java.version=17
-                                springboot#springbootVersion=3.0.5
-                                
+                                                                
+                                jeka.java.version=21
+                                springboot#springbootVersion=3.1.5
+                                                                
                                 sonar.host.url=http://localhost:9000
                                 sonar.login=admin
                                 sonar.password=admin2
                                 """ + "\" "
-                        )
+                )
                 .description("""
-                    Template for building Springboot projects without needing build code.
-                    
-                    """ + CODELESS_MENTION )
+                        Template for building Springboot projects with properties only.
+                                            
+                        """ + CODELESS_MENTION)
                 .build();
     }
 
-
+    public static JekaTemplate plugin() {
+        return JekaTemplate.builder()
+                .name("Plugin project")
+                .commandArgs("project#scaffold.template=PLUGIN")
+                .description("Template for creating Jeka plugins.")
+                .builtin(true)
+                .build();
+    }
 
     public static final List<JekaTemplate> builtins() {
-        return JkUtilsIterable.listOf(blank(), project(), projectCodeLess(), springboot(), springbootCodeLess(), plugin() );
+        return JkUtilsIterable.listOf(blank(), projectPureApi(), projectKBean(), projectPropsOnly(),
+                springboot(), springbootPropsOnly(), plugin() );
     }
 
     public static final Optional<JekaTemplate> getBuiltin(String name) {
@@ -152,8 +168,6 @@ public class JekaTemplate {
     private static List<String> builtinNames() {
         return builtins().stream().map(JekaTemplate::getName).collect(Collectors.toList());
     }
-
-
 
     @Override
     public String toString() {

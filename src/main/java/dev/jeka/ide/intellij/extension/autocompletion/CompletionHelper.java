@@ -58,14 +58,15 @@ public class CompletionHelper {
         return fullText.substring(i-1, i);
     }
 
-    static List<LookupElement> findDependenciesVariants(CompletionParameters parameters, String item)  {
-        Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
+    static List<LookupElement> findDependenciesVariants(Module module, String item, boolean includeDevJeka)  {
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
         final List<String> suggests;
+        boolean fromBlank = true;
         if (JkUtilsString.isBlank(item)) {
-            suggests = popularGroups();
+            suggests = popularGroups(includeDevJeka);
         } else {
+            fromBlank = false;
             suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
                     .setGroupOrNameCriteria(item)
                     .search();
@@ -77,8 +78,13 @@ public class CompletionHelper {
             LookupElementBuilder lookupElementBuilder = LookupElementBuilder
                     .create(container.get(i))
                     .withIcon(AllIcons.Nodes.PpLibFolder);
-            LookupElement prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
-                    lookupElementBuilder, i);
+            LookupElement prioritizedLookupElement;
+            if (fromBlank) {
+                prioritizedLookupElement = PrioritizedLookupElement.withPriority(lookupElementBuilder, i + 1000);
+            } else {
+                prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
+                        lookupElementBuilder, i);
+            }
             result.add(prioritizedLookupElement);
         }
         return result;
@@ -105,13 +111,18 @@ public class CompletionHelper {
         return  prefixStartsWithPropName ? JkUtilsString.substringAfterLast(prefix, propName + "=") : prefix;
     }
 
-    private static List<String> popularGroups() {
-        return JkUtilsIterable.listOf("org.slf4j:", "com.google.guava:", "org.mockito:", "commons-io:",
+    private static List<String> popularGroups(boolean includeDevJeka) {
+        List<String> result = JkUtilsIterable.listOf("org.slf4j:", "com.google.guava:", "org.mockito:", "commons-io:",
                 "ch.qos.logback:", "org.apache.commons:", "com.fasterxml.jackson.core:", "org.jetbrain.kotlin:",
                 "com.google.code.gson:", "log4j:", "org.projectlombok:", "javax.servlet:", "org.assertj:",
                 "commons-lang:", "org.springframework:", "commons-codec:", "org.junit.jupiter:", "commons-logging:",
-                "org.springframework.boot:", "com.h2database:", "org.junit:")
-
-                .stream().sorted().collect(Collectors.toList());
+                "org.springframework.boot:", "com.h2database:", "org.junit:").stream().sorted().toList();
+        if (includeDevJeka) {
+            List<String> res = new LinkedList<>();
+            res.add("dev.jeka:");
+            res.addAll(result);
+            result = res;
+        }
+        return result;
     }
 }

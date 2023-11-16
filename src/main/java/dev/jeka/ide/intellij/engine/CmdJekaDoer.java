@@ -27,12 +27,15 @@ import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -105,7 +108,7 @@ public final class CmdJekaDoer {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setIndeterminate(true);
-                indicator.setText("JeKa :  Scaffoldingk " + moduleDir.getFileName() + "...");
+                indicator.setText("JeKa :  Scaffolding " + moduleDir.getFileName() + "...");
                 scaffoldModuleInternal(moduleDir, createStructure, createWrapper, wrapDelegate, jekaVersion,
                         existingModule, extraArgs);
             }
@@ -122,8 +125,12 @@ public final class CmdJekaDoer {
                                        Module existingModule,
                                        String extraArgs) {
         Runnable afterScaffold = () -> {
-            //Runnable afterGenerateIml = () -> refreshAfterIml(existingModule, moduleDir, null);
-            Runnable afterGenerateIml = () -> {};
+
+            // When creating new project, if we do nothing after iml generated, the new module
+            // does not take in account the generated iml
+            Runnable afterGenerateIml = () -> refreshAfterIml(existingModule, moduleDir, null);
+            //Runnable afterGenerateIml = () -> {};
+
             doGenerateIml(moduleDir, null, false, existingModule, afterGenerateIml, Stage.first);
             if (wrapDelegate != null) {
                 FileHelper.deleteDir(moduleDir.resolve("jeka/wrapper"));
@@ -137,15 +144,17 @@ public final class CmdJekaDoer {
 
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(moduleDir, false, jekaVersion));
+            structureCmd.addParameter("-kb=scaffold");   // avoid jeka.default.kbean that may be declared in parent modules
             setJekaJDKEnv(structureCmd, project, existingModule);
             structureCmd.addParameters("scaffold#run", "intellij#");
             structureCmd.setWorkDirectory(moduleDir.toFile());
             structureCmd.addParameters(JkUtilsString.translateCommandline(extraArgs));
-            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld", "-wc", "-lst", "-kb=scaffold");
+            structureCmd.addParameters("-dci", "-ls=BRACE", "-lna", "-lri", "-ld", "-wc", "-lst");
             doCreateStructure = () -> start(structureCmd, !createWrapper, afterScaffold, null);
         }
         if (createWrapper) {
             GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, true, jekaVersion));
+            cmd.addParameter("-kb=scaffold");   // avoid jeka.default.kbean that may be declared in parent modules
             cmd.addParameter("scaffold#wrapper");
             if (wrapDelegate != null) {
                 cmd.addParameters("scaffold#wrapDelegatePath=" + wrapDelegate);
@@ -207,8 +216,9 @@ public final class CmdJekaDoer {
                                         + ". Please rename this JDK in IntelliJ platform setting."
                                 , NotificationType.WARNING)
                         .notify(this.project);
+            } else {
+                cmd.addParameters("intellij#suggestedJdkName=" + sdk.getName());
             }
-            cmd.addParameters("intellij#suggestedJdkName=" + sdk.getName());
         }
         if (stage == Stage.retry) {
             cmd.addParameters("-lri", "-cw", "-dci", "-lv", "-lsu");  // clean cache when retrying
@@ -257,26 +267,21 @@ public final class CmdJekaDoer {
         if (existingModule == null) {
            addModule(moduleDir);
         }
-
         VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);
         VfsUtil.markDirtyAndRefresh(false, true, true, vModuleDir);
-
-
         if (onFinish != null) {
             onFinish.run();
         }
     }
 
     private void addModule(Path moduleDir) {
-        SlowOperations.allowSlowOperations(() -> {
-            Path iml = JkExternalToolApi.getImlFile(moduleDir);
-            Path projectDir = Paths.get(project.getBasePath());
-            Path modulesXml = projectDir.resolve(".idea/modules.xml");
-            if (Files.exists(modulesXml)) {
-                ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
-                VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
-            }
-        });
+        Path iml = JkExternalToolApi.getImlFile(moduleDir);
+        Path projectDir = Paths.get(project.getBasePath());
+        Path modulesXml = projectDir.resolve(".idea/modules.xml");
+        if (Files.exists(modulesXml)) {
+            ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
+            VfsUtil.markDirtyAndRefresh(false, true, true, VfsUtil.findFile(modulesXml, true));
+        }
     }
 
     private void start(GeneralCommandLine cmd, boolean clear, Runnable onSuccess, Runnable onFailure) {
