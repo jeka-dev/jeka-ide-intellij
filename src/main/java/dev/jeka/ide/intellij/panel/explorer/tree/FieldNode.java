@@ -15,7 +15,7 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.ide.intellij.common.PsiClassHelper;
-import dev.jeka.ide.intellij.common.PsiFieldHelper;
+import dev.jeka.ide.intellij.common.PsiHelper;
 import dev.jeka.ide.intellij.common.model.NavigableProxy;
 import lombok.Getter;
 
@@ -115,7 +115,7 @@ public class FieldNode extends AbstractNode {
             return Collections.emptyList();
         }
         for (PsiField psiField : containingClass.getAllFields()) {
-            if (!psiField.hasModifier(JvmModifier.PUBLIC) && !PsiFieldHelper.hasSetter(psiField)) {
+            if (!psiField.hasModifier(JvmModifier.PUBLIC) && !PsiHelper.hasSetter(psiField)) {
                 continue;
             }
             if (psiField.getContainingClass().getQualifiedName().equals(Object.class.getName())) {

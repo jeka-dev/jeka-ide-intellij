@@ -58,6 +58,30 @@ public class CompletionHelper {
         return fullText.substring(i-1, i);
     }
 
+    static List<LookupElement> findVersions(Module module, String item)  {
+        Path rootDir = ModuleHelper.getModuleDirPath(module);
+        JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
+        final List<String> suggests;
+        suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
+                .setGroupOrNameCriteria(item)
+                .search();
+        List<String> container = new ArrayList<>(suggests);
+        Collections.reverse(container);
+        List<LookupElement> result = new LinkedList<>();
+        for (int i=0; i < container.size(); i++ ) {
+            String fullResult = container.get(i);
+            String version = JkUtilsString.substringAfterLast(fullResult, ":");
+            LookupElementBuilder lookupElementBuilder = LookupElementBuilder
+                    .create(version)
+                    .withIcon(AllIcons.Nodes.PpLibFolder);
+            LookupElement prioritizedLookupElement;
+            prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
+                        lookupElementBuilder, i);
+            result.add(prioritizedLookupElement);
+        }
+        return result;
+    }
+
     static List<LookupElement> findDependenciesVariants(Module module, String item, boolean includeDevJeka)  {
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
