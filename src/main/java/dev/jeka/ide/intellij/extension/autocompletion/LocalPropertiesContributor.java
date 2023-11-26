@@ -146,7 +146,7 @@ public class LocalPropertiesContributor extends CompletionContributor {
             // suggest for jeka.classpath.inject
             if (!propertyContext.isKey() && JkConstants.CLASSPATH_INJECT_PROP.equals(propertyContext.fullKey())) {
                 String hint = propertyContext.prefix;
-                List<LookupElement> lookups = CompletionHelper.findDependenciesVariants(propertyContext.module, hint, true);
+                List<LookupElementBuilder> lookups = CompletionHelper.findDependenciesVariants(propertyContext.module, hint, true);
                 result.withPrefixMatcher(hint).addAllElements(lookups);
                 result.stopHere();;
                 return;
@@ -180,9 +180,6 @@ public class LocalPropertiesContributor extends CompletionContributor {
 
             suggestValues("jeka.java.version", "21", "17", "11", "8");
             suggestValuesWithVersions("jeka.kotlin.version", module, "org.jetbrains.kotlin:kotlin-stdlib");
-
-            // TODO use the generic @JkDepSuggest annotation
-            suggestValuesWithVersions("springboot#springbootVersion", module, "org.springframework.boot:spring-boot-starter-parent");
 
             valueSuggests.put("intellij#jdkName", module1 -> JdksHelper.availableSdkNames());
         }
@@ -256,7 +253,7 @@ public class LocalPropertiesContributor extends CompletionContributor {
                 // Add deps suggest if starting with @
                 if (prefix.startsWith("@")) {
                     String hint = prefix.substring(1);
-                    List<LookupElement> lookups = CompletionHelper.findDependenciesVariants(module, hint, true);
+                    List<LookupElementBuilder> lookups = CompletionHelper.findDependenciesVariants(module, hint, true);
                     result.withPrefixMatcher(hint).addAllElements(lookups);
                     result.stopHere();;
                     return;
@@ -266,7 +263,10 @@ public class LocalPropertiesContributor extends CompletionContributor {
             } else if (isStartingWithKBeanField(lineText)) {
                 Module module =  ModuleUtil.findModuleForFile(parameters.getOriginalFile());
                 String prefix = lineText.trim();
-                elements.addAll( JekaCmdCompletionProvider.findSuggest(module, prefix, false));
+                List<LookupElementBuilder> lookupElements =
+                        JekaCmdCompletionProvider.findSuggest(module, prefix, false);
+                List<LookupElementBuilder> prioritizedLookupElements = CompletionHelper.prioritized(lookupElements, 1);
+                elements.addAll(prioritizedLookupElements);
                 result.withPrefixMatcher(prefix).addAllElements(elements);
             }
             result.stopHere();

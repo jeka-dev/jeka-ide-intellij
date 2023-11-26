@@ -44,17 +44,18 @@ public class PsiHelper {
             if (expressionList.getParent() instanceof PsiMethodCallExpression methodCallExpression) {
                 int paramIndex = 0;
                 for (; paramIndex < expressionList.getExpressionCount(); paramIndex++) {
-                    if (expressionList.getExpressions()[paramIndex] == psiLiteralExpression) {
+                    if (psiExpressions[paramIndex] == psiLiteralExpression) {
                         break;
                     }
                 }
                 PsiReferenceExpression methodExpression = methodCallExpression.getMethodExpression();
                 PsiMethod psiMethod = (PsiMethod) methodExpression.getLastChild().findReferenceAt(0).resolve();
                 PsiParameterList parameterList = psiMethod.getParameterList();
-                if (parameterList.getParameters().length > paramIndex) {
-                    return psiMethod.getParameterList().getParameter(paramIndex);
+                if (parameterList.getParametersCount() > paramIndex) {
+                    return parameterList.getParameter(paramIndex);
+                } else {
+                    return parameterList.getParameter(parameterList.getParametersCount() -1);
                 }
-                return null;
             }
         }
         return null;

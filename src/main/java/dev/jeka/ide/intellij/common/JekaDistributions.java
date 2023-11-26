@@ -124,7 +124,7 @@ public class JekaDistributions {
         return distribRoots.get(distribRoots.size() -1);
     }
 
-    private static String getLatestPublishedVersion() {
+    public static String getLatestPublishedVersion() {
         return searchVersionsSortedByDesc().get(0);
     }
 

@@ -1,5 +1,6 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
+import com.github.weisj.jsvg.L;
 import com.google.common.base.Strings;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
@@ -7,12 +8,13 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiField;
 import com.intellij.util.TextFieldCompletionProvider;
+import dev.jeka.core.api.depmanagement.JkDepSuggest;
 import dev.jeka.core.api.utils.JkUtilsString;
-import dev.jeka.ide.intellij.panel.explorer.tree.BeanNode;
-import dev.jeka.ide.intellij.panel.explorer.tree.FieldNode;
-import dev.jeka.ide.intellij.panel.explorer.tree.JekaToolWindowTreeService;
-import dev.jeka.ide.intellij.panel.explorer.tree.MethodNode;
+import dev.jeka.ide.intellij.common.PsiHelper;
+import dev.jeka.ide.intellij.panel.explorer.tree.*;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,6 +122,7 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
             if (member instanceof FieldNode) {
                 FieldNode fieldNode = (FieldNode) member;
                 List<LookupElementBuilder> fieldElements = createFieldElements(fieldNode, prefix);
+                //result.addAll(fieldElements);
                 CompletionHelper.addElements(result, fieldElements, 20);
             } else if (member instanceof MethodNode  && includeMethods) {
                 MethodNode methodNode = (MethodNode) member;
@@ -151,10 +154,28 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
 
     private static List<LookupElementBuilder> fieldElements(FieldNode fieldNode, String prefix) {
         List<String> predefinedValues = fieldNode.getAcceptedValues();
+
+        // Find dependencies/version for field annotated with @JkDepSuggest
+        PsiField psiField = fieldNode.getPsiField();
+        PsiAnnotation psiAnnotation = psiField.getAnnotation(JkDepSuggest.class.getName());
+        if (psiAnnotation != null) {
+            PsiHelper.DependencySuggest depSuggest = PsiHelper.toDepSuggest(psiAnnotation);
+            Module module = fieldNode.getCloserParentOfType(ModuleNode.class).getModule();
+            final List<LookupElementBuilder> result;
+            if (depSuggest.versionOnly()) {
+                result = CompletionHelper.findVersions(module, depSuggest.hint());
+            } else {
+                result = CompletionHelper.findDependenciesVariants(module, depSuggest.hint(), true);
+            }
+            predefinedValues =  result.stream()
+                    .map(lookupElement -> lookupElement.getLookupString())
+                    .toList();
+        }
+
         if (!predefinedValues.isEmpty() && prefix.contains("=")) {
             return predefinedValues.stream()
                     .map(value -> fieldElement(fieldNode, "=" + value))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return Collections.singletonList(fieldElement(fieldNode, "="));
     }

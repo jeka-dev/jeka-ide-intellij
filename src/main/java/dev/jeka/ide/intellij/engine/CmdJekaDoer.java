@@ -357,6 +357,10 @@ public final class CmdJekaDoer {
         final Path distributionPath;
         if (version == null) {
             distributionPath = JekaDistributions.getDefault();
+            Path scriptPath = distributionPath.resolve(scriptName);
+            if (!Files.exists(scriptPath)) {
+                JekaDistributions.fetchDistributionForVersion(JekaDistributions.getLatestPublishedVersion());
+            }
         } else {
             distributionPath = JekaDistributions.fetchDistributionForVersion(version);
         }

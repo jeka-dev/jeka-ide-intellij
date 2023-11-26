@@ -10,6 +10,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import dev.jeka.core.api.depmanagement.JkCoordinateSearch;
 import dev.jeka.core.api.depmanagement.JkRepoSet;
+import dev.jeka.core.api.depmanagement.JkVersion;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import dev.jeka.core.tool.JkExternalToolApi;
@@ -58,73 +59,70 @@ public class CompletionHelper {
         return fullText.substring(i-1, i);
     }
 
-    static List<LookupElement> findVersions(Module module, String item)  {
+    static List<LookupElementBuilder> findVersions(Module module, String item)  {
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
         final List<String> suggests;
         suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
                 .setGroupOrNameCriteria(item)
                 .search();
-        List<String> container = new ArrayList<>(suggests);
-        Collections.reverse(container);
-        List<LookupElement> result = new LinkedList<>();
-        for (int i=0; i < container.size(); i++ ) {
-            String fullResult = container.get(i);
+        List<String> container = suggests.stream()
+                .sorted(JkVersion.VERSION_COMPARATOR.reversed())
+                .toList();
+        List<LookupElementBuilder> result = new LinkedList<>();
+        for (String fullResult : container ) {
             String version = JkUtilsString.substringAfterLast(fullResult, ":");
             LookupElementBuilder lookupElementBuilder = LookupElementBuilder
                     .create(version)
                     .withIcon(AllIcons.Nodes.PpLibFolder);
-            LookupElement prioritizedLookupElement;
-            prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
-                        lookupElementBuilder, i);
-            result.add(prioritizedLookupElement);
+            result.add(lookupElementBuilder);
         }
         return result;
     }
 
-    static List<LookupElement> findDependenciesVariants(Module module, String item, boolean includeDevJeka)  {
+    static List<LookupElementBuilder> findDependenciesVariants(Module module, String item, boolean includeDevJeka)  {
         Path rootDir = ModuleHelper.getModuleDirPath(module);
         JkRepoSet repoSet = JkExternalToolApi.getDownloadRepos(rootDir);
         final List<String> suggests;
-        boolean fromBlank = true;
         if (JkUtilsString.isBlank(item)) {
             suggests = popularGroups(includeDevJeka);
         } else {
-            fromBlank = false;
             suggests = JkCoordinateSearch.of(repoSet.getRepos().get(0))
                     .setGroupOrNameCriteria(item)
                     .search();
         }
-        List<String> container = new ArrayList<>(suggests);
-        Collections.reverse(container);
-        List<LookupElement> result = new LinkedList<>();
-        for (int i=0; i < container.size(); i++ ) {
+        List<LookupElementBuilder> result = new LinkedList<>();
+        for (String suggest : suggests) {
             LookupElementBuilder lookupElementBuilder = LookupElementBuilder
-                    .create(container.get(i))
+                    .create(suggest)
                     .withIcon(AllIcons.Nodes.PpLibFolder);
-            LookupElement prioritizedLookupElement;
-            if (fromBlank) {
-                prioritizedLookupElement = PrioritizedLookupElement.withPriority(lookupElementBuilder, i + 1000);
-            } else {
-                prioritizedLookupElement = PrioritizedLookupElement.withExplicitProximity(
-                        lookupElementBuilder, i);
-            }
-            result.add(prioritizedLookupElement);
+            result.add(lookupElementBuilder);
         }
         return result;
     }
 
     static void addElements(List<? extends LookupElement> result, List<? extends LookupElement> elements, int priority) {
-        elements.forEach(lookupElement -> addElement(result, priority, lookupElement));
+        for (int i = 0; i < elements.size(); i++) {
+            double finePriority = ((999d - i));
+            double priorityDetail = priority + finePriority; // higher priority for first elements
+            addElement(result, priorityDetail, elements.get(i));
+        }
+    }
+
+    static List<LookupElementBuilder> prioritized(List<? extends LookupElement> elements, int prirority) {
+        List<LookupElementBuilder> result = new LinkedList<>();
+        addElements(result, elements, prirority);
+        return result;
     }
 
     static void addElement(CompletionResultSet resultSet, int priority, LookupElement lookupElement) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, priority));
     }
 
-    static void addElement(List result, int priority, LookupElement lookupElement) {
+    static void addElement(List result, double priority, LookupElement lookupElement) {
         result.add(PrioritizedLookupElement.withPriority(lookupElement, priority));
     }
+
 
     static String cleanedPrefix(String fullLine, String prefix) {
         String propName = JkUtilsString.substringBeforeFirst(fullLine, "=");

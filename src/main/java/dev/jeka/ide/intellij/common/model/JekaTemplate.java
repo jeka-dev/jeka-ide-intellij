@@ -48,7 +48,7 @@ public class JekaTemplate {
 
     public static final JekaTemplate projectPureApi() {
         return JekaTemplate.builder()
-                .name("Java project - Pure Api")
+                .name("Java project - Pure API")
                 .commandArgs("project#scaffold.template=PURE_API" )
                 .description("""
                         Build Java Projects Using Basic API
@@ -103,11 +103,24 @@ public class JekaTemplate {
                 .build();
     }
 
-    public static JekaTemplate springboot() {
+    public static JekaTemplate springbootKBean() {
         return JekaTemplate.builder()
                 .name("Springboot project - KBean")
                 .commandArgs("@" + SPRINGBOOT_MODULE + " springboot#")
-                .description("Build SpringBoot projects.")
+                .description("Build SpringBoot projects using KBeans.")
+                .builtin(true)
+                .build();
+    }
+
+    public static JekaTemplate springbootPureApi() {
+        return JekaTemplate.builder()
+                .name("Springboot project - Pure API")
+                .commandArgs("@" + SPRINGBOOT_MODULE + " springboot# springboot#scaffoldBuildKind=PURE_API")
+                .description("""
+                    Build SpringBoot projects using pure API.
+                    
+                    RRecommended for beginners.
+                    """)
                 .builtin(true)
                 .build();
     }
@@ -156,7 +169,7 @@ public class JekaTemplate {
 
     public static final List<JekaTemplate> builtins() {
         return JkUtilsIterable.listOf(blank(), projectPureApi(), projectKBean(), projectPropsOnly(),
-                springboot(), springbootPropsOnly(), plugin() );
+                springbootPureApi(), springbootKBean(), springbootPropsOnly(), plugin() );
     }
 
     public static final Optional<JekaTemplate> getBuiltin(String name) {

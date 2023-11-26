@@ -2,6 +2,7 @@ package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.patterns.ElementPattern;
@@ -55,7 +56,7 @@ public class DependenciesTxtCompletionContributor extends CompletionContributor 
                 prefix = prefix.substring(2).trim();
             }
             Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
-            List<LookupElement> lookupElements = CompletionHelper.findDependenciesVariants(module, prefix, false);
+            List<LookupElementBuilder> lookupElements = CompletionHelper.findDependenciesVariants(module, prefix, true);
             resultSet.withPrefixMatcher(prefix).addAllElements(lookupElements);
             resultSet.stopHere();
         }

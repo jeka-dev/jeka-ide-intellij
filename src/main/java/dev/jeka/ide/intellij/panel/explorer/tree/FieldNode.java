@@ -30,6 +30,7 @@ public class FieldNode extends AbstractNode {
 
     public static final Icon ICON = AllIcons.Nodes.Parameter;
 
+    @Getter
     private final PsiField psiField;
 
     private final String name;
@@ -84,6 +85,26 @@ public class FieldNode extends AbstractNode {
         return null;
     }
 
+    public String prefixedName() {
+        if (this.getParent() instanceof FieldNode) {
+            FieldNode parent = (FieldNode) this.getParent();
+            return parent.prefixedName() + "." + this;
+        } else {
+            return toString();
+        }
+    }
+
+    public List<FieldNode> extend() {
+        if (this.isLeaf()) {
+            return Collections.singletonList(this);
+        }
+        return Collections.list(children()).stream()
+                .filter(FieldNode.class::isInstance)
+                .map(FieldNode.class::cast)
+                .flatMap(fieldNode -> fieldNode.extend().stream())
+                .collect(Collectors.toList());
+    }
+
     private List<FieldNode> createChildren() {
         PsiType fieldType = psiField.getType();
         if (isTerminal(fieldType)) {
@@ -128,26 +149,6 @@ public class FieldNode extends AbstractNode {
             result.add(fieldNode);
         }
         return result;
-    }
-
-    public List<FieldNode> extend() {
-        if (this.isLeaf()) {
-            return Collections.singletonList(this);
-        }
-        return Collections.list(children()).stream()
-                .filter(FieldNode.class::isInstance)
-                .map(FieldNode.class::cast)
-                .flatMap(fieldNode -> fieldNode.extend().stream())
-                .collect(Collectors.toList());
-    }
-
-    public String prefixedName() {
-        if (this.getParent() instanceof FieldNode) {
-            FieldNode parent = (FieldNode) this.getParent();
-            return parent.prefixedName() + "." + this;
-        } else {
-            return toString();
-        }
     }
 
     private static List<String> acceptedValues(PsiField psiField) {

@@ -8,6 +8,7 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
+import dev.jeka.core.api.depmanagement.JkVersion;
 import dev.jeka.ide.intellij.common.JekaDistributions;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,12 +51,16 @@ public class WrapperCompletionContributor extends CompletionContributor {
             List<LookupElementBuilder> elements = new LinkedList<>();
             String prefix = CompletionHelper.prefix(fullText, pos);
             if (prefix.startsWith("jeka.version=")) {
+                List<String> jekaVersions =
                 JekaDistributions.searchVersionsSortedByDesc().stream()
-                        .sorted(Comparator.reverseOrder())
-                        .forEach(version -> {
-                    CompletionHelper.addElement(elements, 100, LookupElementBuilder.create("jeka.version=" + version)
+                        .sorted(JkVersion.VERSION_COMPARATOR.reversed())
+                        .toList();
+                for (int i=0; i < jekaVersions.size(); i++) {
+                    String version = jekaVersions.get(i);
+                    CompletionHelper.addElement(elements, 1000-i,
+                            LookupElementBuilder.create("jeka.version=" + version)
                             .withPresentableText(version));
-                });
+                }
 
             } else {
                 CompletionHelper.addElement(elements, 100, LookupElementBuilder.create("jeka.version=")
