@@ -6,12 +6,9 @@
     <description><![CDATA[
       Integrates with <a href="https://jeka.dev">Jeka Build Tool</a> by providing :
       <ul>
-        <li>Improved general experience</li>
-        <li>Jeka synchronize/scaffold now run in background</li>
-        <li>Syntax color added to project-dependencies.txt file</li>
-        <li>Fix: EDT PSI element related errors</li>
-        <li>Fix: Tool window was collapsing on view refresh</li>
-        <li>Fix : NPE on JeKa project discovery at startup</li>
+        <li>Various bug fixes</li>
+        <li>Code completion on Maven dependencies/versions almost everywhere</li>
+        <li>Improved templates for scaffolding</li>
       </ul>
       See <a href="https://github.com/jerkar/jeka-ide-intellij">GitHub Page</a>
       ]]>
