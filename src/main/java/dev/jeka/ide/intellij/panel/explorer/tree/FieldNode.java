@@ -159,7 +159,7 @@ public class FieldNode extends AbstractNode {
         if (psiField.getType() instanceof  PsiClassReferenceType) {
             PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiField.getType();
             PsiClass psiClass = psiClassReferenceType.resolve();
-            if (psiClass.isEnum()) {
+            if (psiClass != null && psiClass.isEnum()) {
                 return Arrays.stream(psiClass.getAllFields())
                         .filter(PsiEnumConstant.class::isInstance)
                         .map(PsiEnumConstant.class::cast)

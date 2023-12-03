@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.panel;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextArea;
@@ -47,7 +46,7 @@ public class TemplatesPanel {
     }
 
     private JComponent component() {
-        List<JekaTemplate> templates = this.persistedTemplatesComponent.getTemplates();
+        List<JekaTemplate> templates = this.persistedTemplatesComponent.getAllTemplates();
         templates.forEach(template -> this.templateComboBox.addItem(template));
         templateComboBox.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         templateComboBox.addItemListener(event -> {
@@ -94,7 +93,5 @@ public class TemplatesPanel {
             }
         }
     }
-
-
 
 }

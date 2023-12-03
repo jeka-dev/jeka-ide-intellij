@@ -1,7 +1,6 @@
 package dev.jeka.ide.intellij.extension.autocompletion;
 
 import com.intellij.codeInsight.completion.*;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.lang.properties.psi.impl.PropertyKeyImpl;
@@ -177,6 +176,18 @@ public class LocalPropertiesContributor extends CompletionContributor {
             suggestKey("jeka.repos.", "[repoName].username=", "Username credential to connect to repo." );
             suggestKey("jeka.repos.", "[repoName].password=", "Password credential to connect to repo." );
             suggestKey("jeka.repos.", "[repoName].headers.[httpHeaderName]=", "HTTP header to include in request towards the repo." );
+
+            suggestKey("sonar.", "host.url=", "The Sonarqube url to send analysis data." );
+            suggestKey("sonar.", "token=", "The authorisation token for send analysis data." );
+            suggestKey("sonar.", "verbose=", "If the scanner logs should be verbose." );
+            suggestKey("sonar.", "log.level=", "Log level for the scanner (INFO, TRACE, DEBUG)." );
+            suggestKey("sonar.", "working.directory", "The working directory for the Sonarqube scanner." );
+            suggestKey("sonar.", "projectKey=", "The project key to use for sending analysis data.");
+            suggestKey("sonar.", "projectName=", "The project name to use for sending analysis data.");
+            suggestKey("sonar.", "projectVersion=", "The project version to use for sending analysis data.");
+            suggestKey("sonar.", "analysis.xxx=", "Custom key/value pair to insert in analysis.");
+            suggestKey("sonar.", "language=", "The language used by the project to analyse (java, javascript,.....");
+
 
             suggestValues("jeka.java.version", "21", "17", "11", "8");
             suggestValuesWithVersions("jeka.kotlin.version", module, "org.jetbrains.kotlin:kotlin-stdlib");

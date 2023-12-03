@@ -5,6 +5,9 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import dev.jeka.core.api.depmanagement.JkDepSuggest;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class PsiHelper {
 
     public static boolean hasSetter(PsiField psiField) {
@@ -38,8 +41,7 @@ public class PsiHelper {
      * If the literral expression is not coming from a method parameter, this methods returns null.
      */
     public static PsiParameter getMethodParameter(PsiLiteralExpression psiLiteralExpression) {
-        PsiElement parent = psiLiteralExpression.getParent();
-        if (parent instanceof PsiExpressionList expressionList) {
+        PsiElement parent = psiLiteralExpression.getParent();if (parent instanceof PsiExpressionList expressionList) {
             PsiExpression[] psiExpressions = expressionList.getExpressions();
             if (expressionList.getParent() instanceof PsiMethodCallExpression methodCallExpression) {
                 int paramIndex = 0;
@@ -77,7 +79,16 @@ public class PsiHelper {
         return new DependencySuggest(versionOnly, hint);
     }
 
-    public record DependencySuggest(boolean versionOnly, String hint) {}
+    public record DependencySuggest(boolean versionOnly, String hint) {
+
+        public boolean isEnumerated() {
+            return hint.contains(",");
+        }
+
+        public List<String> enumeration() {
+            return Arrays.asList(hint.split(","));
+        }
+    }
 
     public static String sanitizeByRemovingQuotes(String value) {
         String result = value;

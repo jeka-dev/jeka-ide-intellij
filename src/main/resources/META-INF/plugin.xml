@@ -5,10 +5,13 @@
 
     <description><![CDATA[
       Integrates with <a href="https://jeka.dev">Jeka Build Tool</a> by providing :
-      <ul>
-        <li>Various bug fixes</li>
-        <li>Code completion on Maven dependencies/versions almost everywhere</li>
-        <li>Improved templates for scaffolding</li>
+        <ul>
+            <li>Intellij Synchronization</li>
+            <li>Shortcuts to launch/debug JeKa methods within IDE and navigate</li>
+            <li>Specific run configurations</li>
+            <li>Code completion for editing Maven dependencies//versions from code and text files/li>
+            <li>Specific project wizard</li>
+            <li>Tool Window to ease navigation</li>
       </ul>
       See <a href="https://github.com/jerkar/jeka-ide-intellij">GitHub Page</a>
       ]]>
@@ -16,10 +19,10 @@
 
     <change-notes>
     <![CDATA[
-      <ul>
-        <li>Minor bug fixes</li>
-        <li>Minor UI enhancement</li>
-        <li>Upgrade to IC 2023.2</li>
+       <ul>
+        <li>Need JeKa 0.10.47 or above</li>
+        <li>Bugfix : JeKa projects are now sync right after project wizard creation</li>
+        <li>Add auto-completion for sonarqube properties and nodeJs versions</li>
       </ul>
     ]]>
     </change-notes>

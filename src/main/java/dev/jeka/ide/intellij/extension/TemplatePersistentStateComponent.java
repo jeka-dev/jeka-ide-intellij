@@ -13,6 +13,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * Stores customized templates.
+ * The builtin templates are hardcoded and immutables.
+ */
 @com.intellij.openapi.components.State(
         name = "dev.jeka.ide.templates",
         storages = @Storage("dev.jeka.ide.templates.xml")
@@ -21,31 +25,34 @@ import java.util.ListIterator;
 public final class TemplatePersistentStateComponent implements PersistentStateComponent<Element> {
 
     @Setter
-    private List<JekaTemplate> templates = new LinkedList<>();
+    private List<JekaTemplate> customizedTemplates = new LinkedList<>();
 
     public static TemplatePersistentStateComponent getInstance() {
         return ApplicationManager.getApplication().getService(TemplatePersistentStateComponent.class);
     }
 
-    public List<JekaTemplate> getTemplates() {
-        if (templates.isEmpty()) {
-            List<JekaTemplate> newList = new LinkedList<>();
-            newList.addAll(JekaTemplate.builtins());
-            return newList;
-        }
-        return templates;
+    public List<JekaTemplate> getCustomizedTemplates() {
+        return customizedTemplates;
+    }
+
+    public List<JekaTemplate> getAllTemplates() {
+        List<JekaTemplate> result = new LinkedList<>();
+        result.addAll(JekaTemplate.builtins());
+        result.addAll(getCustomizedTemplates());
+        return result;
     }
 
 
     @Override
     public Element getState() {
         Element root = new Element("templates");
-        for (JekaTemplate template : templates) {
+        for (JekaTemplate template : customizedTemplates) {
             Element templateEl = new Element("template");
             root.addContent(templateEl);
             templateEl.addContent(new Element("name").setText(template.getName()));
             templateEl.addContent(new Element("cmd").setText(template.getCommandArgs()));
             templateEl.addContent(new Element("description").setText(template.getDescription()));
+            templateEl.addContent(new Element("builtin").setText(Boolean.toString(template.isBuiltin())));
         }
         return root;
     }
@@ -59,24 +66,14 @@ public final class TemplatePersistentStateComponent implements PersistentStateCo
                     .name(templateEl.getChildText("name"))
                     .commandArgs(templateEl.getChildText("cmd"))
                     .description(templateEl.getChildText("description"))
+                    .builtin("true".equals(templateEl.getChildText("builtin")))
                     .build();
             result.add(template);
         }
-        templates.clear();
-        templates.addAll(result);
-        replaceByBuiltIn(templates);
+        customizedTemplates.clear();
+        customizedTemplates.addAll(result);
     }
 
-    private static void replaceByBuiltIn(List<JekaTemplate> templates) {
-        ListIterator<JekaTemplate> it = templates.listIterator();
-        while (it.hasNext()) {
-            JekaTemplate jekaTemplate = it.next();
-            JekaTemplate builtin = JekaTemplate.getBuiltin(jekaTemplate.getName()).orElse(null);
-            if (builtin != null) {
-                it.remove();
-                it.add(builtin);
-            }
-        }
-    }
+
 
 }

@@ -3,6 +3,7 @@ package dev.jeka.ide.intellij.extension.autocompletion;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.patterns.ElementPattern;
@@ -105,10 +106,14 @@ public class JavaCodeDependenciesCompletionContributor extends CompletionContrib
             if (content.equals("") || depSuggest.versionOnly()) {
                 content = depSuggest.hint();
             }
-
             Module module = ModuleUtil.findModuleForFile(parameters.getOriginalFile());
-            final List<LookupElementBuilder> result ;;
-            if (depSuggest.versionOnly()) {
+            final List<LookupElementBuilder> result;
+            if (depSuggest.isEnumerated()) {
+                result = depSuggest.enumeration().stream().map(version -> LookupElementBuilder
+                                .create(version)
+                                .withIcon(AllIcons.Nodes.PpLibFolder))
+                        .toList();
+            } else if (depSuggest.versionOnly()) {
                 result = CompletionHelper.findVersions(module, content);
             } else {
                 result = CompletionHelper.findDependenciesVariants(module, content, true);

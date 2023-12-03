@@ -1,6 +1,5 @@
 package dev.jeka.ide.intellij.common.model;
 
-import com.intellij.ui.CollectionListModel;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import lombok.*;
@@ -87,10 +86,10 @@ public class JekaTemplate {
                     jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
                     
                     jeka.java.version=21
+                    jacoco#jacocoVersion=0.8.11
+                    sonarqube#scannerVersion=5.0.1.3006
                     
                     sonar.host.url=http://localhost:9000
-                    sonar.login=admin
-                    sonar.password=admin2
                     """ + "\""
                 )
                 .description("""
@@ -144,11 +143,11 @@ public class JekaTemplate {
                                 jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
                                                                 
                                 jeka.java.version=21
-                                springboot#springbootVersion=3.1.5
+                                springboot#springbootVersion=3.2.0
+                                jacoco#jacocoVersion=0.8.11
+                                sonarqube#scannerVersion=5.0.1.3006
                                                                 
                                 sonar.host.url=http://localhost:9000
-                                sonar.login=admin
-                                sonar.password=admin2
                                 """ + "\" "
                 )
                 .description("""
@@ -190,23 +189,13 @@ public class JekaTemplate {
     public static void resetBuiltin(List<JekaTemplate> jekaTemplates) {
         List<String> builtinNames = builtinNames();
         List<JekaTemplate> toDelete = jekaTemplates.stream()
-                .filter(template -> builtinNames.contains(template.getName()))
+                .filter(template -> template.builtin)
                 .collect(Collectors.toList());
         toDelete.forEach(template -> jekaTemplates.remove(template));
         List<JekaTemplate> builtins = new LinkedList<>(builtins());
         Collections.reverse(builtins);
         for (JekaTemplate jekaTemplate : builtins) {
             jekaTemplates.add(0, jekaTemplate);
-        }
-    }
-
-    public static void addOrReplace(CollectionListModel<JekaTemplate> jekaTemplates, JekaTemplate template) {
-        int index = jekaTemplates.getElementIndex(template);
-        if (index >= 0) {
-            jekaTemplates.remove(index);
-            jekaTemplates.add(index, template);
-        } else {
-            jekaTemplates.add(template);
         }
     }
 

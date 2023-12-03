@@ -205,7 +205,7 @@ public final class CmdJekaDoer {
         }
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-ld");
+        cmd.addParameters("intellij#iml", "-ld", "-cw");
         Sdk sdk = getSuggestedSdk(moduleDir);
         if (sdk != null) {
             if (sdk.getName().contains(" ")) {
@@ -221,7 +221,7 @@ public final class CmdJekaDoer {
             }
         }
         if (stage == Stage.retry) {
-            cmd.addParameters("-lri", "-cw", "-dci", "-lv", "-lsu");  // clean cache when retrying
+            cmd.addParameters("-lri", "-dci", "-lv", "-lsu");  // clean cache when retrying
         }
         cmd.setWorkDirectory(moduleDir.toFile());
 
@@ -264,7 +264,7 @@ public final class CmdJekaDoer {
     }
 
     private void refreshAfterIml(Module existingModule, Path moduleDir, Runnable onFinish) {
-        if (existingModule == null) {
+        if (existingModule == null && ModuleHelper.getModuleHavingRootDir(project, moduleDir) == null) {
            addModule(moduleDir);
         }
         VirtualFile vModuleDir = VirtualFileManager.getInstance().findFileByNioPath(moduleDir);

@@ -105,6 +105,11 @@ public class ModuleHelper {
         return null;
     }
 
+    public static Module getModuleHavingRootDir(Project project, Path directory) {
+        VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByNioPath(directory);
+        return getModuleHavingRootDir(project, virtualFile);
+    }
+
     public static boolean isJekaModule(Module module) {
         Path moduleRoot = getModuleDirPath(module);
         if (!Files.exists(moduleRoot)) {

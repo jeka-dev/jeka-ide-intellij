@@ -18,7 +18,6 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class TemplatesEditPanel {
 
@@ -37,7 +36,7 @@ public class TemplatesEditPanel {
     private JComponent component;
 
     public TemplatesEditPanel() {
-        List<JekaTemplate> templates = persistedTemplatesComponent.getTemplates();
+        List<JekaTemplate> templates = persistedTemplatesComponent.getAllTemplates();
         this.templateListModel = new CollectionListModel<>(templates);
         this.originalTemplates = Collections.unmodifiableList(new LinkedList<>(templates));
         this.component = component();
@@ -102,9 +101,6 @@ public class TemplatesEditPanel {
                         JekaTemplate.resetBuiltin(newTemplates);
                         templateListModel.replaceAll(newTemplates);
                     }
-
-
-
                 });
 
         JPanel decoratorPanel = toolbarDecorator.createPanel();
@@ -118,7 +114,9 @@ public class TemplatesEditPanel {
     }
 
     List<JekaTemplate> getTemplates() {
-        return templateListModel.getItems();
+        return templateListModel.getItems().stream()
+                .filter(template -> !template.isBuiltin())
+                .toList();
     }
 
     boolean templatesChanged() {

@@ -40,7 +40,8 @@ public class TemplateEditDialogWrapper extends DialogWrapper {
         onOk.accept(templatesEditPanel.getTemplates(), templatesEditPanel.getEditedTemplate());
         TemplatePersistentStateComponent persistedTemplatesComponent =
                 TemplatePersistentStateComponent.getInstance();
-        persistedTemplatesComponent.setTemplates(templatesEditPanel.getTemplates());
+        persistedTemplatesComponent.setCustomizedTemplates(templatesEditPanel.getTemplates());
         close(OK_EXIT_CODE);
     }
+
 }

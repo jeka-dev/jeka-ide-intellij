@@ -162,7 +162,12 @@ public class JekaCmdCompletionProvider extends TextFieldCompletionProvider {
             PsiHelper.DependencySuggest depSuggest = PsiHelper.toDepSuggest(psiAnnotation);
             Module module = fieldNode.getCloserParentOfType(ModuleNode.class).getModule();
             final List<LookupElementBuilder> result;
-            if (depSuggest.versionOnly()) {
+            if (depSuggest.isEnumerated()) {
+                result = depSuggest.enumeration().stream().map(version -> LookupElementBuilder
+                                .create(version)
+                                .withIcon(AllIcons.Nodes.PpLibFolder))
+                        .toList();
+            } else if (depSuggest.versionOnly()) {
                 result = CompletionHelper.findVersions(module, depSuggest.hint());
             } else {
                 result = CompletionHelper.findDependenciesVariants(module, depSuggest.hint(), true);
