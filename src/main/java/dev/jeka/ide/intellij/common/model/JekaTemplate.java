@@ -1,9 +1,11 @@
 package dev.jeka.ide.intellij.common.model;
 
+import dev.jeka.core.api.file.JkPathFile;
 import dev.jeka.core.api.utils.JkUtilsIterable;
 import dev.jeka.core.api.utils.JkUtilsString;
 import lombok.*;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,23 +76,25 @@ public class JekaTemplate {
     }
 
     public static JekaTemplate projectPropsOnly() {
+        String propertyFileContent = """
+                jeka.classpath.inject=dev.jeka:sonarqube-plugin dev.jeka:jacoco-plugin
+                jeka.default.kbean=project
+                
+                jeka.cmd.build=#cleanPack
+                jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
+                
+                jeka.java.version=21
+                jacoco#jacocoVersion=0.8.11
+                sonarqube#scannerVersion=5.0.1.3006
+                
+                sonar.host.url=http://localhost:9000
+                """;
+        Path tempFile = JkPathFile.ofTemp("jeka-scaffold-props-", ".properties").write(propertyFileContent).get();
         return JekaTemplate.builder()
                 .name("Java project - Properties only")
                 .builtin(true)
-                .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContent="
-                        + "\"" + """
-                    jeka.classpath.inject=dev.jeka:sonarqube-plugin dev.jeka:jacoco-plugin
-                    jeka.default.kbean=project
-                    
-                    jeka.cmd.build=#cleanPack
-                    jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
-                    
-                    jeka.java.version=21
-                    jacoco#jacocoVersion=0.8.11
-                    sonarqube#scannerVersion=5.0.1.3006
-                    
-                    sonar.host.url=http://localhost:9000
-                    """ + "\""
+                .commandArgs("project#scaffold.template=CODE_LESS project#scaffold.generateLocalLibsFolders=false scaffold#localPropsExtraContentPath="
+                        + "\"" + tempFile.toAbsolutePath() + "\""
                 )
                 .description("""
                         Build Java Projects Using single Property File.
@@ -125,6 +129,21 @@ public class JekaTemplate {
     }
 
     public static JekaTemplate springbootPropsOnly() {
+        String propertyFileContent = """
+                jeka.classpath.inject=dev.jeka:springboot-plugin dev.jeka:sonarqube-plugin dev.jeka:jacoco-plugin
+                jeka.default.kbean=dev.jeka.plugins.springboot.SpringbootJkBean
+                                                
+                jeka.cmd.build=project#cleanPack
+                jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
+                                                
+                jeka.java.version=21
+                springboot#springbootVersion=3.2.0
+                jacoco#jacocoVersion=0.8.11
+                sonarqube#scannerVersion=5.0.1.3006
+                                                
+                sonar.host.url=http://localhost:9000
+                """;
+        Path tempFile = JkPathFile.ofTemp("jeka-scaffold-props-", ".properties").write(propertyFileContent).get();
         return JekaTemplate.builder()
                 .name("Spring-Boot project - Properties only")
                 .builtin(true)
@@ -134,21 +153,8 @@ public class JekaTemplate {
                                 "project#scaffold.dependenciesTxt.compile=org.springframework.boot:spring-boot-starter-web " +
                                 "project#scaffold.dependenciesTxt.test=org.springframework.boot:spring-boot-starter-test " +
                                 "project#scaffold.generateLocalLibsFolders=false " +
-                                "scaffold#localPropsExtraContent="
-                                + "\"" + """
-                                jeka.classpath.inject=dev.jeka:springboot-plugin dev.jeka:sonarqube-plugin dev.jeka:jacoco-plugin
-                                jeka.default.kbean=dev.jeka.plugins.springboot.SpringbootJkBean
-                                                                
-                                jeka.cmd.build=project#cleanPack
-                                jeka.cmd.build_quality=:build sonarqube#run jacoco# sonarqube#logOutput=true
-                                                                
-                                jeka.java.version=21
-                                springboot#springbootVersion=3.2.0
-                                jacoco#jacocoVersion=0.8.11
-                                sonarqube#scannerVersion=5.0.1.3006
-                                                                
-                                sonar.host.url=http://localhost:9000
-                                """ + "\" "
+                                "scaffold#localPropsExtraContentPath="
+                                + "\"" + tempFile.toAbsolutePath() + "\" "
                 )
                 .description("""
                         Template for building Springboot projects with properties only.

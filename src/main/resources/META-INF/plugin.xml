@@ -20,9 +20,9 @@
     <change-notes>
     <![CDATA[
        <ul>
-        <li>Need JeKa 0.10.47 or above</li>
-        <li>Bugfix : JeKa projects are now sync right after project wizard creation</li>
-        <li>Add auto-completion for sonarqube properties and nodeJs versions</li>
+        <li>Need JeKa 0.10.48 or above</li>
+        <li>Bugfix : Property files are now properly generated on Windows/li>
+        <li>Improvement : Project are better sync after project wizard creation</li>
       </ul>
     ]]>
     </change-notes>
@@ -32,7 +32,7 @@
 
     <depends>org.jetbrains.kotlin</depends>
 
-    <idea-version since-build="232"  />
+    <idea-version since-build="233"  />
 
     <actions>
         <action

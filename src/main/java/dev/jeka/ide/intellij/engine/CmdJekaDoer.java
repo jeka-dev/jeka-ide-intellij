@@ -62,11 +62,11 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
  * @author Jerome Angibaud
  */
-@Service
 @RequiredArgsConstructor
 public final class CmdJekaDoer {
 
@@ -76,18 +76,24 @@ public final class CmdJekaDoer {
         first, retry
     }
 
-    private final Project project;
+    private final Project invokingProject;
 
     public static CmdJekaDoer getInstance(Project project) {
-        return project.getService(CmdJekaDoer.class);
+        return new CmdJekaDoer(project);
     }
 
     public void generateIml(Path moduleDir, String qualifiedClassName, boolean clearConsole,
                             @Nullable  Module existingModule, Runnable onFinish) {
-        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
+
+        Task.Backgroundable task = new Task.Backgroundable(project(existingModule), "Sync JeKa") {
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+
+                // Strangely, making a System.out.println seems to fix the issue of not sync module,
+                // when creating a new project from wizard
+                System.out.println("--------------------- generate iml for  module " + existingModule);
+
                 indicator.setIndeterminate(true);
                 indicator.setText("JeKa : synchronizing " + moduleDir.getFileName() + "...");
                 doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish, Stage.first);
@@ -103,10 +109,15 @@ public final class CmdJekaDoer {
                                String jekaVersion,
                                Module existingModule,
                                String extraArgs) {
-        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
+        Task.Backgroundable task = new Task.Backgroundable(project(existingModule), "Sync JeKa") {
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+
+                // Strangely, making a System.out.println seems to fix the issue of not sync module,
+                // when creating a new project from wizard
+                System.out.println("--------------------- scaffold module " + existingModule);
+
                 indicator.setIndeterminate(true);
                 indicator.setText("JeKa :  Scaffolding " + moduleDir.getFileName() + "...");
                 scaffoldModuleInternal(moduleDir, createStructure, createWrapper, wrapDelegate, jekaVersion,
@@ -115,6 +126,24 @@ public final class CmdJekaDoer {
         };
         ProgressManager.getInstance().run(task);
 
+    }
+
+    public void showRuntimeInformation(Module module) {
+        Project project = project(module);
+        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
+
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
+                GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false, null));
+                setJekaJDKEnv(cmd, module.getProject(), module);
+                cmd.addParameters("-lri");
+                cmd.setWorkDirectory(modulePath.toFile());
+                start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
+            }
+        };
+        ProgressManager.getInstance().run(task);
+        ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID).show(null);
     }
 
     private void scaffoldModuleInternal(Path moduleDir,
@@ -145,7 +174,7 @@ public final class CmdJekaDoer {
         if (createStructure) {
             GeneralCommandLine structureCmd = new GeneralCommandLine(jekaCmd(moduleDir, false, jekaVersion));
             structureCmd.addParameter("-kb=scaffold");   // avoid jeka.default.kbean that may be declared in parent modules
-            setJekaJDKEnv(structureCmd, project, existingModule);
+            setJekaJDKEnv(structureCmd, project(existingModule), existingModule);
             structureCmd.addParameters("scaffold#run", "intellij#");
             structureCmd.setWorkDirectory(moduleDir.toFile());
             structureCmd.addParameters(JkUtilsString.translateCommandline(extraArgs));
@@ -169,23 +198,6 @@ public final class CmdJekaDoer {
         }
     }
 
-    public void showRuntimeInformation(Module module) {
-        Task.Backgroundable task = new Task.Backgroundable(project, "Sync JeKa") {
-
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
-                GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false, null));
-                setJekaJDKEnv(cmd, module.getProject(), module);
-                cmd.addParameters("-lri");
-                cmd.setWorkDirectory(modulePath.toFile());
-                start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
-            }
-        };
-        ProgressManager.getInstance().run(task);
-        ToolWindowManager.getInstance(project).getToolWindow(JekaConsoleToolWindowFactory.ID).show(null);
-    }
-
     private void doGenerateIml(Path moduleDir,
                                String qualifiedClassName,
                                boolean clearConsole,
@@ -193,6 +205,7 @@ public final class CmdJekaDoer {
                                Runnable onFinish,
                                Stage stage) {
 
+        Project project = project(existingModule);
         String execFile = jekaCmd(moduleDir, false, null);
         if (!Files.exists(Paths.get(execFile))) {
             NotificationGroupManager.getInstance()
@@ -200,13 +213,13 @@ public final class CmdJekaDoer {
                     .createNotification("Distribution file " + execFile + " is missing. " +
                             "Please re-install the distro or suppress it.", NotificationType.ERROR)
                     .addAction(new OpenManageDistributionsAction())
-                    .notify(this.project);
+                    .notify(project);
             return;
         }
         GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(moduleDir, false, null));
         setJekaJDKEnv(cmd, project, existingModule);
-        cmd.addParameters("intellij#iml", "-ld", "-cw");
-        Sdk sdk = getSuggestedSdk(moduleDir);
+        cmd.addParameters("intellij#iml", "-ld", "-cw", "-lst");
+        Sdk sdk = getSuggestedSdk(moduleDir, project);
         if (sdk != null) {
             if (sdk.getName().contains(" ")) {
                 NotificationGroupManager.getInstance()
@@ -215,7 +228,7 @@ public final class CmdJekaDoer {
                                         + " This leads in sync failure. "
                                         + ". Please rename this JDK in IntelliJ platform setting."
                                 , NotificationType.WARNING)
-                        .notify(this.project);
+                        .notify(project);
             } else {
                 cmd.addParameters("intellij#suggestedJdkName=" + sdk.getName());
             }
@@ -240,7 +253,7 @@ public final class CmdJekaDoer {
                                         + ".\n\nJeka has rerun sync by ignoring compilation error."
                                 , NotificationType.WARNING)
                         .addAction(new OpenJekaConsoleAction())
-                        .notify(this.project);
+                        .notify(project);
                 doGenerateIml(moduleDir, qualifiedClassName, clearConsole, existingModule, onFinish,
                         Stage.retry);
             };
@@ -251,7 +264,7 @@ public final class CmdJekaDoer {
                         .createNotification("Jeka sync failed on " + moduleDir.getFileName() + ".\nOpen Jeka Console to see details."
                                 , NotificationType.ERROR)
                         .addAction(new OpenJekaConsoleAction())
-                        .notify(this.project);
+                        .notify(project);
             };
         }
 
@@ -259,11 +272,19 @@ public final class CmdJekaDoer {
         start(cmd, clearConsole, onSuccess, onFail);
     }
 
+    private Project project(@Nullable Module existingModule) {
+        if (existingModule != null) {
+            return existingModule.getProject();
+        }
+        return invokingProject;
+    }
+
     private ConsoleView getView() {
-        return JekaConsoleToolWindowFactory.getConsoleView(project);
+        return JekaConsoleToolWindowFactory.getConsoleView(invokingProject);
     }
 
     private void refreshAfterIml(Module existingModule, Path moduleDir, Runnable onFinish) {
+        Project project = project(existingModule);
         if (existingModule == null && ModuleHelper.getModuleHavingRootDir(project, moduleDir) == null) {
            addModule(moduleDir);
         }
@@ -276,7 +297,7 @@ public final class CmdJekaDoer {
 
     private void addModule(Path moduleDir) {
         Path iml = JkExternalToolApi.getImlFile(moduleDir);
-        Path projectDir = Paths.get(project.getBasePath());
+        Path projectDir = Paths.get(invokingProject.getBasePath());
         Path modulesXml = projectDir.resolve(".idea/modules.xml");
         if (Files.exists(modulesXml)) {
             ModuleHelper.addModuleInModulesXml(projectDir, modulesXml, iml);
@@ -375,7 +396,7 @@ public final class CmdJekaDoer {
         }
     }
 
-    private Sdk getSuggestedSdk(Path moduleDir) {
+    private Sdk getSuggestedSdk(Path moduleDir, Project project) {
         JkProperties jkProperties = JkExternalToolApi.getProperties(moduleDir);
         String javaVersion = jkProperties.get("jeka.java.version");
         String specifiedJdkName = jkProperties.get("intellij#jdkName");
@@ -388,7 +409,7 @@ public final class CmdJekaDoer {
                                         + moduleDir.getFileName()
                                         + ". Please install this JDK using Intellij platform settings."
                                 , NotificationType.WARNING)
-                        .notify(this.project);
+                        .notify(project);
             }
             return null;  // JdkName is specified so we don't need to guess one.
         }
@@ -401,7 +422,7 @@ public final class CmdJekaDoer {
                                         + moduleDir.getFileName()
                                         + ". Please install such JDK using Intellij platform settings."
                                 , NotificationType.WARNING)
-                        .notify(this.project);
+                        .notify(project);
             }
             return sdk;
         }

@@ -169,8 +169,4 @@ public class ModuleHelper {
         throw new IllegalStateException("Haven't got a suggestion for a module name.");
     }
 
-    public static void setSdk(Module module, Sdk sdk) {
-        ModuleRootModificationUtil.setModuleSdk(module, sdk);
-    }
-
 }

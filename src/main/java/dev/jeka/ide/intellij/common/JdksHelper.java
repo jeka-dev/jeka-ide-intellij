@@ -1,8 +1,11 @@
 package dev.jeka.ide.intellij.common;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ProjectRootManager;
 import dev.jeka.core.api.system.JkProperties;
 import dev.jeka.core.tool.JkExternalToolApi;
 
