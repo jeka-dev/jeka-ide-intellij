@@ -137,7 +137,7 @@ public final class CmdJekaDoer {
                 Path modulePath = Paths.get(ModuleHelper.getModuleDir(module).getPath());
                 GeneralCommandLine cmd = new GeneralCommandLine(jekaCmd(modulePath, false, null));
                 setJekaJDKEnv(cmd, module.getProject(), module);
-                cmd.addParameters("-lri");
+                cmd.addParameters("-lri", "-dci", "-lst");
                 cmd.setWorkDirectory(modulePath.toFile());
                 start(cmd, true, () -> getView().print("Done", ConsoleViewContentType.NORMAL_OUTPUT), null);
             }

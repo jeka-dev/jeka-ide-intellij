@@ -21,8 +21,9 @@
     <![CDATA[
        <ul>
         <li>Need JeKa 0.10.48 or above</li>
-        <li>Bugfix : Property files are now properly generated on Windows/li>
-        <li>Improvement : Project are better sync after project wizard creation</li>
+        <li>Bugfix : Scaffolded property files are now properly generated on Windows/li>
+        <li>Project are better sync after project wizard creation</li>
+        <li>More verbose logs</li>
       </ul>
     ]]>
     </change-notes>
